@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CodePractice
@@ -261,5 +262,70 @@ namespace CodePractice
             return string.Join("", chars);
         }
         #endregion
+
+        #region #70
+        public int ClimbStairs(int n)
+        {
+            if (n == 1) return n;
+            int[] times = new int[n];
+            times[0] = 1;
+            times[1] = 2;
+
+            for(int i=2;i<n;i++)
+            {
+                // l[i] = l[i-1] +1
+                times[i] = times[i-1];
+                // l[i] = l[i-2] + 2
+                times[i] += times[i - 2];
+            }
+            return times[n - 1];
+        }
+        #endregion
+
+        #region Binary Tree
+        #region #94  review + remember
+        public IList<int> InorderTraversal(TreeNode root)
+        {
+            return InorderTraversalSearch(root, new List<int>());
+        }
+
+        private IList<int> InorderTraversalSearch(TreeNode root, IList<int> list)
+        {
+            if (root == null) return list;
+            list = InorderTraversalSearch(root.left, list);
+            list.Add(root.val);
+            return InorderTraversalSearch(root.right, list);
+        }
+        #endregion
+
+
+        #region #101 review 
+        public bool IsSymmetric(TreeNode root)
+        {
+            return isMirror(root, root);
+        }
+
+        private bool isMirror(TreeNode root1, TreeNode root2)
+        {
+            if (root1 is null && root2 is null) return true;
+            if (root1 is null || root2 is null) return false;
+
+            return root1.val == root2.val && isMirror(root1.left, root2.right) && isMirror(root1.right, root2.left);
+        }
+        #endregion
+        #endregion
+    }
+
+    public class TreeNode
+    {
+        public int val;
+        public TreeNode left;
+        public TreeNode right;
+        public TreeNode(int val = 0, TreeNode left = null, TreeNode right = null)
+        {
+            this.val = val;
+            this.left = left;
+            this.right = right;
+        }
     }
 }
