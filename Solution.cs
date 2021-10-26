@@ -313,6 +313,56 @@ namespace CodePractice
             return root1.val == root2.val && isMirror(root1.left, root2.right) && isMirror(root1.right, root2.left);
         }
         #endregion
+
+        #region #104 - review
+        public int MaxDepth(TreeNode root)
+        {
+            var l= Depth(root, new List<int>(), 0);
+            return l.Max();
+        }
+
+        private IList<int> Depth(TreeNode root, IList<int> list, int depth)
+        {
+            if (root == null)
+            {
+                list.Add(depth);
+                return list;
+            }
+            depth++;
+
+            list = Depth(root.left, list, depth);
+            
+            return Depth(root.right, list, depth);
+        }
+
+        #endregion
+        #endregion
+
+        #region ListNode
+        #region #83 - review
+        public ListNode DeleteDuplicates(ListNode head)
+        {
+            if (head == null) return null;
+            ListNode previous = head;
+            ListNode next = head.next;
+            var val = head.val;
+            while (next != null)
+            {
+                if (next.val == val)
+                {
+                    previous.next = next.next;
+                }
+                else
+                {
+                    previous = next;
+                    val = next.val;
+                }
+                next = next.next;
+            }
+            return head;
+        }
+        #endregion
+
         #endregion
     }
 
@@ -326,6 +376,17 @@ namespace CodePractice
             this.val = val;
             this.left = left;
             this.right = right;
+        }
+    }
+
+    public class ListNode
+    {
+        public int val;
+        public ListNode next;
+        public ListNode(int val = 0, ListNode next = null)
+        {
+            this.val = val;
+            this.next = next;
         }
     }
 }
