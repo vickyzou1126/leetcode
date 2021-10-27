@@ -282,7 +282,55 @@ namespace CodePractice
         }
         #endregion
 
-        #region Binary Tree
+        #region #88
+        public void Merge(int[] nums1, int m, int[] nums2, int n)
+        {
+            if (m==0)
+            {
+                for(int i = 0; i < n; i++)
+                {
+                    nums1[i] = nums2[i];
+                }
+            } else if (n == 0)
+            {
+                return;
+            }
+            else
+            {
+                int index1 = m - 1;
+                int index2 = n - 1;
+                int currentIndex = m + n - 1;
+                while (index1 >= 0 && index2 >= 0)
+                {
+                    if (nums1[index1] < nums2[index2])
+                    {
+                        nums1[currentIndex] = nums2[index2];
+                        index2--;
+                    }
+                    else
+                    {
+                        nums1[currentIndex] = nums1[index1];
+                        index1--;
+                    }
+                    currentIndex--;
+                }
+                while (index1 >=0)
+                {
+                    nums1[currentIndex] = nums1[index1];
+                    index1--;
+                    currentIndex--;
+                }
+                while (index2 >= 0)
+                {
+                    nums1[currentIndex] = nums2[index2];
+                    index2--;
+                    currentIndex--;
+                }
+            }
+        }
+        #endregion
+
+        #region Tree
         #region #94  review + remember
         public IList<int> InorderTraversal(TreeNode root)
         {
@@ -298,6 +346,15 @@ namespace CodePractice
         }
         #endregion
 
+        #region #100
+        public bool IsSameTree(TreeNode p, TreeNode q)
+        {
+            if (p is null && q is null) return true;
+            if (p is null || q is null) return false;
+
+            return p.val == q.val && IsSameTree(p.left, q.left) && IsSameTree(p.right, q.right);
+        }
+        #endregion
 
         #region #101 review 
         public bool IsSymmetric(TreeNode root)
@@ -363,6 +420,44 @@ namespace CodePractice
         }
         #endregion
 
+        #endregion
+
+        #region #122
+        public int MaxProfit(int[] prices)
+        {
+            int profit = 0;
+            int holdPrice = prices[0];
+            int salePrice = holdPrice;
+            int length = prices.Length;
+            bool hold = false;
+
+            for(int i=1; i<length;i++)
+            {
+                if(prices[i] < holdPrice && !hold)
+                {
+                    holdPrice = prices[i];
+                    salePrice = holdPrice;
+                }
+                else if(prices[i] > salePrice)
+                {
+                    hold = true;
+                    salePrice = prices[i];
+                    if (i == length -1)
+                    {
+                        profit += salePrice - holdPrice;
+                    }
+                }
+                else
+                {
+                    profit += salePrice - holdPrice;
+                    holdPrice = prices[i];
+                    salePrice = holdPrice;
+                    hold = false;
+                }
+            }
+
+            return profit;
+        }
         #endregion
     }
 
