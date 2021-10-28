@@ -420,6 +420,16 @@ namespace CodePractice
         }
         #endregion
 
+        #region #141
+        public bool HasCycle(ListNode head)
+        {
+            if (head == null) return false;
+            if (head.val == int.MinValue) return true;
+
+            head.val = int.MinValue;
+            return HasCycle(head.next);
+        }
+        #endregion
         #endregion
 
         #region #122
@@ -459,6 +469,20 @@ namespace CodePractice
             return profit;
         }
         #endregion
+
+        #region dictionary,grouping
+        #region #136
+        public int SingleNumber(int[] nums)
+        {
+            foreach (var item in nums.GroupBy(x => x))
+            {
+                if (item.Count() == 1) return item.Key;
+            }
+            return -1;
+        }
+        #endregion
+        #endregion
+
     }
 
     public class TreeNode
