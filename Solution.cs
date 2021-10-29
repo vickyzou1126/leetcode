@@ -430,6 +430,20 @@ namespace CodePractice
             return HasCycle(head.next);
         }
         #endregion
+
+        #region #206
+        public ListNode ReverseList(ListNode head)
+        {
+            if (head == null) return null;
+            ListNode res = new ListNode(head.val, null);
+            while (head.next != null)
+            {
+                res = new ListNode(head.next.val, res);
+                head = head.next;
+            }
+            return res;
+        }
+        #endregion
         #endregion
 
         #region #122
@@ -479,6 +493,15 @@ namespace CodePractice
                 if (item.Count() == 1) return item.Key;
             }
             return -1;
+        }
+        #endregion
+
+        #region #169
+        public int MajorityElement(int[] nums)
+        {
+            var group = nums.GroupBy(x => x);
+            int majorNum = nums.Length / 2;
+            return group.Where(x => x.Count() > majorNum).First().Key;
         }
         #endregion
         #endregion
