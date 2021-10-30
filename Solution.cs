@@ -133,6 +133,38 @@ namespace CodePractice
             return low - 1;
         }
         #endregion
+
+        #region #283
+        public void MoveZeroes(int[] nums)
+        {
+            int length = nums.Length;
+            if (length == 1) return;
+            int lowIndex = 0;
+            int highIndex = length - 1;
+            while(lowIndex < highIndex)
+            {
+                if(nums[lowIndex] == 0)
+                {
+                    MoveElements(nums, lowIndex, highIndex);
+                    highIndex--;
+                }
+                else
+                {
+                    lowIndex++;
+                }
+            }
+        }
+
+        private void MoveElements(int[] nums, int lowIndex, int highIndex)
+        {
+            while(lowIndex < highIndex)
+            {
+                nums[lowIndex] = nums[lowIndex + 1];
+                lowIndex++;
+            }
+            nums[highIndex] = 0;
+        }
+        #endregion
         #endregion
 
         #region #28
@@ -442,6 +474,35 @@ namespace CodePractice
                 head = head.next;
             }
             return res;
+        }
+        #endregion
+
+        #region #226
+        public TreeNode InvertTree(TreeNode root)
+        {
+            if (root == null) return null;
+            if (root.right == null && root.left == null) return root;
+            var swap = root.left;
+            root.left = root.right;
+            root.right = swap;
+            InvertTree(root.left);
+            InvertTree(root.right);
+            return root;
+
+        }
+        #endregion
+
+        #region #234
+        public bool IsPalindrome(ListNode head)
+        {
+            var reversedNode = ReverseList(head);
+            while (head != null)
+            {
+                if (head.val != reversedNode.val) return false;
+                head = head.next;
+                reversedNode = reversedNode.next;
+            }
+            return true;
         }
         #endregion
         #endregion
