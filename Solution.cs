@@ -507,6 +507,20 @@ namespace CodePractice
         #endregion
         #endregion
 
+        #region #121 review
+        public int MaxProfit1(int[] prices)
+        {
+            int currentMin = int.MaxValue;
+            int profit = 0;
+            for (int i = 0; i < prices.Length; i++)
+            {
+                if (prices[i] < currentMin) currentMin = prices[i];
+                if (prices[i] - currentMin > profit) profit = prices[i] - currentMin;
+            }
+            return profit;
+        }
+        #endregion
+
         #region #122
         public int MaxProfit(int[] prices)
         {
@@ -565,6 +579,71 @@ namespace CodePractice
             return group.Where(x => x.Count() > majorNum).First().Key;
         }
         #endregion
+
+        #region #448
+        public IList<int> FindDisappearedNumbers(int[] nums)
+        {
+            int n = nums.Length;
+            var dic = new Dictionary<int, int>();
+            for (int i = 1; i <= n; i++)
+            {
+                dic.Add(i, 1);
+            }
+            for (int i = 0; i < n; i++)
+            {
+                dic[nums[i]]--;
+            }
+            return dic.Where(x => x.Value == 1).Select(x => x.Key).ToList();
+        }
+        #endregion
+        #endregion
+
+        #region #338
+        public int[] CountBits(int n)
+        {
+            int[] ans = new int[n + 1];
+            ans[0] = 0;
+            if (n == 0) return ans;
+            ans[1] = 1;
+            int[] digits = new int[1];
+            digits[0] = 1;
+
+            for (int i = 2; i < n + 1; i++)
+            {
+                digits = CountBitsPlusOne(digits);
+                ans[i] = digits.Where(x => x == 1).Count();
+            }
+            return ans;
+        }
+        public int[] CountBitsPlusOne(int[] digits)
+        {
+            var n = digits.Length;
+            var add = digits[n - 1] == 1;
+            if (!add)
+            {
+                digits[n - 1] += 1;
+                return digits;
+            }
+
+            for (int i = n - 1; i >= 0; i--)
+            {
+                if (add)
+                {
+                    var sum = digits[i] + 1;
+                    if (sum >= 2)
+                    {
+                        digits[i] = sum - 2;
+                    }
+                    else
+                    {
+                        digits[i] = sum;
+                        return digits;
+                    }
+
+                }
+            }
+            return digits.Prepend(1).ToArray();
+        }
         #endregion
 
     }
