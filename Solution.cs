@@ -6,8 +6,51 @@ namespace CodePractice
 {
     public class Solution
     {
-        #region sliding window
-        #region #27
+        #region #2 ListNode review
+        public ListNode AddTwoNumbers(ListNode l1, ListNode l2)
+        {
+            int sum = l1.val + l2.val;
+            ListNode node = new ListNode(sum % 10);
+            GenerateNextNode(node, l1.next, l2.next, sum >= 10);
+            return node;
+
+        }
+        private ListNode GenerateNextNode(ListNode node, ListNode l1, ListNode l2, bool carry)
+        {
+            int sum = 0;
+            while (l1 != null || l2 != null)
+            {
+                if (l1 != null && l2 != null)
+                {
+                    sum = l1.val + l2.val;
+                    if (carry)
+                    {
+                        sum++;
+                    }
+                }
+                else if (l1 != null)
+                {
+                    sum = carry ? l1.val + 1 : l1.val;
+                }
+                else
+                {
+                    sum = carry ? l2.val + 1 : l2.val;
+                }
+                carry = sum >= 10;
+                node.next = new ListNode(sum % 10);
+                node = node.next;
+                if (l1 != null) l1 = l1.next;
+                if (l2 != null) l2 = l2.next;
+            }
+            if (carry)
+            {
+                node.next = new ListNode(1);
+            }
+            return node;
+        }
+        #endregion
+
+        #region #27 sliding window
         public int RemoveElement(int[] nums, int val)
         {
             int num = 0;
@@ -58,7 +101,26 @@ namespace CodePractice
 
         #endregion
 
-        #region #35 - review
+        #region #28
+        public int StrStr(string haystack, string needle)
+        {
+            if (needle == "") return 0;
+
+            int length = haystack.Length;
+            int needleLength = needle.Length;
+
+            if (length == 0 || length < needleLength) return -1;
+
+            for(int i=0;i<=length- needleLength; i++)
+            {
+                var str = haystack.Substring(i, needleLength);
+                if (str == needle) return i;
+            }
+            return -1;
+        }
+        #endregion
+
+        #region #35 - sliding window review
         public int SearchInsert(int[] nums, int target)
         {
             var low = 0;
@@ -84,7 +146,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region $53 -review
+        #region $53 -sliding window review
         /*
          * solution:
          * remove negative prefix
@@ -103,86 +165,6 @@ namespace CodePractice
                 sumMax = sumMax > currentSum ? sumMax : currentSum;
             }
             return sumMax;
-        }
-        #endregion
-
-        #region #69
-        public static int MySqrt(int x)
-        {
-            if (x == 0) return 0;
-            var low = 1;
-            var high = 65536;
-            long mid;
-            while (low <= high)
-            {
-                mid = (low + high) / 2;
-                var temp = mid * mid;
-                if (x == temp)
-                {
-                    return (int)mid;
-                }
-                if (x < temp)
-                {
-                    high = (int)mid - 1;
-                }
-                else
-                {
-                    low = (int)mid + 1;
-                }
-            }
-            return low - 1;
-        }
-        #endregion
-
-        #region #283
-        public void MoveZeroes(int[] nums)
-        {
-            int length = nums.Length;
-            if (length == 1) return;
-            int lowIndex = 0;
-            int highIndex = length - 1;
-            while(lowIndex < highIndex)
-            {
-                if(nums[lowIndex] == 0)
-                {
-                    MoveElements(nums, lowIndex, highIndex);
-                    highIndex--;
-                }
-                else
-                {
-                    lowIndex++;
-                }
-            }
-        }
-
-        private void MoveElements(int[] nums, int lowIndex, int highIndex)
-        {
-            while(lowIndex < highIndex)
-            {
-                nums[lowIndex] = nums[lowIndex + 1];
-                lowIndex++;
-            }
-            nums[highIndex] = 0;
-        }
-        #endregion
-        #endregion
-
-        #region #28
-        public int StrStr(string haystack, string needle)
-        {
-            if (needle == "") return 0;
-
-            int length = haystack.Length;
-            int needleLength = needle.Length;
-
-            if (length == 0 || length < needleLength) return -1;
-
-            for(int i=0;i<=length- needleLength; i++)
-            {
-                var str = haystack.Substring(i, needleLength);
-                if (str == needle) return i;
-            }
-            return -1;
         }
         #endregion
 
@@ -295,6 +277,34 @@ namespace CodePractice
         }
         #endregion
 
+        #region #69 sliding window
+        public static int MySqrt(int x)
+        {
+            if (x == 0) return 0;
+            var low = 1;
+            var high = 65536;
+            long mid;
+            while (low <= high)
+            {
+                mid = (low + high) / 2;
+                var temp = mid * mid;
+                if (x == temp)
+                {
+                    return (int)mid;
+                }
+                if (x < temp)
+                {
+                    high = (int)mid - 1;
+                }
+                else
+                {
+                    low = (int)mid + 1;
+                }
+            }
+            return low - 1;
+        }
+        #endregion
+
         #region #70
         public int ClimbStairs(int n)
         {
@@ -311,6 +321,30 @@ namespace CodePractice
                 times[i] += times[i - 2];
             }
             return times[n - 1];
+        }
+        #endregion
+
+        #region #83 - ListNode review
+        public ListNode DeleteDuplicates(ListNode head)
+        {
+            if (head == null) return null;
+            ListNode previous = head;
+            ListNode next = head.next;
+            var val = head.val;
+            while (next != null)
+            {
+                if (next.val == val)
+                {
+                    previous.next = next.next;
+                }
+                else
+                {
+                    previous = next;
+                    val = next.val;
+                }
+                next = next.next;
+            }
+            return head;
         }
         #endregion
 
@@ -362,8 +396,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region Tree
-        #region #94  review + remember
+        #region #94 Tree review + remember
         public IList<int> InorderTraversal(TreeNode root)
         {
             return InorderTraversalSearch(root, new List<int>());
@@ -378,7 +411,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #100
+        #region #100 Tree
         public bool IsSameTree(TreeNode p, TreeNode q)
         {
             if (p is null && q is null) return true;
@@ -388,7 +421,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #101 review 
+        #region #101 Tree review 
         public bool IsSymmetric(TreeNode root)
         {
             return isMirror(root, root);
@@ -403,7 +436,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #104 - review
+        #region #104 - Tree review
         public int MaxDepth(TreeNode root)
         {
             var l= Depth(root, new List<int>(), 0);
@@ -424,87 +457,6 @@ namespace CodePractice
             return Depth(root.right, list, depth);
         }
 
-        #endregion
-        #endregion
-
-        #region ListNode
-        #region #83 - review
-        public ListNode DeleteDuplicates(ListNode head)
-        {
-            if (head == null) return null;
-            ListNode previous = head;
-            ListNode next = head.next;
-            var val = head.val;
-            while (next != null)
-            {
-                if (next.val == val)
-                {
-                    previous.next = next.next;
-                }
-                else
-                {
-                    previous = next;
-                    val = next.val;
-                }
-                next = next.next;
-            }
-            return head;
-        }
-        #endregion
-
-        #region #141
-        public bool HasCycle(ListNode head)
-        {
-            if (head == null) return false;
-            if (head.val == int.MinValue) return true;
-
-            head.val = int.MinValue;
-            return HasCycle(head.next);
-        }
-        #endregion
-
-        #region #206
-        public ListNode ReverseList(ListNode head)
-        {
-            if (head == null) return null;
-            ListNode res = new ListNode(head.val, null);
-            while (head.next != null)
-            {
-                res = new ListNode(head.next.val, res);
-                head = head.next;
-            }
-            return res;
-        }
-        #endregion
-
-        #region #226
-        public TreeNode InvertTree(TreeNode root)
-        {
-            if (root == null) return null;
-            if (root.right == null && root.left == null) return root;
-            var swap = root.left;
-            root.left = root.right;
-            root.right = swap;
-            InvertTree(root.left);
-            InvertTree(root.right);
-            return root;
-
-        }
-        #endregion
-
-        #region #234
-        public bool IsPalindrome(ListNode head)
-        {
-            var reversedNode = ReverseList(head);
-            while (head != null)
-            {
-                if (head.val != reversedNode.val) return false;
-                head = head.next;
-                reversedNode = reversedNode.next;
-            }
-            return true;
-        }
-        #endregion
         #endregion
 
         #region #121 review
@@ -559,8 +511,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region dictionary,grouping
-        #region #136
+        #region #136 grouping
         public int SingleNumber(int[] nums)
         {
             foreach (var item in nums.GroupBy(x => x))
@@ -571,7 +522,18 @@ namespace CodePractice
         }
         #endregion
 
-        #region #169
+        #region #141 ListNode
+        public bool HasCycle(ListNode head)
+        {
+            if (head == null) return false;
+            if (head.val == int.MinValue) return true;
+
+            head.val = int.MinValue;
+            return HasCycle(head.next);
+        }
+        #endregion
+
+        #region #169 grouping
         public int MajorityElement(int[] nums)
         {
             var group = nums.GroupBy(x => x);
@@ -580,22 +542,79 @@ namespace CodePractice
         }
         #endregion
 
-        #region #448
-        public IList<int> FindDisappearedNumbers(int[] nums)
+        #region #206 ListNode
+        public ListNode ReverseList(ListNode head)
         {
-            int n = nums.Length;
-            var dic = new Dictionary<int, int>();
-            for (int i = 1; i <= n; i++)
+            if (head == null) return null;
+            ListNode res = new ListNode(head.val, null);
+            while (head.next != null)
             {
-                dic.Add(i, 1);
+                res = new ListNode(head.next.val, res);
+                head = head.next;
             }
-            for (int i = 0; i < n; i++)
-            {
-                dic[nums[i]]--;
-            }
-            return dic.Where(x => x.Value == 1).Select(x => x.Key).ToList();
+            return res;
         }
         #endregion
+
+        #region #226 ListNode
+        public TreeNode InvertTree(TreeNode root)
+        {
+            if (root == null) return null;
+            if (root.right == null && root.left == null) return root;
+            var swap = root.left;
+            root.left = root.right;
+            root.right = swap;
+            InvertTree(root.left);
+            InvertTree(root.right);
+            return root;
+
+        }
+        #endregion
+
+        #region #234 ListNode
+        public bool IsPalindrome(ListNode head)
+        {
+            var reversedNode = ReverseList(head);
+            while (head != null)
+            {
+                if (head.val != reversedNode.val) return false;
+                head = head.next;
+                reversedNode = reversedNode.next;
+            }
+            return true;
+        }
+        #endregion
+
+        #region #283 sliding window
+        public void MoveZeroes(int[] nums)
+        {
+            int length = nums.Length;
+            if (length == 1) return;
+            int lowIndex = 0;
+            int highIndex = length - 1;
+            while (lowIndex < highIndex)
+            {
+                if (nums[lowIndex] == 0)
+                {
+                    MoveElements(nums, lowIndex, highIndex);
+                    highIndex--;
+                }
+                else
+                {
+                    lowIndex++;
+                }
+            }
+        }
+
+        private void MoveElements(int[] nums, int lowIndex, int highIndex)
+        {
+            while (lowIndex < highIndex)
+            {
+                nums[lowIndex] = nums[lowIndex + 1];
+                lowIndex++;
+            }
+            nums[highIndex] = 0;
+        }
         #endregion
 
         #region #338
@@ -643,6 +662,38 @@ namespace CodePractice
                 }
             }
             return digits.Prepend(1).ToArray();
+        }
+        #endregion
+
+        #region #448 grouping
+        public IList<int> FindDisappearedNumbers(int[] nums)
+        {
+            int n = nums.Length;
+            var dic = new Dictionary<int, int>();
+            for (int i = 1; i <= n; i++)
+            {
+                dic.Add(i, 1);
+            }
+            for (int i = 0; i < n; i++)
+            {
+                dic[nums[i]]--;
+            }
+            return dic.Where(x => x.Value == 1).Select(x => x.Key).ToList();
+        }
+        #endregion
+
+        #region #617 Tree review
+        public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
+        {
+            if (root1 == null) return root2;
+            if (root2 == null) return root1;
+
+            root1.val += root2.val;
+
+            root1.left = MergeTrees(root1.left, root2.left);
+            root1.right = MergeTrees(root1.right, root2.right);
+
+            return root1;
         }
         #endregion
 
