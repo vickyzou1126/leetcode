@@ -89,6 +89,43 @@ namespace CodePractice
         }
         #endregion
 
+        #region #17 dictionary 
+        public IList<string> LetterCombinations(string digits)
+        {
+            List<string> list = new List<string>();
+            if (digits.Count() == 0) return list;
+
+            var map = new Dictionary<string, List<string>>();
+            map.Add("2", new List<string>() { "a", "b", "c" });
+            map.Add("3", new List<string>() { "d", "e", "f" });
+            map.Add("4", new List<string>() { "g", "h", "i" });
+            map.Add("5", new List<string>() { "j", "k", "l" });
+            map.Add("6", new List<string>() { "m", "n", "o" });
+            map.Add("7", new List<string>() { "p", "q", "r", "s" });
+            map.Add("8", new List<string>() { "t", "u", "v" });
+            map.Add("9", new List<string>() { "w", "x", "y", "z" });
+
+            list = map[digits[0].ToString()];
+            if (digits.Count() == 1) return list;
+
+            for (int i = 1; i < digits.Count(); i++)
+            {
+                List<string> temp = map[digits[i].ToString()];
+                List<string> tempres = new List<string>();
+                for (int j = 0; j < list.Count(); j++)
+                {
+                    for (int k = 0; k < temp.Count(); k++)
+                    {
+                        string value = list[j] + temp[k];
+                        tempres.Add(value);
+                    }
+                }
+                list = tempres;
+            }
+            return list;
+        }
+        #endregion
+
         #region #27 sliding window
         public int RemoveElement(int[] nums, int val)
         {
@@ -496,6 +533,67 @@ namespace CodePractice
             return Depth(root.right, list, depth);
         }
 
+        #endregion
+
+        #region #108 TreeNode
+        public TreeNode SortedArrayToBST(int[] nums)
+        {
+            return SortedArrayToBST2(nums, 0, nums.Length - 1);
+
+        }
+
+        private TreeNode SortedArrayToBST2(int[] nums, int start, int end)
+        {
+            var mid = (end - start) / 2 + start;
+            var temp = new TreeNode(nums[mid]);
+            if (start <= mid - 1)
+            {
+                temp.left = SortedArrayToBST2(nums, start, mid - 1);
+            }
+            if (mid + 1 <= end)
+            {
+                temp.right = SortedArrayToBST2(nums, mid + 1, end);
+            }
+
+            return temp;
+        }
+        #endregion
+
+        #region #111 TreeNode
+        public int MinDepth(TreeNode root)
+        {
+            if (root == null) return 0;
+            int left = int.MaxValue;
+            int right = int.MaxValue;
+
+            if (root.left != null)
+            {
+                left = MinDepth(root.left.left, root.left.right, 2);
+            }
+            if (root.right != null)
+            {
+                right = MinDepth(root.right.left, root.right.right, 2);
+            }
+            var min = Math.Min(left, right);
+            if (min == int.MaxValue) return 1;
+            return min;
+        }
+        private int MinDepth(TreeNode root, TreeNode root2, int min)
+        {
+            if (root == null && root2 == null) return min;
+            int left = int.MaxValue;
+            int right = int.MaxValue;
+            if (root != null)
+            {
+                left = MinDepth(root.left, root.right, min + 1);
+            }
+            if (root2 != null)
+            {
+                right = MinDepth(root2.left, root2.right, min + 1);
+            }
+
+            return Math.Min(left, right);
+        }
         #endregion
 
         #region #118 
