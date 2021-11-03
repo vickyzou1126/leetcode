@@ -50,6 +50,45 @@ namespace CodePractice
         }
         #endregion
 
+        #region #3 sliding window
+        public int LengthOfLongestSubstring(string s)
+        {
+            int length = s.Length;
+            if (length <= 1) return length;
+            int lowIndex = 0;
+            int highIndex = 1;
+            int ans = 0;
+            var dic = new Dictionary<int, int>();
+            dic.Add(s[0], 0);
+            while(highIndex < length)
+            {
+                if (dic.Keys.Contains(s[highIndex]))
+                {
+                    if (dic[s[highIndex]] >= lowIndex)
+                    {
+                        if (ans <= highIndex - lowIndex)
+                        {
+                            ans = highIndex - lowIndex;
+                        }
+                        lowIndex = dic[s[highIndex]] + 1;
+                    }
+                    dic[s[highIndex]] = highIndex;
+                }
+                else
+                {
+                    dic[s[highIndex]] = highIndex;
+                }
+                highIndex++;
+            }
+
+            if (ans <= highIndex - lowIndex)
+            {
+                ans = highIndex - lowIndex;
+            }
+            return ans;
+        }
+        #endregion
+
         #region #27 sliding window
         public int RemoveElement(int[] nums, int val)
         {
@@ -146,7 +185,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region $53 -sliding window review
+        #region #53 -sliding window review
         /*
          * solution:
          * remove negative prefix
@@ -459,6 +498,28 @@ namespace CodePractice
 
         #endregion
 
+        #region #118 
+        public IList<IList<int>> Generate(int numRows)
+        {
+            var l = new List<IList<int>>();
+            l.Add(new List<int> { 1 });
+            var previous = l[0];
+            for(int i=1; i<numRows; i++)
+            {
+                var temp = new List<int>();
+                temp.Add(1);
+                for(int j = 1; j < i; j++)
+                {
+                    temp.Add(previous[j - 1] + previous[j]);
+                }
+                temp.Add(1);
+                l.Add(temp);
+                previous = l[i];
+            }
+            return l;
+        }
+        #endregion
+
         #region #121 review
         public int MaxProfit1(int[] prices)
         {
@@ -531,6 +592,9 @@ namespace CodePractice
             head.val = int.MinValue;
             return HasCycle(head.next);
         }
+        #endregion
+
+        #region #160 ListNode - not completed
         #endregion
 
         #region #169 grouping
