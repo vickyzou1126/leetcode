@@ -126,6 +126,27 @@ namespace CodePractice
         }
         #endregion
 
+        #region #24 ListNode
+        public ListNode SwapPairs(ListNode head)
+        {
+            if (head is null) return null;
+            int index = 0;
+            var pre = head;
+            while (pre.next != null)
+            {
+                if (index % 2 == 0)
+                {
+                    var val = pre.val;
+                    pre.val = pre.next.val;
+                    pre.next.val = val;
+                }
+                index++;
+                pre = pre.next;
+            }
+            return head;
+        }
+        #endregion
+
         #region #27 sliding window
         public int RemoveElement(int[] nums, int val)
         {
@@ -559,6 +580,10 @@ namespace CodePractice
         }
         #endregion
 
+        #region #110 TreeNode - not completed
+
+        #endregion
+
         #region #111 TreeNode
         public int MinDepth(TreeNode root)
         {
@@ -856,6 +881,31 @@ namespace CodePractice
             root1.right = MergeTrees(root1.right, root2.right);
 
             return root1;
+        }
+        #endregion
+
+        #region #704
+        public int Search(int[] nums, int target)
+        {
+            int length = nums.Length;
+            return Search(nums, target, 0, length - 1);
+        }
+
+        private int Search(int[] nums, int target, int start, int end)
+        {
+            int mid = (end - start) / 2 + start;
+            if (nums[mid] == target) return mid;
+
+            if(nums[mid] < target)
+            {
+                if (mid + 1 > end) return -1;
+                return Search(nums, target, mid + 1, end);
+            }
+            else
+            {
+                if (mid - 1 < 0) return -1;
+                return Search(nums, target, 0, mid -1);
+            }
         }
         #endregion
 
