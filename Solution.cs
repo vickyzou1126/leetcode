@@ -89,6 +89,70 @@ namespace CodePractice
         }
         #endregion
 
+        #region #5
+        public string LongestPalindrome(string s)
+        {
+            var charDic = new Dictionary<char, List<int>>();
+            int index = 0;
+            foreach (var c in s)
+            {
+                if (charDic.ContainsKey(c))
+                {
+                    charDic[c].Add(index);
+                }
+                else
+                {
+                    charDic.Add(c, new List<int> { index });
+                }
+                index++;
+            }
+
+            var indexDic = new Dictionary<int, List<int>>();
+            string maxs = s.Substring(0, 1);
+            foreach (var d in charDic.Where(x => x.Value.Count() >= 2))
+            {
+                if (maxs.Length >= d.Value.Last() - d.Value.First() + 1)
+                {
+                    continue;
+                }
+                for (int i = 0; i < d.Value.Count - 1; i++)
+                {
+                    for (int j = d.Value.Count - 1; j > i; j--)
+                    {
+
+                        if (maxs.Length < d.Value[j] - d.Value[i] + 1)
+                        {
+                            var subString = s.Substring(d.Value[i], d.Value[j] - d.Value[i] + 1);
+                            if (IsPalindro(subString))
+                            {
+                                maxs = subString;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            return maxs;
+        }
+
+        private bool IsPalindro(string s)
+        {
+            int length = s.Length;
+            if (length == 1) return true;
+            for (int i = 0; i < length / 2; i++)
+            {
+                if (s[i] != s[length - 1 - i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        #endregion
+
         #region #17 dictionary 
         public IList<string> LetterCombinations(string digits)
         {
@@ -695,6 +759,33 @@ namespace CodePractice
         }
         #endregion
 
+        #region #125 sliding window
+        public bool IsPalindrome(string s)
+        {
+            var length = s.Count();
+            int low = 0;
+            int high = length - 1;
+            s = s.ToLower();
+            while (low < high)
+            {
+                if (!Char.IsLetterOrDigit(s[low]))
+                {
+                    low++;
+                    continue;
+                }
+                if (!Char.IsLetterOrDigit(s[high]))
+                {
+                    high--;
+                    continue;
+                }
+                if (s[low] != s[high]) return false;
+                low++;
+                high--;
+            }
+            return true;
+        }
+        #endregion
+
         #region #136 grouping
         public int SingleNumber(int[] nums)
         {
@@ -729,6 +820,50 @@ namespace CodePractice
         }
         #endregion
 
+        #region #171
+        public int TitleToNumber(string columnTitle)
+        {
+            var dic = new Dictionary<char, int>();
+            int index = 1;
+            for (char i = 'A'; i <= 'Z'; i++)
+            {
+                dic.Add(i, index);
+                index++;
+            }
+            var array = columnTitle.ToArray();
+            var length = array.Length;
+            var sum = 0;
+            for (int i = 0; i < length; i++)
+            {
+                sum += dic[array[i]] * (int)(Math.Pow(26, length - i - 1));
+            }
+            return sum;
+        }
+        #endregion
+
+        #region #202
+        public bool IsHappy(int n)
+        {
+            if (n == 1) return true;
+            var hash = new HashSet<int>();
+            while (true)
+            {
+                var sum = 0;
+                var str = n.ToString();
+
+                foreach (var c in str)
+                {
+                    var cs = int.Parse(c.ToString());
+                    sum += cs * cs;
+                }
+                if (sum == 1) return true;
+                if (hash.Contains(sum)) return false;
+                hash.Add(sum);
+                n = sum;
+            }
+        }
+        #endregion
+
         #region #206 ListNode
         public ListNode ReverseList(ListNode head)
         {
@@ -740,6 +875,21 @@ namespace CodePractice
                 head = head.next;
             }
             return res;
+        }
+        #endregion
+
+        #region #217 grouping
+        public bool ContainsDuplicate(int[] nums)
+        {
+            // var groups = nums.GroupBy(x => x);
+            // return groups.Any(x => x.Count() >= 2);
+            var hash = new HashSet<int>();
+            foreach(int n in nums)
+            {
+                if (hash.Contains(n)) return true;
+                hash.Add(n);
+            }
+            return false;
         }
         #endregion
 
@@ -769,6 +919,52 @@ namespace CodePractice
                 reversedNode = reversedNode.next;
             }
             return true;
+        }
+        #endregion
+
+        #region #237 ListNode review 
+        public void DeleteNode(ListNode node)
+        {
+            node.val = node.next.val;
+            node.next = node.next.next;
+        }
+        #endregion
+
+        #region #242
+        public bool IsAnagram(string s, string t)
+        {
+            if (s.Length != t.Length) return false;
+            var dic = new Dictionary<char, int>();
+            foreach (char c in s)
+            {
+                if (dic.ContainsKey(c))
+                {
+                    dic[c] ++;
+                }
+                else
+                {
+                    dic.Add(c, 1);
+                }
+            }
+            foreach (char c in t)
+            {
+                if (!dic.ContainsKey(c) || dic[c] <=0 ) return false;
+
+                dic[c]--;
+            }
+            return true;
+        }
+        #endregion
+
+        #region #268
+        public int MissingNumber(int[] nums)
+        {
+            var sum = 0;
+            for(int i = 0; i <= nums.Length; i++)
+            {
+                sum += i;
+            }
+            return sum-nums.Sum();
         }
         #endregion
 
@@ -802,6 +998,21 @@ namespace CodePractice
             }
             nums[highIndex] = 0;
         }
+        #endregion
+
+        #region #326
+        public bool IsPowerOfThree(int n)
+        {
+            if (n == 1) return true;
+            if (n < 3) return false;
+            while(n%3==0)
+            {
+                n = n / 3;
+                if (n == 1) return true;
+            }
+            return false;
+        }
+
         #endregion
 
         #region #338
