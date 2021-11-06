@@ -6,6 +6,7 @@ namespace CodePractice
 {
     public class Solution
     {
+        #region 1-100
         #region #2 ListNode review
         public ListNode AddTwoNumbers(ListNode l1, ListNode l2)
         {
@@ -60,7 +61,7 @@ namespace CodePractice
             int ans = 0;
             var dic = new Dictionary<int, int>();
             dic.Add(s[0], 0);
-            while(highIndex < length)
+            while (highIndex < length)
             {
                 if (dic.Keys.Contains(s[highIndex]))
                 {
@@ -358,7 +359,8 @@ namespace CodePractice
                     {
                         var list = new List<int> { values[i], values[j], toFind };
                         list.Sort();
-                        if (!hash.Contains(list)){
+                        if (!hash.Contains(list))
+                        {
                             hash.Add(list);
                         }
                     }
@@ -417,6 +419,87 @@ namespace CodePractice
         }
         #endregion
 
+        #region #18
+        public IList<IList<int>> FourSum(int[] nums, int target)
+        {
+            IList<IList<int>> list = new List<IList<int>>();
+            int N = nums.Count();
+            if (N <= 3) return list;
+            if (nums.Distinct().Count() == 1)
+            {
+                if (nums[0] * 4 == target)
+                {
+                    list.Add(new List<int> { nums[0], nums[0], nums[0], nums[0] });
+                }
+                return list;
+            }
+            var sorted = nums.ToList();
+            sorted.Sort();
+            int sum = 0;
+
+            for (int i = 0; i < N - 3; i++)
+            {
+                if (sorted[i] > target && sorted[i] > 0) break;
+                for (int j = i + 1; j < N - 2; j++)
+                {
+                    sum = sorted[i] + sorted[j];
+                    if (sum > target && sum > 0) break;
+                    for (int k = j + 1; k < N - 1; k++)
+                    {
+                        var lastIndex = sorted.LastIndexOf(target - sum - sorted[k]);
+                        if (lastIndex > k)
+                        {
+                            list.Add(new List<int> { sorted[i], sorted[j], sorted[k], sorted[lastIndex] });
+                        }
+                    }
+                }
+            }
+
+            return list.Select(o =>
+            {
+                var t = o.OrderBy(x => x).Select(i => i.ToString());
+                return new { Key = string.Join("", t), List = o };
+            }).GroupBy(o => o.Key).Select(o => o.FirstOrDefault()).Select(o => o.List).ToList();
+        }
+        #endregion
+
+        #region #19 ListNode
+        public ListNode RemoveNthFromEnd(ListNode head, int n)
+        {
+            if (head.next == null) return null;
+            var dummyHead = new ListNode(head.val, null);
+            var temp = head.next;
+            while (temp != null)
+            {
+                var newNode = new ListNode(temp.val, dummyHead);
+                dummyHead = newNode;
+                temp = temp.next;
+            }
+            int index = 1;
+            if (n == 1)
+            {
+                dummyHead = dummyHead.next;
+            }
+            var dummyEnd = new ListNode(dummyHead.val, null);
+            var temp1 = dummyHead.next;
+            index++;
+            while (temp1 != null)
+            {
+                if (index == n)
+                {
+                    temp1 = temp1.next;
+                    if (temp1 == null) break;
+                }
+
+                var newNode = new ListNode(temp1.val, dummyEnd);
+                dummyEnd = newNode;
+                temp1 = temp1.next;
+                index++;
+            }
+            return dummyEnd;
+        }
+        #endregion
+
         #region #24 ListNode
         public ListNode SwapPairs(ListNode head)
         {
@@ -435,6 +518,28 @@ namespace CodePractice
                 pre = pre.next;
             }
             return head;
+        }
+        #endregion
+
+        #region #26
+        public int RemoveDuplicates(int[] nums)
+        {
+            int N = nums.Length;
+            if (N <= 1) return N;
+
+            int lowIndex = 0;
+            int target = -101;
+
+            for (int highIndex = 0; highIndex < N; highIndex++)
+            {
+                if (nums[highIndex] != target)
+                {
+                    nums[lowIndex] = nums[highIndex];
+                    target = nums[lowIndex];
+                    lowIndex++;
+                }
+            }
+            return lowIndex;
         }
         #endregion
 
@@ -499,12 +604,108 @@ namespace CodePractice
 
             if (length == 0 || length < needleLength) return -1;
 
-            for(int i=0;i<=length- needleLength; i++)
+            for (int i = 0; i <= length - needleLength; i++)
             {
                 var str = haystack.Substring(i, needleLength);
                 if (str == needle) return i;
             }
             return -1;
+        }
+        #endregion
+
+        #region #33
+        public int Search(int[] nums, int target)
+        {
+            int N = nums.Length;
+            if (nums[0] == target) return 0;
+            if (N == 1)
+            {
+                return -1;
+            }
+            bool rotated = false;
+            for (int i = 1; i < N; i++)
+            {
+                if (nums[i] == target) return i;
+                if (nums[i] < nums[i - 1])
+                {
+                    rotated = true;
+                }
+
+                if (rotated && nums[i] > target) return -1;
+            }
+            return -1;
+        }
+        #endregion
+
+        #region #34
+        public int[] SearchRange(int[] nums, int target)
+        {
+            int N = nums.Length;
+
+            if (N == 0) return new int[] { -1, -1 };
+            if (N == 1)
+            {
+                if (nums[0] == target) return new int[] { 0, 0 };
+                return new int[] { -1, -1 };
+            }
+
+            return Search2(nums, 0, N - 1, target);
+        }
+        private int[] Search2(int[] nums, int startIndex, int endIndex, int target)
+        {
+            if (endIndex == startIndex && nums[startIndex] != target) return new int[] { -1, -1 };
+
+            var midIndex = startIndex + (endIndex - startIndex) / 2;
+            var midV = nums[midIndex];
+            var lowIndex = startIndex;
+            var highIndex = endIndex;
+            if (midV == target)
+            {
+                lowIndex = midIndex;
+                highIndex = midIndex;
+                for (int i = midIndex - 1; i >= 0; i--)
+                {
+                    if (nums[i] == target)
+                    {
+                        lowIndex = i;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                for (int i = midIndex + 1; i < nums.Length; i++)
+                {
+                    if (nums[i] == target)
+                    {
+                        highIndex = i;
+                    }
+                    else
+                    {
+                        return new int[] { lowIndex, highIndex };
+                    }
+                }
+                return new int[] { lowIndex, highIndex };
+            }
+            else
+            {
+                if (midV < target)
+                {
+                    if (midIndex + 1 <= endIndex)
+                    {
+                        return Search2(nums, midIndex + 1, endIndex, target);
+                    }
+                }
+                else
+                {
+                    if (midIndex - 1 >= 0)
+                    {
+                        return Search2(nums, startIndex, midIndex - 1, target);
+                    }
+                }
+            }
+
+            return new int[] { -1, -1 };
         }
         #endregion
 
@@ -534,6 +735,155 @@ namespace CodePractice
         }
         #endregion
 
+        #region #36
+        public bool IsValidSudoku(char[][] board)
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                HashSet<int> numbersr = new HashSet<int>();
+                int numsr = 0;
+                HashSet<int> numbersc = new HashSet<int>();
+                int numsc = 0;
+
+                for (int j = 0; j < 9; j++)
+                {
+
+                    var grids = i % 3 == 0 && j % 3 == 0;
+                    if (board[i][j] != '.')
+                    {
+                        numsr++;
+                        numbersr.Add(board[i][j]);
+                        if (numsr != numbersr.Count())
+                        {
+                            return false;
+                        }
+                    }
+                    if (board[j][i] != '.')
+                    {
+                        numsc++;
+                        numbersc.Add(board[j][i]);
+                        if (numsc != numbersc.Count())
+                        {
+                            return false;
+                        }
+                    }
+                    if (grids)
+                    {
+                        HashSet<int> numbers9 = new HashSet<int>();
+                        int numsgrid = 0;
+                        for (int k = i; k < i + 3; k++)
+                        {
+                            for (int l = j; l < j + 3; l++)
+                            {
+                                if (board[k][l] != '.')
+                                {
+                                    numbers9.Add(board[k][l]);
+                                    numsgrid++;
+                                    if (numbers9.Count() != numsgrid)
+                                    {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        #endregion
+
+        #region #40
+        public IList<IList<int>> CombinationSum2(int[] candidates, int target)
+        {
+            var maxv = candidates.Max();
+            var minv = candidates.Min();
+            if (minv > target) return new List<IList<int>>();
+            int n = candidates.Length;
+
+            var hashdp = new Dictionary<int, List<int[]>>();
+
+            if (minv == maxv)
+            {
+                var count = target / minv;
+                if (target % minv == 0 && count <= n)
+                {
+                    var l = new int[count];
+                    if (count == n)
+                    {
+                        l = candidates;
+                    }
+                    else
+                    {
+                        for (int i = 1; i <= count; i++)
+                        {
+                            l[i - 1] = minv;
+                        }
+                    }
+                    hashdp.Add(target, new List<int[]> { l });
+                    return hashdp[target].ToArray();
+                }
+                return new List<IList<int>>();
+            }
+
+            var hash = candidates.GroupBy(c => c).ToDictionary(gr => gr.Key, gr => gr.Count());
+            var hashKeys = hash.Keys;
+
+            for (int i = minv; i <= target; i++)
+            {
+                hashdp.Add(i, new List<int[]>());
+                if (hashKeys.Contains(i))
+                {
+                    hashdp[i].Add(new int[] { i });
+                }
+                for (int j = minv; j <= i / 2; j++)
+                {
+                    for (int index = 0; index < hashdp[j].Count(); index++)
+                    {
+                        var nn = hashdp[j][index].Count();
+                        foreach (var v2 in hashdp[i - j])
+                        {
+                            var templist = new int[nn];
+                            for (var vvv = 0; vvv < nn; vvv++)
+                            {
+                                templist[vvv] = hashdp[j][index][vvv];
+                            }
+                            templist = templist.Concat(v2).ToArray();
+                            Array.Sort(templist);
+                            hashdp[i].Add(templist);
+                        }
+                    }
+                }
+            }
+            var li = hashdp[target].Select(o =>
+            {
+                var t = o.OrderBy(x => x).Select(i => i.ToString());
+                return new { Key = string.Join("", t), List = o };
+            }).GroupBy(o => o.Key).Select(o => o.FirstOrDefault()).Select(o => o.List).ToArray();
+            var result = new List<List<int>>();
+
+            foreach (var v in li)
+            {
+                var h = v.GroupBy(c => c).ToDictionary(gr => gr.Key, gr => gr.Count());
+                var canadd = true;
+                foreach (var c in h)
+                {
+                    if (!hashKeys.Contains(c.Key) || hash[c.Key] < c.Value)
+                    {
+                        canadd = false;
+                        break;
+                    }
+                }
+                if (canadd)
+                {
+                    result.Add(v.ToList());
+                }
+            }
+
+            return result.ToArray();
+        }
+        #endregion
+
         #region #53 -sliding window review
         /*
          * solution:
@@ -553,6 +903,226 @@ namespace CodePractice
                 sumMax = sumMax > currentSum ? sumMax : currentSum;
             }
             return sumMax;
+        }
+        #endregion
+
+        #region #56
+        public int[][] Merge(int[][] intervals)
+        {
+            int[][] jaggedArray = new int[10000][];
+            for (int i = 0; i < 10000; i++)
+            {
+                jaggedArray[i] = new int[] { i, -1 };
+            }
+
+            List<int> index = new List<int>();
+            for (int i = 0; i < intervals.Length; i++)
+            {
+                int loc = intervals[i][0];
+                jaggedArray[loc][1] = Math.Max(jaggedArray[loc][1], intervals[i][1]);
+                if (!index.Contains(loc))
+                {
+                    index.Add(loc);
+                }
+            }
+            index.Sort();
+            var list = new List<int[]>();
+            int min = -1;
+            int max = -1;
+
+            for (int loc = 0; loc < index.Count(); loc++)
+            {
+                var i = index[loc];
+                if (jaggedArray[i][0] > max)
+                {
+                    var maxIsmin = max == -1;
+
+                    if (!maxIsmin)
+                    {
+                        list.Add(new int[] { min, max });
+                    }
+
+                    min = jaggedArray[i][0];
+                    max = jaggedArray[i][1];
+                }
+                else
+                {
+                    max = Math.Max(jaggedArray[i][1], max);
+                }
+            }
+
+            list.Add(new int[] { min, max });
+
+            int[][] res = new int[list.Count()][];
+            for (int i = 0; i < list.Count(); i++)
+            {
+                res[i] = new int[] { list[i][0], list[i][1] };
+            }
+
+            return res;
+        }
+        #endregion
+
+        #region #57
+        public int[][] Insert(int[][] intervals, int[] newInterval)
+        {
+            int n = intervals.Length;
+            if (n == 0) return new int[][] { newInterval };
+
+            var start = newInterval[0];
+            var end = newInterval[1];
+
+            if (end < intervals[0][0]) return intervals.Prepend(newInterval).ToArray();
+            if (end == intervals[0][0])
+            {
+                intervals[0][0] = start;
+                return intervals;
+            }
+
+            var res = new List<int[]>();
+            var min = start;
+            var max = end;
+            var added = false;
+            for (int i = 0; i < n; i++)
+            {
+                if (intervals[i][1] < start)
+                {
+                    res.Add(intervals[i]);
+                    if (i == n - 1)
+                    {
+                        res.Add(newInterval);
+                    }
+                }
+                else if (intervals[i][0] > end)
+                {
+                    if (!added)
+                    {
+                        res.Add(newInterval);
+                        added = true;
+                    }
+
+                    res.Add(intervals[i]);
+                }
+                else if (intervals[i][0] <= start && intervals[i][1] >= start)
+                {
+                    min = intervals[i][0];
+                    max = Math.Max(intervals[i][1], end);
+
+                    if (i == n - 1)
+                    {
+                        res.Add(new int[] { min, max });
+                    }
+                    else
+                    {
+                        i++;
+                        var processed = false;
+
+                        while (i < n)
+                        {
+                            if (!processed && intervals[i][0] > max)
+                            {
+                                processed = true;
+                                added = true;
+                                res.Add(new int[] { min, max });
+                            }
+                            if (processed)
+                            {
+                                res.Add(intervals[i]);
+                            }
+                            else
+                            {
+                                max = Math.Max(max, intervals[i][1]);
+                                if (i == n - 1)
+                                {
+                                    res.Add(new int[] { min, max });
+                                }
+                            }
+
+                            i++;
+                        }
+                    }
+                }
+                else if (intervals[i][0] <= end && intervals[i][1] >= end)
+                {
+                    min = Math.Min(start, intervals[i][0]);
+                    max = intervals[i][1];
+
+                    if (i == n - 1)
+                    {
+                        res.Add(new int[] { min, max });
+                    }
+                    else
+                    {
+                        i++;
+                        var processed = false;
+                        while (i < n)
+                        {
+                            if (!processed && intervals[i][0] > max)
+                            {
+                                res.Add(new int[] { min, max });
+                                processed = true;
+                                added = true;
+                            }
+                            if (processed)
+                            {
+                                res.Add(intervals[i]);
+                            }
+                            else
+                            {
+                                max = Math.Max(max, intervals[i][1]);
+                                if (i == n - 1)
+                                {
+                                    res.Add(new int[] { min, max });
+                                }
+                            }
+
+                            i++;
+                        }
+
+                    }
+                }
+                else if (start <= intervals[i][0] && intervals[i][1] <= end)
+                {
+                    min = start;
+                    max = end;
+                    if (i == n - 1)
+                    {
+                        res.Add(new int[] { min, max });
+                    }
+                    else
+                    {
+                        i++;
+                        var processed = false;
+
+                        while (i < n)
+                        {
+                            if (!processed && intervals[i][0] > max)
+                            {
+                                processed = true;
+                                added = true;
+                                res.Add(new int[] { min, max });
+                            }
+                            if (processed)
+                            {
+
+                                res.Add(intervals[i]);
+                            }
+                            else
+                            {
+                                max = Math.Max(max, intervals[i][1]);
+                                if (i == n - 1)
+                                {
+                                    res.Add(new int[] { min, max });
+                                }
+                            }
+
+                            i++;
+                        }
+                    }
+                }
+            }
+
+            return res.ToArray();
         }
         #endregion
 
@@ -701,10 +1271,10 @@ namespace CodePractice
             times[0] = 1;
             times[1] = 2;
 
-            for(int i=2;i<n;i++)
+            for (int i = 2; i < n; i++)
             {
                 // l[i] = l[i-1] +1
-                times[i] = times[i-1];
+                times[i] = times[i - 1];
                 // l[i] = l[i-2] + 2
                 times[i] += times[i - 2];
             }
@@ -739,13 +1309,14 @@ namespace CodePractice
         #region #88
         public void Merge(int[] nums1, int m, int[] nums2, int n)
         {
-            if (m==0)
+            if (m == 0)
             {
-                for(int i = 0; i < n; i++)
+                for (int i = 0; i < n; i++)
                 {
                     nums1[i] = nums2[i];
                 }
-            } else if (n == 0)
+            }
+            else if (n == 0)
             {
                 return;
             }
@@ -768,7 +1339,7 @@ namespace CodePractice
                     }
                     currentIndex--;
                 }
-                while (index1 >=0)
+                while (index1 >= 0)
                 {
                     nums1[currentIndex] = nums1[index1];
                     index1--;
@@ -808,7 +1379,9 @@ namespace CodePractice
             return p.val == q.val && IsSameTree(p.left, q.left) && IsSameTree(p.right, q.right);
         }
         #endregion
+        #endregion
 
+        #region 101-200
         #region #101 Tree review 
         public bool IsSymmetric(TreeNode root)
         {
@@ -827,7 +1400,7 @@ namespace CodePractice
         #region #104 - Tree review
         public int MaxDepth(TreeNode root)
         {
-            var l= Depth(root, new List<int>(), 0);
+            var l = Depth(root, new List<int>(), 0);
             return l.Max();
         }
 
@@ -841,7 +1414,7 @@ namespace CodePractice
             depth++;
 
             list = Depth(root.left, list, depth);
-            
+
             return Depth(root.right, list, depth);
         }
 
@@ -918,11 +1491,11 @@ namespace CodePractice
             var l = new List<IList<int>>();
             l.Add(new List<int> { 1 });
             var previous = l[0];
-            for(int i=1; i<numRows; i++)
+            for (int i = 1; i < numRows; i++)
             {
                 var temp = new List<int>();
                 temp.Add(1);
-                for(int j = 1; j < i; j++)
+                for (int j = 1; j < i; j++)
                 {
                     temp.Add(previous[j - 1] + previous[j]);
                 }
@@ -957,18 +1530,18 @@ namespace CodePractice
             int length = prices.Length;
             bool hold = false;
 
-            for(int i=1; i<length;i++)
+            for (int i = 1; i < length; i++)
             {
-                if(prices[i] < holdPrice && !hold)
+                if (prices[i] < holdPrice && !hold)
                 {
                     holdPrice = prices[i];
                     salePrice = holdPrice;
                 }
-                else if(prices[i] > salePrice)
+                else if (prices[i] > salePrice)
                 {
                     hold = true;
                     salePrice = prices[i];
-                    if (i == length -1)
+                    if (i == length - 1)
                     {
                         profit += salePrice - holdPrice;
                     }
@@ -1067,7 +1640,9 @@ namespace CodePractice
             return sum;
         }
         #endregion
+        #endregion
 
+        #region 201-300
         #region #202
         public bool IsHappy(int n)
         {
@@ -1111,7 +1686,7 @@ namespace CodePractice
             // var groups = nums.GroupBy(x => x);
             // return groups.Any(x => x.Count() >= 2);
             var hash = new HashSet<int>();
-            foreach(int n in nums)
+            foreach (int n in nums)
             {
                 if (hash.Contains(n)) return true;
                 hash.Add(n);
@@ -1166,7 +1741,7 @@ namespace CodePractice
             {
                 if (dic.ContainsKey(c))
                 {
-                    dic[c] ++;
+                    dic[c]++;
                 }
                 else
                 {
@@ -1175,7 +1750,7 @@ namespace CodePractice
             }
             foreach (char c in t)
             {
-                if (!dic.ContainsKey(c) || dic[c] <=0 ) return false;
+                if (!dic.ContainsKey(c) || dic[c] <= 0) return false;
 
                 dic[c]--;
             }
@@ -1187,11 +1762,11 @@ namespace CodePractice
         public int MissingNumber(int[] nums)
         {
             var sum = 0;
-            for(int i = 0; i <= nums.Length; i++)
+            for (int i = 0; i <= nums.Length; i++)
             {
                 sum += i;
             }
-            return sum-nums.Sum();
+            return sum - nums.Sum();
         }
         #endregion
 
@@ -1226,13 +1801,15 @@ namespace CodePractice
             nums[highIndex] = 0;
         }
         #endregion
+        #endregion
 
+        #region 301-400
         #region #326
         public bool IsPowerOfThree(int n)
         {
             if (n == 1) return true;
             if (n < 3) return false;
-            while(n%3==0)
+            while (n % 3 == 0)
             {
                 n = n / 3;
                 if (n == 1) return true;
@@ -1303,18 +1880,21 @@ namespace CodePractice
             }
         }
         #endregion
+        #endregion
 
+        #region 401-500
         #region #412
         public IList<string> FizzBuzz(int n)
         {
             var list = new List<string>();
-            for(int i=1; i <= n; i++)
+            for (int i = 1; i <= n; i++)
             {
-                if (i%15 == 0)
+                if (i % 15 == 0)
                 {
                     //answer[i] == "FizzBuzz" if i is divisible by 3 and 5.
                     list.Add("FizzBuzz");
-                } else if (i % 3 == 0)
+                }
+                else if (i % 3 == 0)
                 {
                     //answer[i] == "Fizz" if i is divisible by 3.
                     list.Add("Fizz");
@@ -1349,6 +1929,7 @@ namespace CodePractice
             return dic.Where(x => x.Value == 1).Select(x => x.Key).ToList();
         }
         #endregion
+        #endregion
 
         #region #617 Tree review
         public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
@@ -1366,7 +1947,7 @@ namespace CodePractice
         #endregion
 
         #region #704
-        public int Search(int[] nums, int target)
+        public int Search704(int[] nums, int target)
         {
             int length = nums.Length;
             return Search(nums, target, 0, length - 1);
