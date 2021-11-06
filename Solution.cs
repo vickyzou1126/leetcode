@@ -153,6 +153,233 @@ namespace CodePractice
         }
         #endregion
 
+        #region #6
+        public string Convert(string s, int numRows)
+        {
+            if (numRows == 1) return s;
+            //culculate numCuls
+            int length = s.Length;
+            int charsNum = 2 * numRows - 2;
+            int culsNum = numRows - 1;
+            int setsNum = length / charsNum;
+            int numCuls = setsNum * (culsNum) + 1;
+            int remainder = length % charsNum - numRows;
+            while (remainder > 0)
+            {
+                numCuls++; remainder--;
+            }
+
+            string[,] array = new string[numRows, numCuls];
+            var chars = s.ToArray();
+            int rowIndex = 0;
+            int culIndex = 0;
+            for (int i = 1; i <= length; i++)
+            {
+                array[rowIndex, culIndex] = chars[i - 1].ToString();
+                var temp = i % charsNum;
+                if (temp == numRows || temp == 0 || temp > numRows)
+                {
+                    rowIndex--;
+                    culIndex++;
+                }
+                else
+                {
+                    rowIndex++;
+                }
+            }
+            string ans = "";
+            for (int i = 0; i < numRows; i++)
+            {
+                for (int j = 0; j < numCuls; j++)
+                {
+                    if (array[i, j] != null)
+                    {
+                        ans += array[i, j];
+                    }
+                }
+            }
+
+            return ans;
+        }
+        #endregion
+
+        #region #8
+        public int MyAtoi(string s)
+        {
+            s = s.Trim();
+            var min = s.StartsWith("-", StringComparison.CurrentCulture);
+
+            if (min)
+            {
+                s = s.Substring(1, s.Length - 1);
+            }
+            else
+            {
+                var positive = s.StartsWith("+", StringComparison.CurrentCulture);
+                if (positive)
+                {
+                    s = s.Substring(1, s.Length - 1);
+                }
+            }
+
+            var chars = s.ToCharArray();
+            var str = "";
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (!Char.IsDigit(chars[i])) break;
+                else str += chars[i].ToString();
+            }
+            if (str == "") return 0;
+            if (Int32.TryParse(str, out int numValue))
+            {
+                if (min) return -1 * numValue;
+                return numValue;
+            }
+            else
+            {
+                if (min) return int.MinValue;
+                return int.MaxValue;
+            }
+        }
+        #endregion
+
+        #region #12
+        public string IntToRoman(int num)
+        {
+            var list = new List<int> { 1, 5, 10, 50, 100, 500, 1000 };
+            var dic = new Dictionary<int, string>();
+            dic.Add(1, "I");
+            dic.Add(5, "V");
+            dic.Add(10, "X");
+            dic.Add(50, "L");
+            dic.Add(100, "C");
+            dic.Add(500, "D");
+            dic.Add(1000, "M");
+            return GetStr(num, dic, list, "");
+        }
+
+        private string GetStr(int num, Dictionary<int, string> dic, List<int> list, string ans)
+        {
+            while (num > 0)
+            {
+                if (dic.ContainsKey(num))
+                {
+                    ans += dic[num];
+                    return ans;
+                }
+                var mostUpNear = FindMostUpNearNumber(num, list);
+                var temp = dic[mostUpNear];
+                if ((temp == "V" || temp == "X") && mostUpNear - 1 == num)
+                {
+                    ans += "I" + temp;
+                    return ans;
+                }
+                else if ((temp == "L" || temp == "C") && mostUpNear - 10 == num)
+                {
+                    ans += "X" + temp;
+                    return ans;
+                }
+                else if ((temp == "L" || temp == "C") && num % 10 != 0)
+                {
+                    ans = GetStr(num - num % 10, dic, list, ans);
+                    num = num % 10;
+                }
+                else if (temp == "M" && num > mostUpNear)
+                {
+                    ans += temp;
+                    num -= mostUpNear;
+                }
+                else if ((temp == "D" || temp == "M") && mostUpNear - 100 == num)
+                {
+                    ans += "C" + temp;
+                    return ans;
+                }
+                else if ((temp == "D" || temp == "M") && num % 100 != 0)
+                {
+                    ans = GetStr(num - num % 100, dic, list, ans);
+                    num = num % 100;
+                }
+                else
+                {
+
+                    var mostLowNear = FindMostLowNearNumber(num, list);
+                    ans += dic[mostLowNear];
+                    num -= mostLowNear;
+                }
+            }
+            return ans;
+        }
+        private int FindMostLowNearNumber(int num, List<int> list)
+        {
+            for (int i = 1; i < 7; i++)
+            {
+                if (list[i] > num)
+                {
+                    return list[i - 1];
+                }
+            }
+            return 1;
+        }
+
+        private int FindMostUpNearNumber(int num, List<int> list)
+        {
+            for (int i = 5; i >= 0; i--)
+            {
+                if (list[i] < num)
+                {
+                    return list[i + 1];
+                }
+            }
+            return 1000;
+        }
+        #endregion
+
+        #region #15 review
+        public IList<IList<int>> ThreeSum(int[] nums)
+        {
+            int length = nums.Length;
+            if (length < 3) return new List<IList<int>>();
+
+            var groups = nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var values = groups.Keys.ToList();
+
+            length = values.Count();
+            var hash = new HashSet<List<int>>(new SequenceComparer<int>());
+            for (int i = 0; i < length - 1; i++)
+            {
+                if (values[i] != 0 && groups[values[i]] > 1 && groups.ContainsKey(0 - values[i] * 2))
+                {
+                    hash.Add(new List<int> { values[i], values[i], 0 - values[i] * 2 });
+                }
+                for (int j = i + 1; j < length; j++)
+                {
+                    var toFind = 0 - values[i] - values[j];
+                    if (toFind != values[i] && toFind != values[j] && groups.ContainsKey(toFind))
+                    {
+                        var list = new List<int> { values[i], values[j], toFind };
+                        list.Sort();
+                        if (!hash.Contains(list)){
+                            hash.Add(list);
+                        }
+                    }
+                }
+            }
+
+            if (groups.ContainsKey(0) && groups[0] >= 3)
+            {
+                hash.Add(new List<int> { 0, 0, 0 });
+            }
+
+            if (values[length - 1] != 0 && groups[values[length - 1]] > 1 && groups.ContainsKey(0 - values[length - 1] * 2))
+            {
+                hash.Add(new List<int> { values[length - 1], values[length - 1], 0 - values[length - 1] * 2 });
+            }
+
+            return new List<IList<int>>(hash);
+        }
+
+        #endregion
+
         #region #17 dictionary 
         public IList<string> LetterCombinations(string digits)
         {
@@ -1063,6 +1290,49 @@ namespace CodePractice
         }
         #endregion
 
+        #region #344
+        public void ReverseString(char[] s)
+        {
+            int n = s.Length;
+            for (int i = 0; i < n / 2; i++)
+            {
+                var temp = s[i];
+                var j = n - 1 - i;
+                s[i] = s[j];
+                s[j] = temp;
+            }
+        }
+        #endregion
+
+        #region #412
+        public IList<string> FizzBuzz(int n)
+        {
+            var list = new List<string>();
+            for(int i=1; i <= n; i++)
+            {
+                if (i%15 == 0)
+                {
+                    //answer[i] == "FizzBuzz" if i is divisible by 3 and 5.
+                    list.Add("FizzBuzz");
+                } else if (i % 3 == 0)
+                {
+                    //answer[i] == "Fizz" if i is divisible by 3.
+                    list.Add("Fizz");
+                }
+                else if (i % 5 == 0)
+                {
+                    //answer[i] == "Buzz" if i is divisible by 5.
+                    list.Add("Buzz");
+                }
+                else
+                {
+                    list.Add(i.ToString());
+                }
+            }
+            return list;
+        }
+        #endregion
+
         #region #448 grouping
         public IList<int> FindDisappearedNumbers(int[] nums)
         {
@@ -1143,6 +1413,22 @@ namespace CodePractice
         {
             this.val = val;
             this.next = next;
+        }
+    }
+
+    class SequenceComparer<T> : IEqualityComparer<IEnumerable<T>>
+    {
+        public bool Equals(IEnumerable<T> seq1, IEnumerable<T> seq2)
+        {
+            return seq1.SequenceEqual(seq2);
+        }
+
+        public int GetHashCode(IEnumerable<T> seq)
+        {
+            int hash = 1234567;
+            foreach (T elem in seq)
+                hash = hash * 37 + elem.GetHashCode();
+            return hash;
         }
     }
 }
