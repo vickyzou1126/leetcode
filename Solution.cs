@@ -684,6 +684,38 @@ namespace CodePractice
         }
         #endregion
 
+        #region #29 - review, not completed
+        public int Divide(int dividend, int divisor)
+        {
+            bool isPositive = true;
+            if (dividend < 0 && divisor > 0 || dividend > 0 && divisor < 0)
+            {
+                isPositive = false;
+            }
+            long ldividend = Math.Abs((long)dividend);
+            long ldivisor = Math.Abs((long)divisor);
+            long result = divide(ldividend, ldivisor);
+            if (result > int.MaxValue)
+            {
+                return isPositive ? int.MaxValue : int.MinValue;
+            }
+            return isPositive ? (int)result : -(int)result;
+        }
+
+        public long divide(long dividend, long divisor)
+        {
+            if (dividend < divisor) return 0;
+            long sum = divisor;
+            long result = 1;
+            while (dividend > sum + sum)
+            {
+                sum += sum;
+                result += result;
+            }
+            return result + divide(dividend - sum, divisor);
+        }
+        #endregion
+
         #region #33
         public int Search(int[] nums, int target)
         {
@@ -2173,6 +2205,48 @@ namespace CodePractice
         }
         #endregion
 
+        #region #1929
+        public int[] GetConcatenation(int[] nums)
+        {
+            var list = new List<int>();
+            list.AddRange(nums);
+            list.AddRange(nums);
+            return list.ToArray();
+        }
+        #endregion
+
+        #region #1930
+        public int CountPalindromicSubsequence(string s)
+        {
+            var dic = new Dictionary<char, List<int>>();
+            var array = s.ToArray();
+            for (int i=0;i<array.Length;i++)
+            {
+                if (dic.ContainsKey(array[i]))
+                {
+                    dic[array[i]].Add(i);
+                }
+                else
+                {
+                    dic.Add(array[i], new List<int> { i });
+                }
+            }
+
+            var length = dic.Keys.Count()-1;
+            int res = 0;
+            foreach(var d in dic.Where(x => x.Value.Count > 1))
+            {
+                var maxIndex = d.Value.Max();
+                var minIndex = d.Value.Min();
+                foreach(var other in dic.Where(x=>x.Key != d.Key && x.Value.Any(v => v>minIndex && v<maxIndex )))
+                {
+                    res++;
+                }
+                if (d.Value.Count >2) res++;
+            }
+            return res;
+        }
+        #endregion
     }
 
     public class TreeNode
