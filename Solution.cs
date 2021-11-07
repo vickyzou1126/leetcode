@@ -382,6 +382,77 @@ namespace CodePractice
 
         #endregion
 
+        #region #16 -review
+        public int ThreeSumClosest(int[] nums, int target)
+        {
+            int length = nums.Length;
+            if (length == 3) return nums.Sum();
+
+            var list = nums.ToList();
+            list.Sort();
+
+            var positive = false;
+            int minDiff = int.MaxValue;
+
+            for (int i = 0; i < length - 2; i++)
+            {
+                for (int j = i + 1; j < length - 1; j++)
+                {
+                    for (int k = j + 1; k < length; k++)
+                    {
+                        var temp = list[i] + list[j] + list[k];
+                        if (minDiff > Math.Abs(temp - target))
+                        {
+                            minDiff = Math.Abs(temp - target);
+                            if (minDiff == 0) return target;
+                            positive = temp > target;
+                        }
+                    }
+                }
+            }
+
+            return positive ? target + minDiff : target - minDiff;
+        }
+
+        public int ThreeSumClosest2(int[] nums, int target)
+        {
+            int length = nums.Length;
+            if (length == 3) return nums.Sum();
+
+            var list = nums.ToList();
+            list.Sort();
+            int minDiff = int.MaxValue;
+            var ans = int.MaxValue;
+
+            for (int i = 0; i < length - 2; i++)
+            {
+                int left = i + 1;
+                int right = length - 1;
+                while (left < right)
+                {
+                    var sum = list[i] + list[left] + list[right];
+                    var diff = Math.Abs(sum - target);
+                    if (minDiff > diff)
+                    {
+                        minDiff = diff;
+                        ans = sum;
+                    }
+                    else if (sum < target)
+                    {
+                        left++;
+                    }
+                    else if (sum > target)
+                    {
+                        right--;
+                    }
+                    if (ans == target) return target;
+                }
+            }
+
+            return ans;
+        }
+        #endregion
+
         #region #17 dictionary 
         public IList<string> LetterCombinations(string digits)
         {
@@ -1507,6 +1578,28 @@ namespace CodePractice
         }
         #endregion
 
+        #region #119
+        public IList<int> GetRow(int rowIndex)
+        {
+            var init = new List<int> { 1 };
+
+            for (int i = 1; i <= rowIndex; i++)
+            {
+                var temp = new List<int>();
+                temp.Add(1);
+                for (int j = 1; j < i; j++)
+                {
+                    temp.Add(init[j - 1] + init[j]);
+                }
+                temp.Add(1);
+                if (i == rowIndex) return temp;
+                init = temp;
+            }
+
+            return init;
+        }
+        #endregion
+
         #region #121 review
         public int MaxProfit1(int[] prices)
         {
@@ -1606,6 +1699,66 @@ namespace CodePractice
             head.val = int.MinValue;
             return HasCycle(head.next);
         }
+        #endregion
+
+        #region #151
+        public string ReverseWords(string s)
+        {
+            var c = s.ToArray();
+            int low = 0;
+            var space = false;
+            int N = s.Length;
+            for (int i = 0; i < N; i++)
+            {
+                if (c[i] != ' ')
+                {
+                    c[low] = c[i];
+                    low++;
+                    space = false;
+                }
+                else if (!space && low != 0)
+                {
+                    c[low] = c[i];
+                    space = true;
+                    low++;
+                }
+            }
+            for (int i = low; i < N; i++)
+            {
+                c[i] = ' ';
+            }
+            ReverseString(c, 0, N);
+            low = 0;
+
+            for (int i = 0; i < N; i++)
+            {
+                if (c[i] == ' ' || i == N - 1)
+                {
+                    if (low < i)
+                    {
+                        ReverseString(c, low, i == N - 1 ? i + 1 : i);
+                    }
+                    low = i + 1;
+                }
+
+            }
+            return string.Join("", c).Trim(' ');
+        }
+
+        public void ReverseString(char[] s, int start, int end)
+        {
+            int n = end - start;
+            for (int i = start; i < start + n / 2; i++)
+            {
+                var temp = s[i];
+                var j = start + end - 1 - i;
+                s[i] = s[j];
+                s[j] = temp;
+            }
+        }
+        #endregion
+
+        #region #155 - see MinStack
         #endregion
 
         #region #160 ListNode - not completed
@@ -1878,6 +2031,55 @@ namespace CodePractice
                 s[i] = s[j];
                 s[j] = temp;
             }
+        }
+        #endregion
+
+        #region #350
+        public int[] Intersect(int[] nums1, int[] nums2)
+        {
+            var dic1 = nums1.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var dic2 = nums2.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var list = new List<int>();
+            foreach (var d in dic1)
+            {
+                if (dic2.ContainsKey(d.Key))
+                {
+                    for (int i = 0; i < Math.Min(d.Value, dic2[d.Key]); i++)
+                    {
+                        list.Add(d.Key);
+                    }
+                }
+            }
+            return list.ToArray();
+        }
+        #endregion
+
+        #region #387 review
+        public int FirstUniqChar(string s)
+        {
+            var array = s.ToArray();
+            var dic = array.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            dic = dic.Where(x => x.Value == 1).ToDictionary(x => x.Key, x => x.Value);
+            int ans = 0;
+            foreach (var c in array)
+            {
+                if (dic.ContainsKey(c)) return ans;
+                ans++;
+            }
+            return -1;
+        }
+
+        public int FirstUniqChar2(string s)
+        {
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (s.IndexOf(s[i]) == s.LastIndexOf(s[i]))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
         #endregion
         #endregion
