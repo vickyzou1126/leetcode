@@ -1588,6 +1588,25 @@ namespace CodePractice
         }
         #endregion
 
+        #region #112 TreeNode
+        public bool HasPathSum(TreeNode root, int targetSum)
+        {
+            if (root == null) return false;
+            return HasPathSum(root, targetSum, 0);
+        }
+
+        public bool HasPathSum(TreeNode root, int targetSum, int sum)
+        {
+            if (root.left == null && root.right == null) return (sum + root.val) == targetSum;
+
+            if (root.left != null && HasPathSum(root.left, targetSum, sum + root.val)) return true;
+
+            if (root.right != null && HasPathSum(root.right, targetSum, sum + root.val)) return true;
+
+            return false;
+        }
+        #endregion
+
         #region #118 
         public IList<IList<int>> Generate(int numRows)
         {
@@ -1733,6 +1752,36 @@ namespace CodePractice
         }
         #endregion
 
+        #region #144 TreeNode
+        public IList<int> PreorderTraversal(TreeNode root)
+        {
+            return PreorderTraversal(root, new List<int>());
+        }
+
+        private IList<int> PreorderTraversal(TreeNode root, IList<int> list)
+        {
+            if (root == null) return list;
+            list.Add(root.val);
+            list = PreorderTraversal(root.left, list);
+            return PreorderTraversal(root.right, list);
+        }
+        #endregion
+
+        #region #145
+        public IList<int> PostorderTraversal(TreeNode root)
+        {
+            return PostorderTraversal(root, new List<int>());
+        }
+        private IList<int> PostorderTraversal(TreeNode root, IList<int> list)
+        {
+            if (root == null) return list;
+            list = PostorderTraversal(root.left, list);
+            list = PostorderTraversal(root.right, list);
+            list.Add(root.val);
+            return list;
+        }
+        #endregion
+
         #region #151
         public string ReverseWords(string s)
         {
@@ -1851,6 +1900,37 @@ namespace CodePractice
         }
         #endregion
 
+        #region #203 ListNode review
+        public ListNode RemoveElements(ListNode head, int val)
+        {
+            ListNode previous = head;
+            ListNode next = head;
+            while (next != null)
+            {
+                if (next.val == val)
+                {
+                    if (next == head)
+                    {
+                        head = next.next;
+                    }
+                    else
+                    {
+                        previous.next = next.next;
+                    }
+                }
+                else
+                {
+                    previous = next;
+                }
+
+                next = next.next;
+
+            }
+            return head;
+        }
+
+        #endregion
+
         #region #206 ListNode
         public ListNode ReverseList(ListNode head)
         {
@@ -1892,6 +1972,19 @@ namespace CodePractice
             InvertTree(root.right);
             return root;
 
+        }
+        #endregion
+
+        #region #231
+        public bool IsPowerOfTwo(int n)
+        {
+            if (n <= 0) return false;
+            if (n == 1) return true;
+            while (n % 2 != 1)
+            {
+                n = n / 2;
+            }
+            return n == 1; 
         }
         #endregion
 
@@ -2052,6 +2145,19 @@ namespace CodePractice
         }
         #endregion
 
+        #region #342
+        public bool IsPowerOfFour(int n)
+        {
+            if (n <= 0) return false;
+            if (n == 1) return true;
+            while(n%4 == 0)
+            {
+                n = n / 4;
+            }
+            return n == 1;
+        }
+        #endregion
+
         #region #344
         public void ReverseString(char[] s)
         {
@@ -2163,6 +2269,22 @@ namespace CodePractice
             return dic.Where(x => x.Value == 1).Select(x => x.Key).ToList();
         }
         #endregion
+        #endregion
+
+        #region #509
+        public int Fib(int n)
+        {
+            if (n <= 1) return n;
+            var list = new List<int> { 0, 1 };
+            int index = 2;
+            while (index < n)
+            {
+                list.Add(list[index - 2] + list[index - 1]);
+                index++;
+            }
+            return list[index - 2] + list[index - 1];
+        }
+
         #endregion
 
         #region #617 Tree review
