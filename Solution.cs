@@ -244,6 +244,25 @@ namespace CodePractice
         }
         #endregion
 
+        #region #11
+        public int MaxArea(int[] height)
+        {
+            int length = height.Length;
+            int lowIndex = 0;
+            int highIndex = length - 1;
+            int max = 0;
+            while(lowIndex < highIndex)
+            {
+                var leftIsLower = height[lowIndex] < height[highIndex];
+                var area = (highIndex - lowIndex) * (leftIsLower ? height[lowIndex] : height[highIndex]);
+                if (max < area) max = area;
+                if (leftIsLower) lowIndex++;
+                else highIndex--;
+            }
+            return max;
+        }
+        #endregion
+
         #region #12
         public string IntToRoman(int num)
         {
@@ -1929,6 +1948,32 @@ namespace CodePractice
             return head;
         }
 
+        #endregion
+
+        #region #205 word pattern review
+        public bool IsIsomorphic(string s, string t)
+        {
+            int len = s.Length;
+            var dic = new Dictionary<char, char>();
+            char[] sArr = s.ToCharArray(), tArr = t.ToCharArray();
+
+            for (int i = 0; i < len; i++)
+            {
+                if (dic.ContainsKey(sArr[i]))
+                {
+                    if (dic[sArr[i]] != tArr[i])
+                        return false;
+                }
+                else
+                {
+                    if (dic.ContainsValue(tArr[i]))
+                        return false;
+                    else
+                        dic.Add(sArr[i], tArr[i]);
+                }
+            }
+            return true;
+        }
         #endregion
 
         #region #206 ListNode
