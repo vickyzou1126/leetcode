@@ -554,39 +554,28 @@ namespace CodePractice
         #endregion
 
         #region #19 ListNode
-        public ListNode RemoveNthFromEnd(ListNode head, int n)
-        {
-            if (head.next == null) return null;
-            var dummyHead = new ListNode(head.val, null);
-            var temp = head.next;
-            while (temp != null)
+        public ListNode RemoveNthFromEnd(ListNode head, int n) {
+            var newHead = ReverseList(head);
+            int num = 1;
+            ListNode newNode = null;
+            while (newHead != null)
             {
-                var newNode = new ListNode(temp.val, dummyHead);
-                dummyHead = newNode;
-                temp = temp.next;
-            }
-            int index = 1;
-            if (n == 1)
-            {
-                dummyHead = dummyHead.next;
-            }
-            var dummyEnd = new ListNode(dummyHead.val, null);
-            var temp1 = dummyHead.next;
-            index++;
-            while (temp1 != null)
-            {
-                if (index == n)
+                if (num != n)
                 {
-                    temp1 = temp1.next;
-                    if (temp1 == null) break;
+                    if (newNode == null)
+                    {
+                        newNode = new ListNode(newHead.val, null);
+                    }
+                    else
+                    {
+                        var temp = new ListNode(newHead.val, newNode);
+                        newNode = temp;
+                    }
                 }
-
-                var newNode = new ListNode(temp1.val, dummyEnd);
-                dummyEnd = newNode;
-                temp1 = temp1.next;
-                index++;
+                newHead = newHead.next;
+                num++;
             }
-            return dummyEnd;
+            return newNode;
         }
         #endregion
 
@@ -1864,6 +1853,101 @@ namespace CodePractice
         #region #160 ListNode - not completed
         #endregion
 
+        #region #167
+        public int[] TwoSum2(int[] numbers, int target)
+        {
+            int i = 0; 
+            int j = numbers.Length-1;
+            while (i < j)
+            {
+                var sum = numbers[i] + numbers[j];
+                if (sum == target) return new int[2] { i + 1, j + 1 };
+                if (sum < target) i++;
+                else j++;
+            }
+            return new int[2] { 0, 0 };
+        }
+        public int[] TwoSum(int[] numbers, int target)
+        {
+            int lowIndex = 0;
+            int highIndex = lowIndex + 1;
+            int[] array = new int[2];
+            int length = numbers.Length;
+            while (lowIndex < length - 1)
+            {
+                var sum = numbers[lowIndex] + numbers[highIndex];
+                if (sum == target) return new int[2] { lowIndex + 1, highIndex + 1 };
+                if (sum < target)
+                {
+                    highIndex++;
+                    if (highIndex == length)
+                    {
+                        lowIndex++;
+                        highIndex = lowIndex + 1;
+                    }
+                }
+                else
+                {
+                    lowIndex++;
+                    highIndex = lowIndex + 1;
+                }
+            }
+            return array;
+        }
+        #endregion
+
+        #region #168  review
+        public string ConvertToTitle(int columnNumber)
+        {
+            int index = 1;
+            var dic = new Dictionary<int, char>();
+            for (char letter = 'A'; letter <= 'Z'; letter++)
+            {
+                dic[index] = letter;
+                index++;
+            }
+            if (dic.ContainsKey(columnNumber)) return dic[columnNumber].ToString();
+            var list = new List<double[]>();
+            list.Add(new double[2] { 1, 26 });
+            double sum = 26;
+            int n = 1;
+            while (sum < columnNumber)
+            {
+                n++;
+                var min = list.Last()[1] + 1;
+                double max = 0;
+                for (int i = n; i >= 1; i--)
+                {
+                    max += Math.Pow(26, i);
+                }
+                list.Add(new double[2] { min, max });
+                sum = max;
+            }
+            return GetString(n, "", columnNumber, dic);
+        }
+
+        private string GetString(int n, string str, double columnNumber, Dictionary<int, char> dic)
+        {
+            if (columnNumber == 0) return str;
+            double max = 0;
+            for (int j = n - 1; j >= 1; j--)
+            {
+                max += Math.Pow(26, j);
+            }
+          
+            for (int i = 1; i <= 26; i++)
+            {
+                var remainder = columnNumber - i * Math.Pow(26, n - 1);
+                if (remainder <= max)
+                {
+                    str = str + dic[i].ToString();
+                    return GetString(n - 1, str, remainder, dic);
+                }
+            }
+            return str;
+        }
+        #endregion
+
         #region #169 grouping
         public int MajorityElement(int[] nums)
         {
@@ -2005,6 +2089,44 @@ namespace CodePractice
         }
         #endregion
 
+        #region #219
+        public bool ContainsNearbyDuplicate(int[] nums, int k)
+        {
+            var dic = new Dictionary<int, List<int>>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (dic.ContainsKey(nums[i]))
+                {
+                    if (i - dic[nums[i]].Last() <= k) return true;
+                    dic[nums[i]].Add(i);
+                }
+                else
+                {
+                    dic.Add(nums[i], new List<int> { i });
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsNearbyDuplicate2(int[] nums, int k)
+        {
+            HashSet<int> hashSet = new HashSet<int>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (i > k)
+                {
+                    hashSet.Remove(nums[i - k - 1]);
+                }
+                if (!hashSet.Add(nums[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
         #region #226 ListNode
         public TreeNode InvertTree(TreeNode root)
         {
@@ -2127,6 +2249,47 @@ namespace CodePractice
         #endregion
 
         #region 301-400
+
+        #region #322 -dp
+        public int CoinChange(int[] coins, int amount)
+        {
+            if (amount == 0) return 0;
+            var min = coins.Min();
+            if (min > amount) return -1;
+
+            long[] array = new long[amount + 1];
+            array[0] = 0;
+            for (int i = 1; i < min; i++)
+            {
+                array[i] = int.MaxValue;
+            }
+
+            for (int i = min; i <= amount; i++)
+            {
+                if (coins.Contains(i))
+                {
+                    array[i] = 1;
+                }
+                else
+                {
+                    array[i] = int.MaxValue;
+                    for (int j = 1; j <= (i - 2) / 2 + 1; j++)
+                    {
+                        if (array[j] != int.MaxValue && array[i-j] != int.MaxValue)
+                        {
+                            if (array[i] > array[j] + array[i - j])
+                            {
+                                array[i] = array[j] + array[i - j];
+                            }
+                        }
+                    }
+                }
+            }
+            return array[amount] == int.MaxValue ? -1 : (int)array[amount];
+        }
+
+        #endregion
+
         #region #326
         public bool IsPowerOfThree(int n)
         {
