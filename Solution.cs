@@ -748,75 +748,80 @@ namespace CodePractice
         }
         #endregion
 
-        #region #34
+        #region #34 - sliding window
         public int[] SearchRange(int[] nums, int target)
         {
-            int N = nums.Length;
-
-            if (N == 0) return new int[] { -1, -1 };
-            if (N == 1)
+            int length = nums.Length;
+            if (length == 1 && nums[0] == target) return new int[] { 0, 0 };
+            int[] ans = new int[2] { -1, -1};
+            int lowIndex = 0;
+            int highIndex = length - 1;
+            while(lowIndex < highIndex)
             {
-                if (nums[0] == target) return new int[] { 0, 0 };
-                return new int[] { -1, -1 };
-            }
-
-            return Search2(nums, 0, N - 1, target);
-        }
-        private int[] Search2(int[] nums, int startIndex, int endIndex, int target)
-        {
-            if (endIndex == startIndex && nums[startIndex] != target) return new int[] { -1, -1 };
-
-            var midIndex = startIndex + (endIndex - startIndex) / 2;
-            var midV = nums[midIndex];
-            var lowIndex = startIndex;
-            var highIndex = endIndex;
-            if (midV == target)
-            {
-                lowIndex = midIndex;
-                highIndex = midIndex;
-                for (int i = midIndex - 1; i >= 0; i--)
+                int min = nums[lowIndex];
+                int max = nums[highIndex];
+                if(min>target || max<target)
+                    return ans;
+               
+                if (min == target)
                 {
-                    if (nums[i] == target)
-                    {
-                        lowIndex = i;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                for (int i = midIndex + 1; i < nums.Length; i++)
-                {
-                    if (nums[i] == target)
-                    {
-                        highIndex = i;
-                    }
-                    else
-                    {
-                        return new int[] { lowIndex, highIndex };
-                    }
-                }
-                return new int[] { lowIndex, highIndex };
-            }
-            else
-            {
-                if (midV < target)
-                {
-                    if (midIndex + 1 <= endIndex)
-                    {
-                        return Search2(nums, midIndex + 1, endIndex, target);
-                    }
+                    ans[0] = lowIndex;
                 }
                 else
                 {
-                    if (midIndex - 1 >= 0)
+                    lowIndex++;
+                }
+
+                if (max == target)
+                {
+                    ans[1] = highIndex;
+                }
+                else
+                {
+                    highIndex--;
+                }
+
+                if (ans[0] != -1 && ans[1] != -1) return ans;
+                if (ans[0] != -1)
+                {
+                    highIndex = lowIndex + 1;
+                    while (highIndex < length)
                     {
-                        return Search2(nums, startIndex, midIndex - 1, target);
+                        if (nums[highIndex] > target)
+                        {
+                            ans[1] = highIndex - 1;
+                            return ans;
+                        }
+                        else
+                        {
+                            highIndex++;
+                        }
                     }
+                    ans[1] = highIndex - 1;
+                    return ans;
+                }
+                else if(ans[1] != -1)
+                {
+                    lowIndex = highIndex - 1;
+                    while (lowIndex >= 0)
+                    {
+                        if (nums[lowIndex] < target)
+                        {
+                            ans[0] = lowIndex + 1;
+                            return ans;
+                        }
+                        else
+                        {
+                            lowIndex--;
+                        }
+
+                    }
+                    ans[0] = 0;
+                    return ans;
                 }
             }
-
-            return new int[] { -1, -1 };
+ 
+            return ans;
         }
         #endregion
 
@@ -2142,6 +2147,40 @@ namespace CodePractice
         }
         #endregion
 
+        #region #228
+        public IList<string> SummaryRanges(int[] nums)
+        {
+            var list = new List<string>();
+            int length = nums.Length;
+            if (length == 0) return list;
+            int preIndex = 0;
+            for(int i = 1; i < length; i++)
+            {
+                if (nums[i] > 1 + nums[i - 1])
+                {
+                    if(preIndex == i - 1)
+                    {
+                        list.Add(nums[preIndex].ToString());
+                    }
+                    else
+                    {
+                        list.Add(nums[preIndex].ToString() + "->" + nums[i - 1].ToString());
+                    }
+                    preIndex = i;
+                }
+            }
+            if (preIndex == length-1)
+            {
+                list.Add(nums[preIndex].ToString());
+            }
+            else
+            {
+                list.Add(nums[preIndex].ToString() + "->" + nums[length - 1].ToString());
+            }
+            return list;
+        }
+        #endregion
+
         #region #231
         public bool IsPowerOfTwo(int n)
         {
@@ -2166,6 +2205,28 @@ namespace CodePractice
                 reversedNode = reversedNode.next;
             }
             return true;
+        }
+        #endregion
+
+        #region #235 TreeNode  binary search tree  - review
+        public TreeNode LowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)
+        {
+
+            if (root == null || p == null || q == null)
+                return null;
+
+            var maxValue = Math.Max(p.val, q.val);
+            var minValue = Math.Min(p.val, q.val);
+
+            if (maxValue < root.val)
+            {
+                return LowestCommonAncestor(root.left, p, q);
+            }
+
+            if (minValue > root.val)
+                return LowestCommonAncestor(root.right, p, q);
+
+            return root;
         }
         #endregion
 
@@ -2535,6 +2596,7 @@ namespace CodePractice
         }
         #endregion
 
+        #region 1900-2000
         #region #1929
         public int[] GetConcatenation(int[] nums)
         {
@@ -2550,7 +2612,7 @@ namespace CodePractice
         {
             var dic = new Dictionary<char, List<int>>();
             var array = s.ToArray();
-            for (int i=0;i<array.Length;i++)
+            for (int i = 0; i < array.Length; i++)
             {
                 if (dic.ContainsKey(array[i]))
                 {
@@ -2562,20 +2624,75 @@ namespace CodePractice
                 }
             }
 
-            var length = dic.Keys.Count()-1;
+            var length = dic.Keys.Count() - 1;
             int res = 0;
-            foreach(var d in dic.Where(x => x.Value.Count > 1))
+            foreach (var d in dic.Where(x => x.Value.Count > 1))
             {
                 var maxIndex = d.Value.Max();
                 var minIndex = d.Value.Min();
-                foreach(var other in dic.Where(x=>x.Key != d.Key && x.Value.Any(v => v>minIndex && v<maxIndex )))
+                foreach (var other in dic.Where(x => x.Key != d.Key && x.Value.Any(v => v > minIndex && v < maxIndex)))
                 {
                     res++;
                 }
-                if (d.Value.Count >2) res++;
+                if (d.Value.Count > 2) res++;
             }
             return res;
         }
+        #endregion
+
+        #region #1935
+        public int CanBeTypedWords(string text, string brokenLetters)
+        {
+            var words = text.Split(" ");
+            if (brokenLetters.Length == 0) return words.Length;
+            var array = brokenLetters.ToArray();
+            int num = 0;
+            foreach(string s in words)
+            {
+                var flag = true;
+                foreach(var c in s.ToArray())
+                {
+                    if (array.Contains(c))
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) num++;
+            }
+            return num;
+        }
+        #endregion
+
+        #region #1936
+        public int AddRungs(int[] rungs, int dist)
+        {
+            int length = rungs.Length;
+            if (rungs[length - 1] <= dist) return 0;
+            int ans = 0;
+            int step = 0;
+            int index = 0;
+            while (index < length && step < rungs[length - 1])
+            {
+                if (rungs[index] - step > dist)
+                {
+                    var steps = (rungs[index] - step) / dist;
+                    if ((rungs[index] - step) % dist == 0)
+                    {
+                        steps = steps / 2;
+                    }
+                    ans += steps;
+                    step += steps * dist;
+                }
+                else
+                {
+                    step = rungs[index];
+                    index++;
+                }
+            }
+            return ans;
+        }
+        #endregion
         #endregion
     }
 
