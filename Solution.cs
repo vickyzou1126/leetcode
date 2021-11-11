@@ -727,24 +727,54 @@ namespace CodePractice
         #region #33
         public int Search(int[] nums, int target)
         {
-            int N = nums.Length;
+            int length = nums.Length;
             if (nums[0] == target) return 0;
-            if (N == 1)
+
+            if (length == 1)
             {
                 return -1;
             }
-            bool rotated = false;
-            for (int i = 1; i < N; i++)
+            if (nums[0] < nums[length - 1])
             {
-                if (nums[i] == target) return i;
-                if (nums[i] < nums[i - 1])
+                if (nums[0] > target) return -1;
+                return FindValue(nums, 0, length - 1, target);
+            }
+            if (nums[0] > target)
+            {
+                for (int i = length - 1; i >= 0; i--)
                 {
-                    rotated = true;
+                    if (nums[i] == target) return i;
+                    if (nums[i - 1] > nums[i])
+                    {
+                        return -1;
+                    }
                 }
-
-                if (rotated && nums[i] > target) return -1;
+            }
+            else
+            {
+                for (int i = 0; i < length - 1; i++)
+                {
+                    if (nums[i] == target) return i;
+                    if (nums[i] > nums[i + 1]) return -1;
+                }
             }
             return -1;
+        }
+
+        private int FindValue(int[] nums, int start, int end, int target)
+        {
+            int mid = (end - start) / 2 + start;
+            if (nums[mid] == target) return mid;
+            if (nums[mid] < target)
+            {
+                if (mid + 1 > end) return -1;
+                return FindValue(nums, mid + 1, end, target);
+            }
+            else
+            {
+                if (start > mid - 1) return -1;
+                return FindValue(nums, start, mid - 1, target);
+            }
         }
         #endregion
 
