@@ -90,6 +90,47 @@ namespace CodePractice
         }
         #endregion
 
+        #region #4
+        public double FindMedianSortedArrays(int[] nums1, int[] nums2)
+        {
+            int length1 = nums1.Length;
+            int length2 = nums2.Length;
+            int sum = length1 + length2;
+            int mid = sum / 2;
+            int index1 = 0;
+            int index2 = 0;
+            var list = new List<int>();
+            int cul = 0;
+            while (cul < mid + 1)
+            {
+                int val1 = int.MaxValue;
+                if (index1 < length1)
+                {
+                    val1 = nums1[index1];
+                }
+                int val2 = int.MaxValue;
+                if (index2 < length2)
+                {
+                    val2 = nums2[index2];
+                }
+                if (val1 <= val2)
+                {
+                    list.Add(nums1[index1]);
+                    index1++;
+                }
+                else
+                {
+                    list.Add(nums2[index2]);
+                    index2++;
+                }
+                cul++;
+            }
+
+            if (sum % 2 == 1) { return list.Last(); }
+            return (list[mid - 1] + list[mid]) / 2.0;
+        }
+        #endregion
+
         #region #5
         public string LongestPalindrome(string s)
         {
@@ -579,6 +620,46 @@ namespace CodePractice
         }
         #endregion
 
+        #region #22 - review
+        public IList<string> GenerateParenthesis(int n)
+        {
+            var lists = new List<HashSet<string>>();
+            lists.Add(new HashSet<string> { "()" });
+
+            for (int i = 2; i <= n; i++)
+            {
+                var newList = new HashSet<string>();
+                foreach (var str in lists[i - 2])
+                {
+                    var leftIndex = new List<int> { 0 };
+                    var cul = 0;
+                    for (int j = 0; j < str.Length; j++)
+                    {
+                        if (str[j] == '(') cul++;
+                        if (str[j] == ')') cul--;
+                        if (cul == 0)
+                        {
+                            foreach (int index in leftIndex)
+                            {
+                                // cover all
+                                newList.Add(str.Insert(index, "(").Insert(j + 2, ")"));
+                                // put aside
+                                newList.Add(str.Insert(index, "()"));
+                                newList.Add(str.Insert(j + 1, "()"));
+                            }
+
+                            leftIndex.Add(j + 1);
+                        }
+
+                    }
+                }
+                lists.Add(newList);
+            }
+
+            return lists[n - 1].ToList();
+        }
+        #endregion
+
         #region #24 ListNode
         public ListNode SwapPairs(ListNode head)
         {
@@ -721,6 +802,56 @@ namespace CodePractice
                 result += result;
             }
             return result + divide(dividend - sum, divisor);
+        }
+        #endregion
+
+        #region #32 - review
+        public int LongestValidParentheses(string s)
+        {
+            if (s.Length <= 1) return 0;
+            int index = 0;
+            var list = new List<int>();
+            var length = s.Length;
+            int left = 0;
+
+            while (index < length)
+            {
+                if (s[index] == '(')
+                {
+                    list.Add(index);
+                    left++;
+                }
+                else
+                {
+                    if (left > 0)
+                    {
+                        left--;
+                        list.RemoveAt(list.Count - 1);
+                    }
+                    else
+                    {
+                        list.Add(index);
+                    }
+                }
+                index++;
+            }
+
+            int num = list.Count;
+
+            if (num == 0) return length;
+
+            if (num == 1) return Math.Max(list[0] - 0, length - list[0] - 1);
+
+            var max = Math.Max(list[0] - 0, length - list[num - 1] - 1);
+            for (int i = 0; i < num - 1; i++)
+            {
+                if (list[i + 1] - list[i] - 1 > max)
+                {
+                    max = list[i + 1] - list[i] - 1;
+                }
+            }
+
+            return max;
         }
         #endregion
 
