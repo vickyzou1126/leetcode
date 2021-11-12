@@ -1161,6 +1161,65 @@ namespace CodePractice
         }
         #endregion
 
+        #region #48 --- review matrix rotate -> transpose
+        public void Rotate(int[][] matrix)
+        {
+            int size = matrix[0].Length;
+            if (size == 1) return;
+            // transpose 
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j <= i; j++)
+                {
+                    int swap = matrix[i][j];
+                    matrix[i][j] = matrix[j][i];
+                    matrix[j][i] = swap;
+                }
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                for (int j = 0; j < size / 2; j++)
+                {
+                    int swap = matrix[i][j];
+                    matrix[i][j] = matrix[i][size - j - 1];
+                    matrix[i][size - j - 1] = swap;
+                }
+            }
+        }
+        #endregion
+
+        #region #49
+        public IList<IList<string>> GroupAnagrams(string[] strs)
+        {
+            int length = strs.Count();
+            var list = new List<IList<string>>();
+
+            var dic = new Dictionary<string, IList<string>> ();
+            for(int i=0;i<length;i++)
+            {
+                char[] arr = strs[i].ToCharArray();
+                Array.Sort(arr);
+
+                var temp = String.Join("", arr);
+                if (dic.ContainsKey(temp))
+                {
+                    dic[temp].Add(strs[i]);
+                }
+                else
+                {
+                    dic.Add(temp, new List<string> { strs[i] });
+                }
+            }
+
+            foreach(var d in dic)
+            {
+                list.Add(d.Value);
+            }
+            return list;
+        }
+        #endregion
+
         #region #53 -sliding window review
         /*
          * solution:
@@ -1180,6 +1239,30 @@ namespace CodePractice
                 sumMax = sumMax > currentSum ? sumMax : currentSum;
             }
             return sumMax;
+        }
+        #endregion
+
+        #region #55 - review
+        // https://www.youtube.com/watch?v=muDPTDrpS28
+        public bool CanJump(int[] nums)
+        {
+            int length = nums.Length;
+            if (length == 1) return true;
+            if (nums[0] == 0) return false;
+            if (nums[0] >= length - 1) return true;
+
+            int reachable = 0;
+            int index = 0;
+            while (index <= reachable)
+            {
+                if (index + nums[index] > reachable)
+                {
+                    reachable = index + nums[index];
+                    if (reachable >= length - 1) return true;
+                }
+                index++;
+            }
+            return false;
         }
         #endregion
 
@@ -1417,6 +1500,32 @@ namespace CodePractice
                 length++;
             }
             return length;
+        }
+        #endregion
+
+        #region #62
+        public int UniquePaths(int m, int n)
+        {
+            if (m == 1 || n == 1) return Math.Max(m, n)-1;
+            int[,] matrix = new int[m,n];
+            // init first line
+            for(int i = 0; i < n; i++)
+            {
+                matrix[0,i] = 1;
+            }
+            // first cul
+            for(int i = 1; i < m; i++)
+            {
+                matrix[i, 0] = 1;
+            }
+            for(int i = 1; i < m; i++)
+            {
+                for(int j = 1; j < n; j++)
+                {
+                    matrix[i, j] = matrix[i, j - 1] + matrix[i - 1, j];
+                }
+            }
+            return matrix[m - 1,n - 1];
         }
         #endregion
 
