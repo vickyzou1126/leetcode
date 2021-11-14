@@ -1257,58 +1257,35 @@ namespace CodePractice
         #region #56
         public int[][] Merge(int[][] intervals)
         {
-            int[][] jaggedArray = new int[10000][];
-            for (int i = 0; i < 10000; i++)
-            {
-                jaggedArray[i] = new int[] { i, -1 };
-            }
+            int size = intervals.Count();
+            if (size == 1) return intervals;
 
-            List<int> index = new List<int>();
-            for (int i = 0; i < intervals.Length; i++)
-            {
-                int loc = intervals[i][0];
-                jaggedArray[loc][1] = Math.Max(jaggedArray[loc][1], intervals[i][1]);
-                if (!index.Contains(loc))
-                {
-                    index.Add(loc);
-                }
-            }
-            index.Sort();
+            Array.Sort(intervals, (a, b) => { return a[0] - b[0]; });
             var list = new List<int[]>();
-            int min = -1;
-            int max = -1;
-
-            for (int loc = 0; loc < index.Count(); loc++)
+            int min = intervals[0][0];
+            int max = intervals[0][1];
+            for (int i = 1; i < size; i++)
             {
-                var i = index[loc];
-                if (jaggedArray[i][0] > max)
+                if (intervals[i][0] > max)
                 {
-                    var maxIsmin = max == -1;
-
-                    if (!maxIsmin)
-                    {
-                        list.Add(new int[] { min, max });
-                    }
-
-                    min = jaggedArray[i][0];
-                    max = jaggedArray[i][1];
+                    list.Add(new int[] { min, max });
+                    min = intervals[i][0];
+                    max = intervals[i][1];
+                }
+                else if (intervals[i][0] == max)
+                {
+                    max = intervals[i][1];
                 }
                 else
                 {
-                    max = Math.Max(jaggedArray[i][1], max);
+                    min = Math.Min(min, intervals[i][0]);
+                    max = Math.Max(max, intervals[i][1]);
                 }
             }
-
             list.Add(new int[] { min, max });
-
-            int[][] res = new int[list.Count()][];
-            for (int i = 0; i < list.Count(); i++)
-            {
-                res[i] = new int[] { list[i][0], list[i][1] };
-            }
-
-            return res;
+            return list.ToArray();
         }
+
         #endregion
 
         #region #57
@@ -1517,6 +1494,46 @@ namespace CodePractice
         }
         #endregion
 
+        #region #64
+        public int MinPathSum(int[][] grid)
+        {
+            int row = grid.Count();
+            int cul = grid[0].Count();
+  
+            int[][] sums = new int[row][];
+            for (int i = 0; i < row; i++)
+            {
+                sums[i] = new int[cul];
+            }
+            // init 1st row
+            int temp = 0;
+            for (int i = 0; i < cul; i++)
+            {
+                sums[0][i] = temp + grid[0][i];
+                temp += grid[0][i];
+            }
+
+            // 1st cul
+            temp = 0;
+            for (int j = 0; j < row; j++)
+            {
+                sums[j][0] = temp + grid[j][0];
+                temp += grid[j][0];
+            }
+
+            for (int i = 1; i < row; i++)
+            {
+                for (int j = 1; j < cul; j++)
+                {
+                    sums[i][j] = Math.Min(sums[i][j - 1], sums[i - 1][j]) + grid[i][j];
+                }
+            }
+
+            return sums[row - 1][cul - 1];
+        }
+        #endregion
+
+
         #region #66
         public int[] PlusOne(int[] digits)
         {
@@ -1653,6 +1670,171 @@ namespace CodePractice
                 times[i] += times[i - 2];
             }
             return times[n - 1];
+        }
+        #endregion
+
+        #region #79 review
+        /*public bool Exist(char[][] board, string word)
+        {
+            int row = board.Count();
+            int cul = board[0].Count();
+            int wordl = word.Length;
+            if (row * cul < wordl) return false;
+            if (row * cul == 1) return board[0][0] == word[0];
+
+            var dic = new Dictionary<char, List<int[]>>();
+            var array = word.ToArray();
+            var wordDic = array.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var lists = new List<int[]>();
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < cul; j++)
+                {
+                    if (array.Contains(board[i][j]))
+                    {
+                        if (!dic.ContainsKey(board[i][j]))
+                        {
+                            dic.Add(board[i][j], new List<int[]>());
+                        }
+                        dic[board[i][j]].Add(new int[2] { i, j });
+                        wordDic[board[i][j]]--;
+                        lists.Add(new int[2] { i, j });
+                    }
+                }
+            }
+
+            if (wordDic.Values.Any(x => x > 0)) return false;
+
+            foreach(var d in dic)
+            {
+                var temp = new List<int[]>();
+                foreach(var v in d.Value)
+                {
+                    if(lists.Any(x=>isAdjecent(v, x)))
+                    {
+                        temp.Add(v); 
+                    } 
+                }
+                if (temp.Count > 0)
+                {
+                    dic[d.Key] = temp;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return Exist(board, dic, array, new List<int[]>(), 0);
+
+        }
+
+        private bool Exist(char[][] board, Dictionary<char, List<int[]>> dictionary, char[] word, List<int[]> path, int index)
+        {
+
+            if (index == word.Length) return true;
+
+            var val = word[index];
+            foreach (var spot in dictionary[val])
+            {
+
+                if (path.Any(x => x[0] == spot[0] && x[1] == spot[1])) continue;
+                if (path.LastOrDefault() != null)
+                {
+                    if (!isAdjecent(path.Last(), spot)) continue;
+                }
+                path.Add(spot);
+                index++;
+                if (Exist(board, dictionary, word, path, index)) return true;
+                path.RemoveAt(path.Count() - 1);
+                index--;
+            }
+            return false;
+        }
+
+        private bool isAdjecent(int[] a, int[] b)
+        {
+            int rowa = a[0];
+            int cula = a[1];
+            int rowb = b[0];
+            int culb = b[1];
+            if (rowa == rowb && Math.Abs(cula - culb) == 1) return true;
+            if (cula == culb && Math.Abs(rowa - rowb) == 1) return true;
+            return false;
+        }*/
+
+        public bool Exist(char[][] board, string word)
+        {
+
+            int row = board.Count();
+            int cul = board[0].Count();
+            bool[][] visited = new bool[row][]; 
+            for(int i = 0; i < row; i++)
+            {
+                visited[i] = new bool[cul];
+            }
+
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < cul; j++)
+                {
+                    if (word[0] == board[i][j])
+                    {
+                        visited[i][j] = true;
+                        if (Exist(board, word, visited, 1, i, j, row, cul)) return true;
+                        visited[i][j] = false;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool Exist(char[][] board, string word, bool[][] visited, int index, int i, int j, int row, int cul)
+        {
+            if (index == word.Length) return true;
+
+            var val = word[index];
+
+            if (j - 1 >= 0 && board[i][j - 1] == val)
+            {
+                if (!visited[i][j-1])
+                {
+                    visited[i][j-1]= true;
+                    if (Exist(board, word, visited, index + 1, i, j - 1, row, cul)) return true;
+                    visited[i][j - 1] = false;
+                }
+            }
+            if (j + 1 < cul && board[i][j + 1] == val)
+            {
+                if (!visited[i][j + 1])
+                {
+                    visited[i][j + 1] = true;
+                    if (Exist(board, word, visited, index + 1, i, j + 1, row, cul)) return true;
+                    visited[i][j + 1] = false;
+                }
+            }
+
+            if (i - 1 >= 0 && board[i - 1][j] == val)
+            {
+                if (!visited[i-1][j ])
+                {
+                    visited[i-1][j ] = true;
+                    if (Exist(board, word, visited, index +1, i-1, j, row, cul)) return true;
+                    visited[i-1][j] = false;
+                }
+            }
+
+            if (i + 1 < row && board[i + 1][j] == val)
+            {
+                if (!visited[i + 1][j])
+                {
+                    visited[i + 1][j] = true;
+                    if (Exist(board, word, visited, index + 1, i +1, j, row, cul)) return true;
+                    visited[i+1][j] = false;
+                }
+            }
+
+            return false;
         }
         #endregion
 
@@ -2012,6 +2194,34 @@ namespace CodePractice
         }
         #endregion
 
+        #region #128
+        public int LongestConsecutive(int[] nums)
+        {
+            int res = 0;
+            var hash = nums.ToHashSet();
+            var size = hash.Count;
+            if (size <= 1) return size;
+            int valmin = hash.Min();
+            int valmax = hash.Max();
+            while (valmin < valmax)
+            {
+                var temp = valmin;
+                while (hash.Contains(valmin))
+                {
+                    valmin++;
+                }
+                res = Math.Max(res, valmin - temp);
+                if (res >= size / 2) return res;
+                valmin++;
+                while (valmin < valmax && !hash.Contains(valmin))
+                {
+                    valmin++;
+                }
+            }
+            return res;
+        }
+        #endregion
+
         #region #141 ListNode
         public bool HasCycle(ListNode head)
         {
@@ -2240,6 +2450,26 @@ namespace CodePractice
             return sum;
         }
         #endregion
+
+        #region #198
+        public int Rob(int[] nums)
+        {
+            int length = nums.Length;
+            if (length == 1) return nums[0];
+            int max = Math.Max(nums[0], nums[1]);
+            for (int i = 2; i < length; i++)
+            {
+                var temp = 0;
+                for (int j = 0; j < i - 1; j++)
+                {
+                    temp = Math.Max(temp, nums[j]);
+                }
+                nums[i] = temp + nums[i];
+                max = Math.Max(max, nums[i]);
+            }
+            return max;
+        }
+        #endregion
         #endregion
 
         #region 201-300
@@ -2337,7 +2567,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #215  // - review
+        #region #215 - review
         public int FindKthLargest(int[] nums, int k)
         {
             Array.Sort(nums);
@@ -2798,6 +3028,21 @@ namespace CodePractice
             }
 
             return -1;
+        }
+        #endregion
+
+        #region #389
+        public char FindTheDifference(string s, string t)
+        {
+            if (s == "") return t[0];
+            var dics = s.ToArray().GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var dict = t.ToArray().GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            foreach (var d in dict)
+            {
+                if (!dics.ContainsKey(d.Key)) return d.Key;
+                if (d.Value != dics[d.Key]) return d.Key;
+            }
+            return t[0];
         }
         #endregion
         #endregion
