@@ -1015,57 +1015,45 @@ namespace CodePractice
         #region #36
         public bool IsValidSudoku(char[][] board)
         {
+            var culDic = new Dictionary<int, HashSet<int>>();
             for (int i = 0; i < 9; i++)
             {
-                HashSet<int> numbersr = new HashSet<int>();
-                int numsr = 0;
-                HashSet<int> numbersc = new HashSet<int>();
-                int numsc = 0;
+                // row
+                if (board[i].Where(x => x != '.').GroupBy(x => x).Select(x => x.Count()).Any(x => x > 1)) return false;
 
                 for (int j = 0; j < 9; j++)
                 {
-
-                    var grids = i % 3 == 0 && j % 3 == 0;
+                    // cul
                     if (board[i][j] != '.')
                     {
-                        numsr++;
-                        numbersr.Add(board[i][j]);
-                        if (numsr != numbersr.Count())
+                        if (culDic.ContainsKey(j))
                         {
-                            return false;
+                            if (!culDic[j].Add(board[i][j])) return false;
+                        }
+                        else
+                        {
+                            culDic.Add(j, new HashSet<int> { board[i][j] });
                         }
                     }
-                    if (board[j][i] != '.')
+
+                    var subBoardHash = new HashSet<int>();
+                    // 3*3
+                    if (i % 3 == 0 && j % 3 == 0)
                     {
-                        numsc++;
-                        numbersc.Add(board[j][i]);
-                        if (numsc != numbersc.Count())
+                        for (int subi = i; subi <= i + 2; subi++)
                         {
-                            return false;
-                        }
-                    }
-                    if (grids)
-                    {
-                        HashSet<int> numbers9 = new HashSet<int>();
-                        int numsgrid = 0;
-                        for (int k = i; k < i + 3; k++)
-                        {
-                            for (int l = j; l < j + 3; l++)
+                            for (int subj = j; subj <= j + 2; subj++)
                             {
-                                if (board[k][l] != '.')
+                                if (board[subi][subj] != '.')
                                 {
-                                    numbers9.Add(board[k][l]);
-                                    numsgrid++;
-                                    if (numbers9.Count() != numsgrid)
-                                    {
-                                        return false;
-                                    }
+                                    if (!subBoardHash.Add(board[subi][subj])) return false;
                                 }
                             }
                         }
                     }
                 }
             }
+
             return true;
         }
         #endregion
@@ -2349,6 +2337,36 @@ namespace CodePractice
         }
         #endregion
 
+        #region #215
+        public int FindKthLargest(int[] nums, int k)
+        {
+            Array.Sort(nums);
+            return nums[nums.Length - k];
+        }
+
+        public int FindKthLargestHeap(int[] nums, int k) // - review
+        {
+            var heap = new List<int>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (heap.Count < k)
+                {
+                    heap.Add(nums[i]);
+                }
+                else
+                {
+                    if (nums[i] > heap.Min())
+                    {
+                        heap.Remove(heap.Min());
+                        heap.Add(nums[i]);
+                    }
+                }
+            }
+            heap.Sort();
+            return heap.First();
+        }
+        #endregion
+
         #region #217 grouping
         public bool ContainsDuplicate(int[] nums)
         {
@@ -2792,6 +2810,61 @@ namespace CodePractice
         }
         #endregion
 
+        #region #415
+        public string AddStrings(string num1, string num2)
+        {
+            int l1 = num1.Length;
+            int l2 = num2.Length;
+            if (num1[0] == '0') return num2;
+            if (num2[0] == '0') return num1;
+
+            if (l1 < l2)
+            {
+                var n = num1;
+                num1 = num2;
+                num2 = n;
+                var ln = l1;
+                l1 = l2;
+                l2 = ln;
+            }
+
+            var diff = l1 - l2;
+            var ans = "";
+            bool carry = false;
+            int i;
+
+            for (i = l2 - 1; i >= 0; i--)
+            {
+                int val = int.Parse(num1[i + diff].ToString()) + int.Parse(num2[i].ToString());
+                if (carry)
+                {
+                    val++;
+                }
+                carry = val >= 10;
+                ans = ans.Insert(0, carry ? (val - 10).ToString() : val.ToString());
+            }
+            if (diff>0)
+            {
+                i = diff-1; // l1 - 1 - l2
+
+                while (i >= 0)
+                {
+                    var val = int.Parse((num1[i]).ToString());
+                    if (carry)
+                    {
+                        val++;
+                    }
+                    carry = val >= 10;
+                    ans = ans.Insert(0, carry ? (val - 10).ToString() : val.ToString());
+                    i--;
+                }
+            }
+            if (carry)
+                ans = ans.Insert(0, "1");
+            return ans;
+        }
+        #endregion
+
         #region #448 grouping
         public IList<int> FindDisappearedNumbers(int[] nums)
         {
@@ -2961,6 +3034,77 @@ namespace CodePractice
                 }
             }
             return ans;
+        }
+        #endregion
+
+        #region 1941
+        public bool AreOccurrencesEqual(string s)
+        {
+            var dic = s.ToArray().GroupBy(x => x).Select(x=>x.Count()).Distinct();
+            return dic.Count() == 1;
+        }
+        #endregion
+
+        #region 1945
+        public int GetLucky(string s, int k)
+        {
+            var init = "";
+            for(int i = 0; i < s.Length; i++)
+            {
+                init += (char.ToUpper(s[i]) - 64).ToString();
+            }
+            for(int i = 1; i <= k; i++)
+            {
+                init = GetLucky(init);
+            }
+            return int.Parse(init);
+
+        }
+        private string GetLucky(string init)
+        {
+            var res = 0;
+            var array = init.ToArray();
+            foreach(var a in array)
+            {
+                res += int.Parse(a.ToString());
+            }
+            return res.ToString();
+        }
+        #endregion
+
+        #region #1995
+        public int CountQuadruplets(int[] nums)
+        {
+            var dic = new Dictionary<int, List<int>>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (dic.ContainsKey(nums[i]))
+                {
+                    dic[nums[i]].Add(i);
+                }
+                else
+                {
+                    dic.Add(nums[i], new List<int> { i });
+                }
+            }
+
+            int length = nums.Length;
+            int res = 0;
+            for(int i = 0; i <= length - 3; i++)
+            {
+                for(int j=i+1; j<= length - 2; j++)
+                {
+                    for (int k=j+1;k< length; k++)
+                    {
+                        var val = nums[i] + nums[j] + nums[k];
+                        if (dic.ContainsKey(val))
+                        {
+                            res += dic[val].Where(x => x > k).Count();
+                        }
+                    }
+                }
+            }
+            return res;
         }
         #endregion
         #endregion
