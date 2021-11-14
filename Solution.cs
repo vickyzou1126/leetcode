@@ -2337,14 +2337,14 @@ namespace CodePractice
         }
         #endregion
 
-        #region #215
+        #region #215  // - review
         public int FindKthLargest(int[] nums, int k)
         {
             Array.Sort(nums);
             return nums[nums.Length - k];
         }
 
-        public int FindKthLargestHeap(int[] nums, int k) // - review
+        public int FindKthLargestHeap(int[] nums, int k)
         {
             var heap = new List<int>();
             for (int i = 0; i < nums.Length; i++)
@@ -2364,6 +2364,29 @@ namespace CodePractice
             }
             heap.Sort();
             return heap.First();
+        }
+
+        public int FindKthLargest3(int[] nums, int k)
+        {
+            var dict = new Dictionary<int, int>();
+            for (var i = 0; i < nums.Length; i++)
+            {
+                if (!dict.ContainsKey(nums[i]))
+                    dict.Add(nums[i], 0);
+                dict[nums[i]]++;
+            }
+
+            var list = dict.Keys.ToList();
+            list.Sort();
+
+            var result = 0;
+            for (var i = list.Count - 1; i >= 0; i--)
+            {
+                result += dict[list[i]];
+                if (result >= k)
+                    return list[i];
+            }
+            return 0;
         }
         #endregion
 
