@@ -2850,6 +2850,26 @@ namespace CodePractice
         }
         #endregion
 
+        #region #263
+        public bool IsUgly(int n)
+        {
+            if (n < 1) return false;
+            while (n % 2 == 0)
+            {
+                n = n / 2;
+            }
+            while (n % 3 == 0)
+            {
+                n = n / 3;
+            }
+            while (n % 5 == 0)
+            {
+                n = n / 5;
+            }
+            return n == 1;
+        }
+        #endregion
+
         #region #268
         public int MissingNumber(int[] nums)
         {
@@ -2891,6 +2911,29 @@ namespace CodePractice
                 lowIndex++;
             }
             nums[highIndex] = 0;
+        }
+        #endregion
+
+        #region #290
+        public bool WordPattern(string pattern, string s)
+        {
+            if (pattern == s) return false;
+            var array = s.Split(" ");
+            if (pattern.Length != array.Length) return false;
+            var dict = new Dictionary<string, char>();
+            for(int i = 0; i < array.Length; i++)
+            {
+                if (!dict.ContainsKey(array[i]))
+                {
+                    if (dict.Values.Contains(pattern[i])) return false;
+                    dict.Add(array[i], pattern[i]);
+                }
+                else
+                {
+                    if (dict[array[i]] != pattern[i]) return false;
+                }
+            }
+            return true;
         }
         #endregion
         #endregion
@@ -3196,7 +3239,7 @@ namespace CodePractice
         #endregion
         #endregion
 
-        #region 500-600
+        #region 501-600
 
         #region #509
         public int Fib(int n)
@@ -3258,6 +3301,7 @@ namespace CodePractice
 
         #endregion
 
+        #region 601-700
         #region #617 Tree review
         public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
         {
@@ -3272,8 +3316,9 @@ namespace CodePractice
             return root1;
         }
         #endregion
+        #endregion
 
-        #region 700-800
+        #region 701-800
         #region #704
         public int Search704(int[] nums, int target)
         {
@@ -3354,7 +3399,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region 1900-2000
+        #region 1901-2000
         #region #1929
         public int[] GetConcatenation(int[] nums)
         {
