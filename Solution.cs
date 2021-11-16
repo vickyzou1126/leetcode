@@ -2222,6 +2222,37 @@ namespace CodePractice
         }
         #endregion
 
+        #region #139 review
+        public bool WordBreak(string s, IList<string> wordDict)
+        {
+            int length = s.Length;
+            bool[] dp = new bool[s.Length];
+
+            for (int i = length - 1; i >= 0; i--)
+            {
+                if (wordDict.Contains(s.Substring(i, length - i))) dp[i] = true;
+                else
+                {
+                    var list = wordDict.Where(x => x.StartsWith(s[i]));
+                    if (!list.Any()) dp[i] = false;
+                    else
+                    {
+                        foreach (var l in list)
+                        {
+                            if (i + l.Length < length && s.Substring(i, l.Length) == l && dp[i + l.Length])
+                            {
+                                dp[i] = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return dp[0];
+        }
+
+        #endregion
+
         #region #141 ListNode
         public bool HasCycle(ListNode head)
         {
@@ -2805,6 +2836,20 @@ namespace CodePractice
         }
         #endregion
 
+        #region #258
+        public int AddDigits(int num)
+        {
+            if (num < 10) return num;
+            int sum = 0;
+            var str = num.ToString();
+            for(int i = 0; i < str.Length; i++)
+            {
+                sum += int.Parse(str[i].ToString());
+            }
+            return AddDigits(sum);
+        }
+        #endregion
+
         #region #268
         public int MissingNumber(int[] nums)
         {
@@ -3151,6 +3196,8 @@ namespace CodePractice
         #endregion
         #endregion
 
+        #region 500-600
+
         #region #509
         public int Fib(int n)
         {
@@ -3164,6 +3211,50 @@ namespace CodePractice
             }
             return list[index - 2] + list[index - 1];
         }
+
+        #endregion
+
+        #region 542 review
+        // https://massivealgorithms.blogspot.com/2017/04/leetcode-542-01-matrix.html
+        public int[][] UpdateMatrix(int[][] mat)
+        {
+            int row = mat.Length;
+            int cul = mat[0].Length;
+            int[][] res = new int[row][];
+
+            for (int i = 0; i < row; i++)
+            {
+                res[i] = new int[cul];
+                for (int j = 0; j < cul; j++)
+                {
+                    res[i][j] = int.MaxValue - 1;
+                    if (mat[i][j] == 0)
+                    {
+                        res[i][j] = 0;
+                    }
+                    else
+                    {
+                        if (i > 0) res[i][j] = Math.Min(res[i][j], res[i - 1][j] + 1);
+                        if (j > 0) res[i][j] = Math.Min(res[i][j], res[i][j - 1] + 1);
+                    }
+                }
+            }
+
+            for (var i = row - 1; i >= 0; i--)
+            {
+                for (var j = cul - 1; j >= 0; j++)
+                {
+
+                    if (i < row - 1)
+                        res[i][j] = Math.Min(res[i][j], res[i + 1][j] + 1);
+                    if (j < cul - 1)
+                        res[i][j] = Math.Min(res[i][j], res[i][j + 1] + 1);
+
+                }
+            }
+            return res;
+        }
+        #endregion
 
         #endregion
 
@@ -3182,6 +3273,7 @@ namespace CodePractice
         }
         #endregion
 
+        #region 700-800
         #region #704
         public int Search704(int[] nums, int target)
         {
@@ -3194,7 +3286,7 @@ namespace CodePractice
             int mid = (end - start) / 2 + start;
             if (nums[mid] == target) return mid;
 
-            if(nums[mid] < target)
+            if (nums[mid] < target)
             {
                 if (mid + 1 > end) return -1;
                 return Search(nums, target, mid + 1, end);
@@ -3202,8 +3294,63 @@ namespace CodePractice
             else
             {
                 if (mid - 1 < 0) return -1;
-                return Search(nums, target, 0, mid -1);
+                return Search(nums, target, 0, mid - 1);
             }
+        }
+        #endregion
+
+        #region #763
+        public IList<int> PartitionLabels(string s)
+        {
+            if (s.Length <= 1) return new List<int> { 1 };
+            var list = new List<int>();
+            var hash = s.ToHashSet();
+            var dic = new Dictionary<char, int>();
+            
+            foreach(var h in hash)
+            {
+                dic.Add(h, s.LastIndexOf(h));
+            }
+
+            for(int i =0; i < s.Length; i++)
+            {
+                var lastIndex = dic[s[i]];
+                for(int j = i + 1; j < lastIndex; j++)
+                {
+                    if (s[j] != s[i] && s.LastIndexOf(s[j]) > lastIndex)
+                    {
+                        lastIndex = s.LastIndexOf(s[j]);
+                    }
+                }
+                list.Add(lastIndex + 1);
+                i = lastIndex;
+            }
+            return list;
+
+        }
+        #endregion
+        #endregion
+
+        #region #1189
+        // balloon
+        public int MaxNumberOfBalloons(string text)
+        {
+            var chars = new List<char> { 'b', 'a', 'l', 'o', 'n' };
+            var dict = text.ToArray().GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            if (chars.Any(x => !dict.ContainsKey(x))) return 0;
+            int min = Math.Min(dict['l'], dict['o']) / 2;
+            while (min >= 0)
+            {
+                if (dict['b'] < min || dict['a'] < min || dict['n'] < min)
+                {
+                    min--;
+                }
+                else
+                {
+                    return min;
+                }
+            }
+            return 0;
         }
         #endregion
 
