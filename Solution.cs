@@ -1533,7 +1533,6 @@ namespace CodePractice
         }
         #endregion
 
-
         #region #66
         public int[] PlusOne(int[] digits)
         {
@@ -1670,6 +1669,38 @@ namespace CodePractice
                 times[i] += times[i - 2];
             }
             return times[n - 1];
+        }
+        #endregion
+
+        #region #75
+        public void SortColors(int[] nums)
+        {
+            int length = nums.Length;
+            if (length == 1) return;
+
+            int pointer = 0;
+            while (pointer < length)
+            {
+                var val = nums[pointer];
+                if (val > nums[length - 1])
+                {
+                    nums[pointer] = nums[length - 1];
+                    nums[length - 1] = val;
+                }
+                else if(pointer>0)
+                {
+                    int orginalPointer = pointer;
+                    int index = pointer-1;
+                    while(index>=0 && nums[index] > nums[orginalPointer])
+                    {
+                        nums[orginalPointer] = nums[index];
+                        nums[index] = val;
+                        orginalPointer = index;
+                        index--;
+                    }
+                }
+                pointer++;
+            }
         }
         #endregion
 
@@ -2482,6 +2513,49 @@ namespace CodePractice
         }
         #endregion
 
+        #region #189
+        public void Rotate(int[] nums, int k)
+        {
+            int len = nums.Length;
+            if (len == 1) return;
+            if (k == 0) return;
+            if (k > len)
+            {
+                k = k % len;
+            }
+            int index;
+            int val = nums[0];
+            int[] visited = new int[len];
+            for (int i = 0; i < len; i++)
+            {
+                index = i;
+                if (visited[i] == 0)
+                {
+                    while (true)
+                    {
+                        if (index < len - k)
+                        {
+                            int nwVal = nums[index + k];
+                            nums[index + k] = val;
+                            index = index + k;
+                            val = nwVal;
+                        }
+                        else
+                        {
+                            int nwVal = nums[index - (len - k)];
+                            nums[index - (len - k)] = val;
+                            index = index - (len - k);
+                            val = nwVal;
+                        }
+
+                        if (visited[index] == 1) break;
+                        visited[index] = 1;
+                    }
+                }
+            }
+        }
+        #endregion
+
         #region #198
         public int Rob(int[] nums)
         {
@@ -2917,7 +2991,6 @@ namespace CodePractice
         #region #290
         public bool WordPattern(string pattern, string s)
         {
-            if (pattern == s) return false;
             var array = s.Split(" ");
             if (pattern.Length != array.Length) return false;
             var dict = new Dictionary<string, char>();
