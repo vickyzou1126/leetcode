@@ -1942,6 +1942,39 @@ namespace CodePractice
         }
         #endregion
 
+        #region 90
+        public IList<IList<int>> SubsetsWithDup(int[] nums)
+        {
+            var final = new List<IList<int>>();
+            var dict = nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+
+            foreach (var d in dict)
+            {
+                var temp = new HashSet<IList<int>>();
+                for (int i = 1; i <= d.Value; i++)
+                {
+                    var sub = new List<int>();
+                    for (int j = 1; j <= i; j++)
+                    {
+                        sub.Add(d.Key);
+                    }
+                    temp.Add(sub);
+                    if (final.Any())
+                    {
+                        foreach (var s in final)
+                        {
+                            temp.Add(sub.Concat(s).ToList());
+                        }
+                    }
+                }
+                final.AddRange(temp.ToList());
+            }
+
+            final.Add(new List<int>());
+            return final;
+        }
+        #endregion
+
         #region #94 Tree review + remember
         public IList<int> InorderTraversal(TreeNode root)
         {
@@ -3140,6 +3173,42 @@ namespace CodePractice
                 s[i] = s[j];
                 s[j] = temp;
             }
+        }
+        #endregion
+
+        #region #345 sliding window
+        public string ReverseVowels(string s)
+        {
+            int len = s.Length;
+            var vowels = new List<char> { 'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' };
+            var array = s.ToArray();
+            int lowIndex = 0;
+            int highIndex = len - 1;
+            while (lowIndex < highIndex)
+            {
+                if (vowels.Contains(array[lowIndex]))
+                {
+                    while (highIndex > lowIndex && !vowels.Contains(array[highIndex]))
+                    {
+                        highIndex--;
+                    }
+                    var swap = array[lowIndex];
+                    array[lowIndex] = array[highIndex];
+                    array[highIndex] = swap;
+                    highIndex--;
+                }
+                lowIndex++;
+            }
+            return string.Concat(array);
+        }
+        #endregion
+
+        #region 349
+        public int[] Intersection(int[] nums1, int[] nums2)
+        {
+            var dic1 = nums1.ToHashSet();
+            var dic2 = nums2.ToHashSet();
+            return dic1.Where(x => dic2.Contains(x)).ToArray();
         }
         #endregion
 
