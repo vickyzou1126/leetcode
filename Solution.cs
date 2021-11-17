@@ -3379,6 +3379,103 @@ namespace CodePractice
             return dic.Where(x => x.Value == 1).Select(x => x.Key).ToList();
         }
         #endregion
+
+        #region 453 review
+        public int MinMoves(int[] nums)
+        {
+            int len = nums.Length;
+            int sum = nums.Sum();
+            int min = nums.Min();
+            return sum - len * min;
+
+        }
+        #endregion
+
+        #region 455
+        public int FindContentChildren(int[] g, int[] s)
+        {
+            int slen = s.Length;
+            if (slen == 0) return 0;
+
+            Array.Sort(g);
+            Array.Sort(s);
+            int index = 0;
+            int res = 0;
+            for (int i = 0; i < g.Length; i++)
+            {
+                if (g[i] <= s[index])
+                {
+                    res++;
+                }
+                else
+                {
+                    i = i - 1;
+                }
+                index++;
+                if (index == slen) return res;
+            }
+            return res;
+        }
+        #endregion
+
+        #region 463
+        public int IslandPerimeter(int[][] grid)
+        {
+            int row = grid.Length;
+            int cul = grid[0].Length;
+            int ans = 0;
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < cul; j++)
+                {
+                    if (grid[i][j] == 1)
+                    {
+                        ans = ans + 4;
+                        if (j - 1 >= 0 && grid[i][j - 1] == 1)
+                        {
+                            ans--;
+                        }
+                        if (j + 1 < cul && grid[i][j + 1] == 1)
+                        {
+                            ans--;
+                        }
+                        if (i - 1 >= 0 && grid[i - 1][j] == 1)
+                        {
+                            ans--;
+                        }
+                        if (i + 1 < row && grid[i + 1][j] == 1)
+                        {
+                            ans--;
+                        }
+                    }
+                }
+            }
+            return ans;
+        }
+        #endregion
+
+        #region 485
+        public int FindMaxConsecutiveOnes(int[] nums)
+        {
+            int max = 0;
+            if (!nums.Contains(1)) return max;
+            int temp = 0;
+            for(int i = 0; i < nums.Length; i++)
+            {
+                if (nums[i] == 0)
+                {
+                    max = Math.Max(max, temp);
+                    temp = 0;
+                }
+                else
+                {
+                    temp++;
+                }
+            }
+
+            return Math.Max(max, temp);
+        }
+        #endregion
         #endregion
 
         #region 501-600
