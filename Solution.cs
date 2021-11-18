@@ -3644,6 +3644,116 @@ namespace CodePractice
         }
         #endregion
 
+        #region 561
+        public int ArrayPairSum(int[] nums)
+        {
+            Array.Sort(nums);
+            int res = 0;
+            for(int i = 0; i < nums.Length - 1; i=i+2)
+            {
+                res += Math.Min(nums[i], nums[i + 1]);
+            }
+            return res;
+        }
+        #endregion
+
+        #region 566
+        public int[][] MatrixReshape(int[][] mat, int r, int c)
+        {
+            int row = mat.Length;
+            int cul = mat[0].Length;
+            if (row * cul != r * c) return mat;
+            int nr = 0;
+            int nc = 0;
+            int[][] ans = new int[r][];
+            for (int i = 0; i < r; i++)
+            {
+                ans[i] = new int[c];
+            }
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < cul; j++)
+                {
+                    if (nc != 0 && nc % c == 0)
+                    {
+                        nc = 0;
+                        nr++;
+                    }
+                    ans[nr][nc] = mat[i][j];
+                    nc++;
+                }
+            }
+            return ans;
+        }
+        #endregion
+
+        #region 575
+        public int DistributeCandies(int[] candyType)
+        {
+            var hash = candyType.ToHashSet();
+            return Math.Min(candyType.Length / 2, hash.Count);
+        }
+        #endregion
+
+        #region 594
+        public int FindLHS(int[] nums)
+        {
+            int len = nums.Length;
+            Array.Sort(nums);
+            int max = nums[len - 1];
+
+            if (nums[0] == max) return 0;
+
+            int tempMax = 1;
+            int maxcount = 0;
+            int previouseIndex = len - 1;
+            int index = len - 2;
+            while (index >= 0)
+            {
+                if (nums[index] != max)
+                {
+                    if (max - nums[index] == 1)
+                    {
+                        if (nums[index] != nums[previouseIndex])
+                        {
+                            previouseIndex = index;
+                        }
+
+                        tempMax++;
+                        index--;
+                    }
+                    else
+                    {
+                        if (max == nums[previouseIndex])
+                        {
+                            max = nums[index];
+                            previouseIndex = index;
+                        }
+                        else
+                        {
+                            if (tempMax > 1)
+                            {
+                                maxcount = Math.Max(maxcount, tempMax);
+                            }
+                            max = nums[previouseIndex];
+                        }
+                        index = previouseIndex - 1;
+                        tempMax = 1;
+                    }
+                }
+                else
+                {
+                    tempMax++;
+                    index--;
+                }
+            }
+            if (tempMax > 1 && nums[0] != max)
+            {
+                maxcount = Math.Max(maxcount, tempMax);
+            }
+            return maxcount;
+        }
+        #endregion
         #endregion
 
         #region 601-700
