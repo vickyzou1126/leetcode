@@ -3476,9 +3476,115 @@ namespace CodePractice
             return Math.Max(max, temp);
         }
         #endregion
+
+        #region 495
+        public int FindPoisonedDuration(int[] timeSeries, int duration)
+        {
+            if (duration == 0) return 0;
+            int len = timeSeries.Length;
+            if (len == 1) return duration;
+            int totalSeconds = 0;
+            int activeTime = timeSeries[0] + duration - 1;
+            for (int i = 1; i < len; i++)
+            {
+                if (timeSeries[i] <= activeTime)
+                {
+                    totalSeconds += (timeSeries[i] - timeSeries[i - 1]);
+                }
+                else
+                {
+                    totalSeconds += duration;
+                }
+                activeTime = timeSeries[i] + duration - 1;
+            }
+
+            totalSeconds += duration;
+            return totalSeconds;
+        }
+        #endregion
+
+        #region 496
+        public int[] NextGreaterElement(int[] nums1, int[] nums2)
+        {
+            var len1 = nums1.Length;
+            int len2 = nums2.Length;
+            int[] array = new int[len1];
+            for (int i = 0; i < len1; i++)
+            {
+                int temp = Array.IndexOf(nums2, nums1[i]);
+                array[i] = -1;
+                for (int j = temp + 1; j < len2; j++)
+                {
+                    if (nums2[j] > nums1[i])
+                    {
+                        array[i] = nums2[j];
+                        break;
+                    }
+                }
+            }
+            return array;
+        }
+        #endregion
+
+        #region 500
+        public string[] FindWords(string[] words)
+        {
+            var dic = new Dictionary<int, string>();
+            dic.Add(1, "qwertyuiop");
+            dic.Add(2, "asdfghjkl");
+            dic.Add(3, "zxcvbnm");
+            var list = new List<string>();
+            for(int i = 0; i < words.Length; i++)
+            {
+                var str = words[i];
+                int lenstr = str.Length;
+                if (lenstr == 1)
+                {
+                    list.Add(str);
+                    continue;
+                } 
+                int row = dic.First(x => x.Value.Contains(str[0], StringComparison.OrdinalIgnoreCase)).Key;
+                var charts = dic[row];
+                for(int j = 1; j < lenstr; j++)
+                {
+                    if (!charts.Contains(str[j], StringComparison.OrdinalIgnoreCase)) break;
+                    if (j == lenstr - 1)
+                    {
+                        list.Add(str);
+                    }
+                }
+            }
+            return list.ToArray();
+        }
+        #endregion
         #endregion
 
         #region 501-600
+
+        #region 506
+        public string[] FindRelativeRanks(int[] score)
+        {
+            int len = score.Length;
+            var dic = new Dictionary<int, int>();
+            for(int i = 0; i < len; i++)
+            {
+                dic.Add(score[i], i);
+            }
+            Array.Sort(score);
+            Array.Reverse(score);
+            string[] ans = new string[len];
+            for (int i = 0; i < len; i++)
+            {
+                var title = (i+1).ToString();
+                if (i == 0) title = "Gold Medal";
+                else if (i == 1) title = "Silver Medal";
+                else if (i == 2) title = "Bronze Medal";
+
+                ans[dic[score[i]]] = title;
+            }
+            return ans;
+        }
+        #endregion
 
         #region #509
         public int Fib(int n)
