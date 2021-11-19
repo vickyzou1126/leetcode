@@ -3754,9 +3754,97 @@ namespace CodePractice
             return maxcount;
         }
         #endregion
+
+        #region 598
+        public int MaxCount(int m, int n, int[][] ops)
+        {
+            int opslen = ops.Length;
+            if (opslen == 0) return m * n;
+            int rowmin = int.MaxValue;
+            int culmin = int.MaxValue;
+            for (int i = 0; i < opslen; i++)
+            {
+                rowmin = Math.Min(rowmin, ops[i][0]);
+                culmin = Math.Min(culmin, ops[i][1]);
+            }
+            
+            return rowmin*culmin;
+        }
+        #endregion
+
+        #region 599
+        public string[] FindRestaurant(string[] list1, string[] list2)
+        {
+            var dict = new Dictionary<string, int>();
+            for(int i = 0; i < list1.Length; i++)
+            {
+                dict.Add(list1[i], i);
+            }
+            var dict2 = new Dictionary<string, int>();
+            for (int i = 0; i < list2.Length; i++)
+            {
+                if (dict.ContainsKey(list2[i]))
+                {
+                    dict2.Add(list2[i], dict[list2[i]] + i);
+                }
+            }
+            var min = dict2.Values.Min();
+            return dict2.Where(x => x.Value == min).Select(x => x.Key).ToArray();
+        }
+        #endregion
         #endregion
 
         #region 601-700
+
+        #region 605 flowerbed[i - 1] + flowerbed[i] + flowerbed[i + 1] == 0
+        public bool CanPlaceFlowers(int[] flowerbed, int n)
+        {
+            if (n == 0) return true;
+            int len = flowerbed.Length;
+            int i = 0;
+            if (flowerbed[0] == 1)
+            {
+                i = 2;
+            }
+            else
+            {
+                if (len > 1)
+                {
+                    if (flowerbed[1] == 0)
+                    {
+                        flowerbed[0] = 1;
+                        i = 2;
+                        n--;
+                        if (n == 0) return true;
+                    }
+                    else
+                    {
+                        i = 3;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            for (; i < len - 1; i++)
+            {
+                if (flowerbed[i - 1] + flowerbed[i] + flowerbed[i + 1] == 0)
+                {
+                    flowerbed[i] = 1;
+                    i = i + 1;
+                    n--;
+                    if (n == 0) return true;
+                }
+            }
+            if (len >= 2 && flowerbed[len - 1] + flowerbed[len - 2] == 0)
+            {
+                n--;
+            }
+            return n == 0;
+        }
+        #endregion
+
         #region #617 Tree review
         public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
         {
@@ -3771,6 +3859,84 @@ namespace CodePractice
             return root1;
         }
         #endregion
+
+        #region 628
+        public int MaximumProduct(int[] nums)
+        {
+            int len = nums.Length;
+            Array.Sort(nums);
+            if (nums[len - 1] >= 0 && nums[0] < 0 && nums[1] < 0)
+            {
+                return Math.Max(nums[0] * nums[1] * nums[len - 1], nums[len - 1] * nums[len - 2] * nums[len - 3]);
+            }
+            return nums[len - 1] * nums[len - 2] * nums[len - 3];
+        }
+        #endregion
+
+        #region 643 review
+        public double FindMaxAverage(int[] nums, int k)
+        {
+
+            if (k == 0) return 0;
+            double sum = 0;
+            double max = 0;
+            for(int i = 0; i < k; i++)
+            {
+                sum += nums[i];
+                max = sum;
+            }
+            int len = nums.Length;
+            for(int i=1;i<len && i + k <= len; i++)
+            {
+                sum = sum - nums[i - 1] + nums[i + k - 1];
+                max = Math.Max(max, sum);
+            }
+
+            return max / k;
+        }
+        #endregion
+
+        #region 645
+        public int[] FindErrorNums(int[] nums)
+        {
+            int[] res = new int[2];
+            var dict = nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            res[0] = dict.FirstOrDefault(x => x.Value == 2).Key;
+            for(int i = 1; i <= nums.Length; i++)
+            {
+                if (!dict.ContainsKey(i))
+                {
+                    res[1] = i;
+                    break;
+                }
+            }
+            return res;
+        }
+
+        public int[] FindErrorNums2(int[] nums)
+        {
+            int[] res = new int[2];
+            var sum = nums.Sum();
+            var dict = nums.ToHashSet();
+            var newsum = 0;
+            for (int i = 1; i <= nums.Length; i++)
+            {
+                newsum += i;
+                if (!dict.Contains(i))
+                {
+                    res[1] = i;
+                }
+            }
+            res[0] = res[1] - (newsum - sum);
+
+            return res;
+        }
+        #endregion
+
+        #region 661 - not completed
+  
+        #endregion
+
         #endregion
 
         #region 701-800
