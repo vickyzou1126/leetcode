@@ -3793,7 +3793,7 @@ namespace CodePractice
         }
         #endregion
         #endregion
-
+         
         #region 601-700
 
         #region 605 flowerbed[i - 1] + flowerbed[i] + flowerbed[i + 1] == 0
@@ -3934,7 +3934,76 @@ namespace CodePractice
         #endregion
 
         #region 661 - not completed
-  
+
+        #endregion
+
+        #region 674
+        public int FindLengthOfLCIS(int[] nums)
+        {
+            int max = 1;
+            int index = 0;
+            for (int i = 1; i < nums.Length; i++)
+            {
+                if (nums[i] <= nums[i - 1])
+                {
+                    max = Math.Max(max, i - index);
+                    index = i;
+                }
+            }
+            return Math.Max(max, nums.Length - index);
+        }
+        #endregion
+
+        #region 682
+        public int CalPoints(string[] ops)
+        {
+            var list = new List<int>();
+            foreach (var s in ops)
+            {
+                switch (s)
+                {
+                    case "+":
+                        {
+                            int len = list.Count;
+                            int sum = list[len - 1] + list[len - 2];
+                            list.Add(sum);
+                            break;
+                        }
+                    case "D":
+                        {
+                            int sum = list.Last() * 2;
+                            list.Add(sum);
+                            break;
+                        }
+                    case "C":
+                        {
+                            list.RemoveAt(list.Count - 1);
+                            break;
+                        }
+                    default:
+                        list.Add(int.Parse(s));
+                        break;
+                }
+            }
+            return list.Sum();
+        }
+        #endregion
+
+        #region 697
+        public int FindShortestSubArray(int[] nums)
+        {
+            var dict = new Dictionary<int, List<int>>();
+
+            for (var i = 0; i < nums.Length; i++)
+            {
+                if (dict.ContainsKey(nums[i]))
+                    dict[nums[i]].Add(i);
+                else dict[nums[i]] = new List<int> { i };
+            }
+
+            var f = dict.Max(d => d.Value.Count());
+            return dict.Where(d => d.Value.Count == f).Min(a => a.Value[a.Value.Count - 1] - a.Value[0] + 1);
+        }
         #endregion
 
         #endregion
@@ -3962,6 +4031,100 @@ namespace CodePractice
                 if (mid - 1 < 0) return -1;
                 return Search(nums, target, 0, mid - 1);
             }
+        }
+        #endregion
+
+        #region 724
+        public int PivotIndex(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return 0;
+
+            int sum1 = 0;
+            int sum2 = 0;
+
+            for (int i = len - 1; i > 0; i--)
+            {
+                sum2 += nums[i];
+            }
+
+            if (sum1 == sum2) return 0;
+            for (int i = 1; i < len; i++)
+            {
+                sum1 += nums[i - 1];
+                sum2 -= nums[i];
+                if (sum1 == sum2) return i;
+            }
+            return -1;
+        }
+        #endregion
+
+        #region 733
+        public int[][] FloodFill(int[][] image, int sr, int sc, int newColor)
+        {
+            if (image[sr][sc] == newColor) return image;
+            int row = image.Length;
+            int cul = image[0].Length;
+            int[][] visited = new int[row][];
+            for (int i = 0; i < row; i++)
+            {
+                visited[i] = new int[cul];
+            }
+            int og = image[sr][sc];
+            image[sr][sc] = newColor;
+
+            FloodFill(image, sr, sc, newColor, row, cul, og, visited);
+
+            return image;
+
+        }
+
+        public void FloodFill(int[][] image, int sr, int sc, int newColor, int row, int cul, int ogcolor, int[][] visited)
+        {
+            if (sr < 0 || sr >= row || sc < 0 || sc >= cul || visited[sr][sc] == 1) return;
+          
+            if (sc > 0 && image[sr][sc - 1] == ogcolor)
+            {
+                image[sr][sc - 1] = newColor;
+                FloodFill(image, sr, sc - 1, newColor, row, cul, ogcolor, visited);
+            }
+
+            if (sc < cul - 1 && image[sr][sc + 1] == ogcolor)
+            {
+                image[sr][sc + 1] = newColor;
+                FloodFill(image, sr, sc + 1, newColor, row, cul, ogcolor, visited);
+            }
+
+            if (sr > 0 && image[sr - 1][sc] == ogcolor)
+            {
+                image[sr - 1][sc] = newColor;
+                FloodFill(image, sr - 1, sc, newColor, row, cul, ogcolor, visited);
+            }
+
+            if (sr < row - 1 && image[sr + 1][sc] == ogcolor)
+            {
+                image[sr + 1][sc] = newColor;
+                FloodFill(image, sr + 1, sc, newColor, row, cul, ogcolor, visited);
+            }
+            visited[sr][sc] = 1;
+        }
+        #endregion
+
+        #region 746 dp 
+        public int MinCostClimbingStairs(int[] cost)
+        {
+            int len = cost.Length;
+
+            int[] dp = new int[len];
+            dp[0] = cost[0];
+            dp[1] = cost[1];
+            if (len == 2) return dp.Min();
+            for (int i = 2; i < len - 1; i++)
+            {
+                dp[i] = Math.Min(dp[i - 1], dp[i - 2]) + cost[i];
+            }
+
+            return Math.Min(dp[len - 2], dp[len - 3] + cost[len - 1]);
         }
         #endregion
 
@@ -3995,6 +4158,99 @@ namespace CodePractice
 
         }
         #endregion
+
+        #region 766
+        public bool IsToeplitzMatrix(int[][] matrix)
+        {
+            int row = matrix.Length;
+            int cul = matrix[0].Length;
+            for (int i = 0; i < row - 1; i++)
+            {
+                for (int j = 0; j < cul - 1; j++)
+                {
+                    if (matrix[i][j] != matrix[i + 1][j + 1]) return false;
+                }
+            }
+            return true;
+        }
+        #endregion
+        #endregion
+
+        #region 801-900
+        #region 821 review
+        public int[] ShortestToChar(string s, char c)
+        {
+            var index = s.ToArray().Select((value, index) => value == c ? index : -1)
+            .Where(index => index != -1).ToList();
+            int len = s.Length;
+            int[] res = new int[len];
+            int indexlen = index.Count();
+            if (indexlen == 1)
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    res[i] = Math.Abs(i - index[0]);
+                }
+                return res;
+            }
+
+            int left = index[0];
+            var right = index[1];
+            int indexpos = 1;
+            for (int i = 0; i < len; i++)
+            {
+                var diff1 = Math.Abs(i - left);
+                var diff2 = Math.Abs(i - right);
+                if (diff1 > diff2)
+                {
+                    left = right;
+                    indexpos = Math.Min(indexpos + 1, indexlen - 1);
+                    right = index[indexpos];
+                    res[i] = diff2;
+                    continue;
+                }
+                res[i] = diff1;
+            }
+
+            return res;
+        }
+
+        public int[] shortestToChar2(String s, char c)
+        {
+            int n = s.Length;
+            int[] ans = new int[n];
+            int index = n - 1;
+
+            for (int i = 0; i < n; ++i)
+            {
+                ans[i] = n-1;
+                if (s[i] == c)
+                {
+                    ans[i] = 0;
+                    index = i;
+                }
+                else
+                {
+                    ans[i] = Math.Min(ans[i], Math.Abs(index - i));
+                }
+            }
+
+            for (int i = n - 1; i >= 0; --i)
+            {
+                if (s[i] == c)
+                {
+                    index = i;                
+                }
+                else
+                {
+                    ans[i] = Math.Min(ans[i], Math.Abs(index - i));
+                }
+            }
+
+            return ans;
+        }
+        #endregion
+
         #endregion
 
         #region #1189
