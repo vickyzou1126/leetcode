@@ -4177,6 +4177,31 @@ namespace CodePractice
         #endregion
 
         #region 801-900
+        #region 812 three pointes triangle area formula review
+        // 1/2 *abs(Ax*(By-Cy)+Bx*(Cy-Ay)+Cx*(Ay-By))
+        public double LargestTriangleArea(int[][] points)
+        {
+            int len = points.Length;
+            double max = 0;
+            for (int i = 0; i < len - 2; i++)
+            {
+                for (int j = i + 1; j < len - 1; j++)
+                {
+                    for (int k = j + 1; k < len; k++)
+                    {
+                        max = Math.Max(max, area(points, i, j, k));
+                    }
+                }
+            }
+            return max;
+        }
+
+        private double area(int[][] points, int i, int j, int k)
+        {
+            return 0.5 * Math.Abs(points[i][0] * (points[j][1] - points[k][1]) + points[j][0] * (points[k][1] - points[i][1]) + points[k][0] * (points[i][1] - points[j][1]));
+        }
+        #endregion
+
         #region 821 review
         public int[] ShortestToChar(string s, char c)
         {
@@ -4251,6 +4276,472 @@ namespace CodePractice
         }
         #endregion
 
+        #region 852 review
+        public int PeakIndexInMountainArray(int[] arr)
+        {
+            int lo = 0;
+            int hi = arr.Length - 1;
+            while (lo < hi)
+            {
+                int mid = (lo + hi) / 2;
+                if (arr[mid] < arr[mid + 1])
+                {
+                    lo = mid + 1;
+                }
+                else
+                {
+                    hi = mid;
+                }
+            }
+            return lo;
+        }
+        #endregion
+
+        #region 860
+        public bool LemonadeChange(int[] bills)
+        {
+            int len = bills.Length;
+            var dic = new Dictionary<int, int>();
+            dic.Add(5, 0);
+            dic.Add(10, 0);
+            dic.Add(20, 0);
+            for(int i = 0; i < len; i++)
+            {
+                dic[bills[i]]++;
+                var change = bills[i] - 5;
+                if (change == 5)
+                {
+                    if (dic[5] == 0) return false;
+                    dic[5]--;
+                }else if (change==15)
+                {
+                    if (dic[10] > 0)
+                    {
+                        change -= 10;
+                        dic[10]--;
+                    }
+                    var num = change / 5;
+                    if (dic[5] < num) return false;
+                    dic[5] -= num;
+                }
+            }
+            return true;
+        }
+        #endregion
+
+        #region 867
+        public int[][] Transpose(int[][] matrix)
+        {
+            int row = matrix.Length;
+            int cul = matrix[0].Length;
+            int[][] res = new int[cul][];
+            for (int j = 0; j < cul; j++)
+            {
+                res[j] = new int[row];
+            }
+            int culIndex = 0;
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j <cul; j++)
+                {
+                    res[j][culIndex] = matrix[i][j];
+                }
+                culIndex++;
+            }
+            return res;
+        }
+        #endregion
+
+        #region 888
+        public int[] FairCandySwap(int[] aliceSizes, int[] bobSizes)
+        {
+            int len = aliceSizes.Length;
+            int sumA = aliceSizes.Sum();
+            int sumB = bobSizes.Sum();
+            int diff=Math.Abs((sumA + sumB) /2 - Math.Min(sumA, sumB));
+            if (sumA > sumB)
+            {
+                var dic = bobSizes.ToHashSet();
+                for(int i = 0; i < len; i++)
+                {
+                    if (dic.Contains(aliceSizes[i] + diff))
+                    {
+                        return new int[] { aliceSizes[i], aliceSizes[i] + diff };
+                    }
+                }
+            }
+            else
+            {
+                var dic = aliceSizes.ToHashSet();
+                for (int i = 0; i < len; i++)
+                {
+                    if (dic.Contains(bobSizes[i] + diff))
+                    {
+                        return new int[] { bobSizes[i] + diff, bobSizes[i]};
+                    }
+                }
+            }
+
+            return new int[2];
+        }
+        #endregion
+
+        #region 896
+        public bool IsMonotonic(int[] nums)
+        {
+            int len = nums.Length;
+            int trend = 0;
+            for (int i = 1; i < len; i++)
+            {
+                if (nums[i] > nums[i - 1])
+                {
+                    if (trend == 0)
+                    {
+                        trend = 1;
+                    }
+                    else if (trend == -1)
+                    {
+                        return false;
+                    }
+                }
+                else if (nums[i] < nums[i - 1])
+                {
+                    if (trend == 0)
+                    {
+                        trend = -1;
+                    }
+                    else if (trend == 1)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        #endregion
+
+        #endregion
+
+        #region 901-1000
+        #region 914
+        public bool HasGroupsSizeX(int[] deck)
+        {
+            var dic = deck.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+
+            var min = dic.Values.Min();
+            for (int i = 2; i <= min; i++)
+            {
+                if (!dic.Values.Any(x => x % i != 0)) return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region 922
+        public int[] SortArrayByParityII(int[] nums)
+        {
+            var dictionary = new Dictionary<bool, List<int>>();
+            dictionary[true] = new List<int>();
+            dictionary[false] = new List<int>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if ((i % 2 == 1 && nums[i] % 2 == 1) || (i % 2 == 0 && nums[i] % 2 == 0)) continue;
+                dictionary[i % 2 == 0].Add(i);
+            }
+            for (int i = 0; i < dictionary[true].Count; i++)
+            {
+                var temp = nums[dictionary[true][i]];
+                nums[dictionary[true][i]] = nums[dictionary[false][i]];
+                nums[dictionary[false][i]] = temp;
+            }
+
+            return nums;
+        }
+        #endregion
+
+        #region 929
+        public int NumUniqueEmails(string[] emails)
+        {
+            var hash = new HashSet<string>();
+            foreach (var s in emails)
+            {
+                var localName = s.Split('@')[0];
+                var domainName = s.Split('@')[1];
+                var pluspos = localName.IndexOf('+');
+
+                if (pluspos != -1)
+                {
+                    localName = localName.Substring(0, pluspos);
+                }
+                localName = localName.Replace(".", "");
+                hash.Add(localName + '@' + domainName);
+            }
+            return hash.Count();
+        }
+        #endregion
+
+        #region 942
+        public int[] DiStringMatch(string s)
+        {
+            var len = s.Length;
+            int min = 0;
+            int max = 0;
+            int[] trend = new int[len + 1];
+            trend[0] = 0;
+            var list = new List<int>();
+            list.Add(0);
+            for (int i = 1; i <= len; i++)
+            {
+                list.Add(i);
+                if (s[i - 1] == 'D')
+                {
+                    trend[i] = min - 1;
+                    min = trend[i];
+                }
+                else
+                {
+                    trend[i] = max + 1;
+                    max++;
+                }
+            }
+
+            var start = list.First(x => x >= Math.Abs(min) && x <= len - max);
+
+            for (int i = 0; i <= len; i++)
+            {
+                trend[i] += start;
+            }
+            return trend;
+        }
+        #endregion
+
+        #region 953
+        public bool IsAlienSorted(string[] words, string order)
+        {
+            if (words == null || words.Length <= 1) return true;
+            var dict = new Dictionary<char, int>();
+            for (int i = 0; i < order.Length; i++)
+                dict[order[i]] = i;
+
+            for (int i = 0; i < words.Length - 1; i++)
+            {
+                string word1 = words[i], word2 = words[i + 1];
+                if (!IsValid(word1, word2, dict))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool IsValid(string s1, string s2, Dictionary<char, int> dict)
+        {
+            int length = Math.Min(s1.Length, s2.Length);
+            for (int i = 0; i < length; i++)
+                if (s1[i] != s2[i])
+                    return dict[s1[i]] < dict[s2[i]];
+
+            return s1.Length <= s2.Length;
+        }
+        #endregion
+
+        #region 961
+        public int RepeatedNTimes(int[] nums)
+        {
+            int len = nums.Length;
+            int halfLen = len / 2;
+            var dic = new Dictionary<int, int>();
+            for (int i = 0; i < len; i++)
+            {
+                if (!dic.ContainsKey(nums[i]))
+                {
+                    dic.Add(nums[i], 0);
+                }
+                dic[nums[i]]++;
+                if (dic[nums[i]] == halfLen) return nums[i];
+            }
+            return -1;
+        }
+        #endregion
+
+        #region 976 review The necessary and sufficient condition for forming a triangle is that the sum of any two sides is greater than the third side.
+        public int LargestPerimeter(int[] nums)
+        {
+            Array.Sort(nums);
+            Array.Reverse(nums);
+            int len = nums.Length;
+            for (int i = 0; i < len - 2; i++)
+            {
+                for (int j = i + 1; j < len - 1; j++)
+                {
+                    for (int k = j + 1; k < len; k++)
+                    {
+                        var res = IsTriangle(nums[i], nums[j], nums[k]);
+                        if (res == -1)
+                        {
+                            j = len - 1;
+                        }
+                        else if (res < 0)
+                        {
+                            k = len;
+                        }
+                        else
+                        {
+                            return nums[i] + nums[j] + nums[k];
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+        public int IsTriangle(int a, int b, int c)
+        {
+            var p = (a + b + c) / 2.0;
+            if (p <= a) return -1;
+            if (p <= b) return -2;
+            if (p <= c) return -3;
+
+            return 1;
+        }
+
+        public int largestPerimeter2(int[] nums)
+        {
+            Array.Sort(nums);
+            for (int i = nums.Length - 3; i >= 0; --i)
+            {
+                if (nums[i + 2] < nums[i + 1] + nums[i])
+                {
+                    return nums[i + 2] + nums[i + 1] + nums[i];
+                }
+            }
+
+            return 0;
+        }
+
+        #endregion
+
+        #region 989 review for high quality code
+        public IList<int> AddToArrayForm(int[] num, int k)
+        {
+            var list = new List<int>();
+            int len = num.Length;
+            bool carry = false;
+            var array = k.ToString().ToArray().Select(x => int.Parse(x.ToString())).ToArray();
+            if (len < array.Count())
+            {
+                var swap = num;
+                num = array;
+                array = swap;
+                len = num.Length;
+            }
+            int arrayLen = array.Count();
+            var diff = len - arrayLen;
+
+            for (int i = arrayLen - 1; i >= 0; i--)
+            {
+                var temp = num[i + diff] + array[i];
+                if (carry)
+                {
+                    temp++;
+                }
+                carry = temp >= 10;
+                list.Insert(0, carry ? temp - 10 : temp);
+            }
+            var index = diff - 1;
+            while (index >= 0)
+            {
+                var temp = num[index];
+                if (carry)
+                {
+                    temp++;
+                }
+                carry = temp >= 10;
+                list.Insert(0, carry ? temp - 10 : temp);
+                index--;
+            }
+
+            if (carry)
+            {
+                list.Insert(0, 1);
+            }
+            return list;
+        }
+
+        public IList<int> AddToArrayForm2(int[] A, int K)
+        {
+            var m = 0;
+            var r = new List<int>();
+
+            for (var i = A.Length - 1; i >= 0 || K > 0 || m > 0; i--)
+            {
+                var c = m + (i >= 0 ? A[i] : 0) + K % 10;
+                m = c / 10;
+                K /= 10;
+                r.Insert(0, c % 10);
+            }
+
+            return r;
+        }
+        #endregion
+
+        #region 997
+        public int FindJudge(int n, int[][] trust)
+        {
+            int len = trust.Length;
+            if (len == 0 && n == 1) return 1;
+            var dic = new Dictionary<int, int>();
+            for(int i = 1; i <= n; i++)
+            {
+                dic.Add(i, 0);
+            }
+            for (int i = 0; i < len; i++)
+            {
+                dic.Remove(trust[i][0]);
+                if (dic.ContainsKey(trust[i][1]))
+                    dic[trust[i][1]]++;
+            }
+
+            foreach (var d in dic)
+            {
+                if (d.Value == n - 1) return d.Key;
+            }
+            return -1;
+        }
+        #endregion
+        #endregion
+
+        #region 1001-1100
+        #region 1002
+        public IList<string> CommonChars(string[] words)
+        {
+            int len = words.Length;
+            var charts = words[0].ToArray().Select(x => x.ToString()).ToList();
+            if (len == 1) return charts;
+            var dic1 = charts.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            for (int i = 0; i < len; i++)
+            {
+                charts = words[i].ToArray().Select(x => x.ToString()).ToList();
+                var temp = charts.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+                foreach(var d in dic1)
+                {
+                    if (!temp.ContainsKey(d.Key)) dic1.Remove(d.Key);
+                    else
+                    {
+                        dic1[d.Key] = Math.Min(dic1[d.Key], temp[d.Key]);
+                    }
+                }
+                if (dic1.Keys.Count() == 0) return new List<string>();
+            }
+            var list = new List<string>();
+            foreach(var d in dic1)
+            {
+                for(int i = 1; i <= d.Value; i++)
+                {
+                    list.Add(d.Key);
+                }
+            }
+            return list;
+        }
+        #endregion
         #endregion
 
         #region #1189
