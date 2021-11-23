@@ -4742,6 +4742,85 @@ namespace CodePractice
             return list;
         }
         #endregion
+
+        #region 1005 review
+        public int LargestSumAfterKNegations(int[] nums, int k)
+        {
+            Array.Sort(nums);
+            var min = int.MaxValue;
+
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (nums[i] < 0 && k > 0)
+                {
+                    nums[i] = -nums[i];
+                    k--;
+                    min = Math.Min(min, nums[i]);
+                }
+                else if (nums[i] >= 0)
+                {
+                    min = Math.Min(min, nums[i]);
+                    break;
+                }
+            }
+
+            if (k % 2 == 1) return nums.Sum() - 2 * min;
+
+            return nums.Sum();
+        }
+        #endregion
+
+        #region 1013 review
+        public bool CanThreePartsEqualSum(int[] arr)
+        {
+            int len = arr.Length;
+            var sum = arr.Sum();
+            if (sum % 3 != 0) return false;
+            var avg = sum / 3;
+            var num = 1;
+            sum = 0;
+            for (int i = 0; i < len && num <= 3; i++)
+            {
+                sum += arr[i];
+                if (sum == (num * avg))
+                {
+                    num++;
+                }
+            }
+
+            return num > 3;
+        }
+        #endregion
+
+        #region 1018
+        #endregion
+
+        #region 1030
+        public int[][] AllCellsDistOrder(int rows, int cols, int rCenter, int cCenter)
+        {
+            var dic = new Dictionary<int, List<int[]>>();
+            for(int i = 0; i < rows; i++)
+            {
+                for(int j = 0; j < cols; j++)
+                {
+                    var dis = Math.Abs(i - rCenter) + Math.Abs(j - cCenter);
+                    if (!dic.ContainsKey(dis))
+                    {
+                        dic.Add(dis, new List<int[]>());
+                    }
+                    dic[dis].Add(new int[] { i, j });
+                }
+            }
+            var keys = dic.Keys.OrderBy(x=>x);
+            var list = new List<int[]>();
+            foreach(var k in keys)
+            {
+                list.AddRange(dic[k]);
+            }
+            return list.ToArray();
+        }
+        #endregion
+
         #endregion
 
         #region #1189
