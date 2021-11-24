@@ -4989,6 +4989,52 @@ namespace CodePractice
         }
         #endregion
 
+        #region 1184
+        public int DistanceBetweenBusStops(int[] distance, int start, int destination)
+        {
+            int len = distance.Length;
+            if (len == 1) return 0;
+            var sum = distance.Sum();
+            var temp = 0;
+            if (start > destination)
+            {
+                var swap = start;
+                start = destination;
+                destination = swap;
+
+            }
+            for(int i = start; i < destination; i++)
+            {
+                temp += distance[i];
+            }
+            return Math.Min(temp, sum - temp);
+        }
+
+        public int DistanceBetweenBusStops2(int[] distance, int start, int destination)
+        {
+            int sum1 = 0, sum2 = 0, n = distance.Count();
+            if (start > destination)
+            {
+                var swap = start;
+                start = destination;
+                destination = swap;
+
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                if (i >= start && i < destination)
+                {
+                    sum1 += distance[i];
+                }
+                else
+                {
+                    sum2 += distance[i];
+                }
+            }
+            return Math.Min(sum1, sum2);
+        }
+        #endregion
+
         #region #1189
         // balloon
         public int MaxNumberOfBalloons(string text)
@@ -5045,6 +5091,92 @@ namespace CodePractice
             return words.Where(w => ToCharCount(w).All(x => set.ContainsKey(x.Key) && set[x.Key] >= x.Value)).Sum(w => w.Length);
         }
         #endregion
+
+        #region 1200
+        public IList<IList<int>> MinimumAbsDifference(int[] arr)
+        {
+            Array.Sort(arr);
+            int min = int.MaxValue;
+            var res = new List<IList<int>>();
+            for(int i = 0; i < arr.Length - 1; i++)
+            {
+                var diff = arr[i + 1] - arr[i];
+                if (diff <= min)
+                {
+                    if(diff < min)
+                    {
+                        res.Clear();
+                        min = diff;
+                    }
+                    res.Add(new List<int> { arr[i], arr[i + 1] });
+                }
+            }
+            return res;
+        }
+        #endregion
+        #endregion
+
+        #region 1201-1300
+        #region 1207
+        public bool UniqueOccurrences(int[] arr)
+        {
+            var dict = arr.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            return dict.Values.Distinct().Count() == dict.Values.Count();
+        }
+
+        public bool UniqueOccurrences1(int[] arr)
+        {
+            Array.Sort(arr);
+            var hash = new HashSet<int>();
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var lastIndex = Array.LastIndexOf(arr, arr[i]);
+                if (!hash.Add(lastIndex - i + 1)) return false;
+                i = lastIndex;
+            }
+            return true;
+        }
+
+        public bool UniqueOccurrences2(int[] arr)
+        {
+            var counts = arr.ToLookup(x => x).Select(x => x.Count()).ToList();
+            return counts.Count() == counts.Distinct().Count();
+        }
+        #endregion
+
+        #region 1232
+        public bool CheckStraightLine(int[][] coordinates)
+        {
+            int diffx = coordinates[0][0] - coordinates[1][0];
+            int diffy = coordinates[0][1] - coordinates[1][1];
+            if (diffx == 0)
+            {
+                for (int i = 2; i < coordinates.Count(); i++)
+                {
+                    if (coordinates[i][0] != coordinates[0][0]) return false;
+                }
+            } else if (diffy == 0)
+            {
+                for (int i = 2; i < coordinates.Count(); i++)
+                {
+                    if (coordinates[i][1] != coordinates[0][1]) return false;
+                }
+            }
+            else
+            {
+                var r = diffx / (diffy * 1.0);
+                for (int i = 2; i < coordinates.Count(); i++)
+                {
+                    var d1 = coordinates[0][0] - coordinates[i][0];
+                    var d2 = coordinates[0][1] - coordinates[i][1];
+                    if ((d1 / (d2 * 1.0)) != r) return false;
+                }
+            }
+            
+            return true;
+        }
+        #endregion
+
         #endregion
 
         #region 1901-2000
