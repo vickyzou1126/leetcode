@@ -4792,9 +4792,6 @@ namespace CodePractice
         }
         #endregion
 
-        #region 1018
-        #endregion
-
         #region 1030
         public int[][] AllCellsDistOrder(int rows, int cols, int rCenter, int cCenter)
         {
@@ -4821,6 +4818,175 @@ namespace CodePractice
         }
         #endregion
 
+        #region 1046 review
+        public int LastStoneWeight(int[] stones)
+        {
+            int len = stones.Length;
+            if (len == 1) return stones[0];
+
+            Array.Sort(stones, 0, len);
+            while (len >= 2)
+            {
+                var max1 = stones[len - 1];
+                var max2 = stones[len - 2];
+                if (max1 == max2) { len -= 2; }
+                else
+                {
+                    stones[len - 2] = max1 - max2;
+                    len -= 1;
+                }
+                Array.Sort(stones, 0, len);
+            }
+
+            if (len == 0) return 0;
+            return stones[0];
+        }
+
+        public int LastStoneWeight2(int[] stones)
+        {
+            var dic = stones.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var keys = new List<int>();
+            while (true)
+            {
+                var keysCount = dic.Keys.Count;
+                var max = dic.Keys.Max();
+                var remain = dic[max] % 2;
+                if (keysCount == 1) return remain == 1 ? max : 0;
+                dic.Remove(max);
+
+                if (remain == 1)
+                {
+                    var newmax = dic.Keys.Max();
+                    var diff = max - newmax;
+                    if (keysCount == 2) return diff;
+                    dic[newmax]--;
+                    if (dic[newmax] == 0)
+                    {
+                        dic.Remove(newmax);
+                        if (keysCount == 3) return dic.Keys.First();
+                    }
+                    if (!dic.ContainsKey(diff))
+                    {
+                        dic.Add(diff, 0);
+                    }
+                    dic[diff]++;
+                }
+            }
+        }
+        #endregion
+
+        #region 1051
+        public int HeightChecker(int[] heights)
+        {
+            int[] copy = new int[heights.Length];
+            heights.CopyTo(copy, 0);
+
+            Array.Sort(copy);
+            int diff = 0;
+            for (int i = 0; i < heights.Length; i++)
+            {
+                if (heights[i] != copy[i]) diff++;
+
+            }
+            return diff;
+        }
+        #endregion
+
+        #region 1089 review
+        public void DuplicateZeros(int[] arr)
+        {
+            int len = arr.Length;
+            for (int i = 0; i < len - 1; i++)
+            {
+                if (arr[i] == 0)
+                {
+                    for (int j = len - 1; j >= i + 2; j--)
+                    {
+                        arr[j] = arr[j - 1];
+                    }
+                    arr[i + 1] = 0;
+
+                    i = i + 1;
+                }
+            }
+        }
+
+        public void DuplicateZeros2(int[] arr)
+        {
+            int len = arr.Length;
+            int endIndex = len - 1;
+            var mark = false;
+            for (int i = 0; i < len && i < endIndex; i++)
+            {
+                if (arr[i] == 0)
+                {
+                    endIndex--;
+                    mark = i == endIndex;
+                }
+            }
+
+            if (!mark)
+            {
+                arr[len - 1] = arr[endIndex];
+                endIndex--;
+                len--;
+            }
+            for (int i = len - 1; i >= 0; i--)
+            {
+                arr[i] = arr[endIndex];
+                if (arr[endIndex] == 0 && i >= 1)
+                {
+                    i--;
+                    arr[i] = 0;
+                }
+                endIndex--;
+            }
+        }
+        #endregion
+
+        #endregion
+
+        #region 1101-1200
+
+        #region 1122 review high quality code
+
+        public int[] RelativeSortArray(int[] arr1, int[] arr2)
+        {
+            var list = new List<int>();
+            var dic = arr1.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            for (int i = 0; i < arr2.Length; i++)
+            {
+                list.AddRange(Enumerable.Repeat(arr2[i], dic[arr2[i]]));
+                dic.Remove(arr2[i]);
+            }
+            foreach (var d in dic.Keys.OrderBy(x => x))
+            {
+                list.AddRange(Enumerable.Repeat(d, dic[d]));
+            }
+            return list.ToArray();
+        }
+
+        public int[] RelativeSortArray2(int[] arr1, int[] arr2)
+        {
+            var dict = arr2.Select((x, index) => (x, index)).ToDictionary(a => a.x, b => b.index);
+            Array.Sort(arr1, (x, y) => {
+                if (dict.ContainsKey(x) && dict.ContainsKey(y))
+                {
+                    return dict[x] - dict[y];
+                }
+                if (dict.ContainsKey(x) && !dict.ContainsKey(y))
+                {
+                    return -1;
+                }
+                if (!dict.ContainsKey(x) && dict.ContainsKey(y))
+                {
+                    return 1;
+                }
+                return x - y;
+
+            });
+            return arr1;
+        }
         #endregion
 
         #region #1189
@@ -4844,6 +5010,41 @@ namespace CodePractice
             }
             return 0;
         }
+        #endregion
+
+        #region 1160 review high quality code
+        public int CountCharacters(string[] words, string chars)
+        {
+            var dic = chars.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            int res = 0;
+            int chartsLen = chars.Length;
+            foreach (var w in words.Where(x => x.Length <= chartsLen))
+            {
+                var temp = w.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+                var canForm = true;
+                foreach (var d in temp)
+                {
+                    if (!dic.ContainsKey(d.Key) || d.Value > dic[d.Key])
+                    {
+                        canForm = false;
+                        break;
+                    }
+                }
+                if (canForm)
+                {
+                    res += w.Length;
+                }
+            }
+            return res;
+        }
+
+        public int CountCharacters2(string[] words, string chars)
+        {
+            IDictionary<char, int> ToCharCount(string s) => s.ToLookup(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var set = ToCharCount(chars);
+            return words.Where(w => ToCharCount(w).All(x => set.ContainsKey(x.Key) && set[x.Key] >= x.Value)).Sum(w => w.Length);
+        }
+        #endregion
         #endregion
 
         #region 1901-2000
