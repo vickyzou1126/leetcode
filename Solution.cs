@@ -5177,6 +5177,125 @@ namespace CodePractice
         }
         #endregion
 
+        #region 1266 review shortest time to visit 2 points
+        public int MinTimeToVisitAllPoints(int[][] points)
+        {
+            int time = 0;
+            int len = points.Count();
+            if (len == 1) return 0;
+            for(int i = 1; i < len; i++)
+            {
+                time += Math.Max(Math.Abs(points[i][0] - points[i - 1][0]), Math.Abs(points[i][1] - points[i - 1][1]));
+            }
+           
+            return time;
+        }
+        #endregion
+
+        #region 1287
+        public int FindSpecialInteger(int[] arr)
+        {
+            int len = arr.Length;
+            int quarterLen = len / 4;
+
+            var dic = new Dictionary<int, int>();
+            for (int i = 0; i < len; i++)
+            {
+                if (!dic.ContainsKey(arr[i]))
+                {
+                    dic.Add(arr[i], 0);
+                }
+                dic[arr[i]]++;
+                if (dic[arr[i]] > quarterLen) return arr[i];
+            }
+           // return -1;
+            var dict = arr.ToLookup(x => x).ToDictionary(x => x.Key, x => x.Count());
+            return dict.First(x => x.Value > len / 4).Key;
+        }
+        #endregion
+
+        #region 1295
+        public int FindNumbers(int[] nums)
+        {
+            return nums.Where(x => x.ToString().Length % 2 == 0).Count();
+        }
+        #endregion
+
+        #endregion
+
+        #region 1301-1400
+        #region 1331 review
+        public int[] ArrayRankTransform(int[] arr)
+        {
+            int len = arr.Length;
+            if (len == 0) return arr;
+            var dict = new SortedDictionary<int, List<int>>();
+            int[] res = new int[len];
+            for(int i = 0; i < len; i++)
+            {
+                if (!dict.ContainsKey(arr[i]))
+                {
+                    dict.Add(arr[i], new List<int>());
+                }
+                dict[arr[i]].Add(i);
+            }
+            int count = 1;
+            foreach(var k in dict.Keys)
+            {
+                for(int i = 0; i < dict[k].Count(); i++)
+                {
+                    res[dict[k][i]] = count;
+                }
+                count++;
+            }
+            return res;
+        }
+
+        public int[] ArrayRankTransform2(int[] arr)
+        {
+            var sortedArray = arr.Distinct().ToArray();
+            Array.Sort(sortedArray);
+            int rank = 1;
+            var dic = sortedArray.ToDictionary(x => x, x=> rank++);
+            int[] res = new int[arr.Length];
+            for(int i = 0; i < arr.Length; i++)
+            {
+                res[i] = dic[arr[i]];
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1337
+        public int[] KWeakestRows(int[][] mat, int k) 
+        {
+            int row = mat.Length;
+            var dic = new SortedDictionary<int, List<int>>();
+            for (int i = 0; i < row; i++)
+            {
+                int count = mat[i].Where(x => x == 1).Count();
+                if (!dic.ContainsKey(count))
+                {
+                    dic.Add(count, new List<int>());
+                }
+                dic[count].Add(i);
+            }
+            
+            int[] res = new int[k];
+            int pos = 0;
+            foreach (var d in dic)
+            {
+                foreach (var index in d.Value)
+                {
+                    res[pos] = index;
+                    k--;
+                    pos++;
+                    if (k == 0) return res;
+                }
+            }
+            return res;
+        }
+        #endregion
         #endregion
 
         #region 1901-2000
