@@ -5296,6 +5296,197 @@ namespace CodePractice
             return res;
         }
         #endregion
+
+        #region 1346
+        public bool CheckIfExist(int[] arr)
+        {
+            if (arr.Contains(0) && Array.IndexOf(arr,0) != Array.LastIndexOf(arr, 0)) return true;
+            int[] newArr = arr.Distinct().ToArray();
+            return newArr.Any(x => x!=0 && newArr.Contains(2 * x));
+        }
+        #endregion
+
+        #region 1351
+        public int CountNegatives(int[][] grid)
+        {
+            int len = grid.Length;
+            int cul = grid[0].Length;
+            int res = 0;
+            for(int i = 0; i < len; i++)
+            {
+                for(int j = 0; j < cul; j++)
+                {
+                    if (grid[i][j] == 0)
+                    {
+                        res += cul - j-1;
+                        break;
+                    } else if(grid[i][j] < 0)
+                    {
+                        res += cul - j;
+                        break;
+                    }
+                }
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1365 review
+        public int[] SmallerNumbersThanCurrent(int[] nums)
+        {
+            var dict = nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            int len = nums.Length;
+            int[] res = new int[len];
+            var dic2 = new Dictionary<int, int>();
+            for (int i = 0; i < len; i++)
+            {
+                if (!dic2.ContainsKey(nums[i]))
+                {
+                    dic2.Add(nums[i], dict.Where(x=>x.Key < nums[i]).Select(x=>x.Value).Sum());
+                }
+                res[i] = dic2[nums[i]];
+            }
+            return res;
+        }
+
+        public int[] SmallerNumbersThanCurrent2(int[] nums)
+        {
+            int[] arr = nums.OrderBy(n => n).ToArray();
+            var dict = new Dictionary<int, int>();
+            int count = 0;
+            foreach (var num in arr)
+            {
+                if (!dict.ContainsKey(num))
+                    dict.Add(num, count);
+                count++;
+            }
+
+            int[] result = new int[nums.Length];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = dict[nums[i]];
+
+            return result;
+        }
+        #endregion
+
+        #region 1380
+        public IList<int> LuckyNumbers(int[][] matrix)
+        {
+            int row = matrix.Length;
+            int col = matrix[0].Length;
+            var dict = new Dictionary<int, int>();
+            for (int i = 0; i < col; i++)
+            {
+                int colmax = int.MinValue;
+
+                for (int j = 0; j < row; j++)
+                {
+                    colmax = Math.Max(colmax, matrix[j][i]);
+                }
+                dict.Add(i, colmax);
+            }
+            var res = new HashSet<int>();
+
+            for (int i = 0; i < row; i++)
+            {
+                int rowmin = matrix[i].Min();
+                for (int j = 0; j < col; j++)
+                {
+                    if (matrix[i][j] == rowmin && dict[j] == rowmin) res.Add(rowmin);
+                }
+            }
+
+            return res.ToList();
+        }
+        #endregion
+
+        #region 1394
+        public int FindLucky(int[] arr)
+        {
+            Array.Sort(arr);
+            var count = 1;
+            for (int i = arr.Length - 1; i >= 1; i--)
+            {
+                if (arr[i] == arr[i - 1])
+                {
+                    count++;
+                }
+                else
+                {
+                    if (arr[i] == count) return count;
+                    count = 1;
+                }
+            }
+            if (arr[0] == count) return count;
+            return -1;
+        }
+
+        public int FindLucky2(int[] arr)
+        {
+            var dic = arr.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var key= dic.Where(x => x.Key == x.Value).Select(x => x.Key).OrderBy(x => x).ToList();
+            key.Sort();
+            return key.Count() > 0 ? key.Last() : -1;
+        }
+        #endregion
+
+        #endregion
+
+        #region 1401-1500
+        #region 1431 
+        public IList<bool> KidsWithCandies(int[] candies, int extraCandies)
+        {
+            int max = candies.Max();
+            return candies.Select(x => x + extraCandies >= max).ToList();
+        }
+        #endregion
+
+        #region 1437
+        public bool KLengthApart(int[] nums, int k)
+        {
+            var index = Array.IndexOf(nums, 1);
+            for (int i = index + 1; i < nums.Length; i++)
+            {
+                if (nums[i] == 1)
+                {
+                    if (i - index - 1 < k) return false;
+                    else index = i;
+                }
+            }
+            return true;
+        }
+        #endregion
+
+        #region 1450
+        public int BusyStudent(int[] startTime, int[] endTime, int queryTime)
+        {
+            int counter = 0;
+            for(int i = 0; i < startTime.Length; i++)
+            {
+                if(startTime[i]<= queryTime && queryTime <= endTime[i])
+                {
+                    counter++;
+                }
+            }
+            return counter;
+        }
+        #endregion
+
+        #region 1460
+        public bool CanBeEqual(int[] target, int[] arr)
+        {
+            int len = target.Length;
+            var dic = target.ToLookup(x => x).ToDictionary(x => x.Key, x => x.Count());
+            if (arr.Distinct().Any(x => !dic.Keys.Contains(x))) return false;
+            for (int i = 0; i < len; i++)
+            {
+                if (!dic.ContainsKey(arr[i])) return false;
+                dic[arr[i]]--;
+                if (dic[arr[i]] < 0) return false;
+            }
+            return true;
+        }
+        #endregion
         #endregion
 
         #region 1901-2000
