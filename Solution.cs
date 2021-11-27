@@ -5487,6 +5487,177 @@ namespace CodePractice
             return true;
         }
         #endregion
+
+        #region 1464
+        public int MaxProduct(int[] nums)
+        {
+            Array.Sort(nums);
+            int len = nums.Length;
+            return (nums[len - 1] - 1) * (nums[len - 2] - 1);
+        }
+        #endregion
+
+        #region 1470
+        public int[] Shuffle(int[] nums, int n)
+        {
+            int[] res = new int[n * 2];
+            int index = 0;
+            for(int i = 0; i < n; i++)
+            {
+                res[index] = nums[i];
+                res[index + 1] = nums[i + n];
+                index += 2;
+            }
+           
+            return res;
+        }
+        #endregion
+
+        #region 1475
+        public int[] FinalPrices(int[] prices)
+        {
+            for(int i = 0; i < prices.Length; i++)
+            {
+                for(int j = i + 1; j < prices.Length; j++)
+                {
+                    if (prices[j] <= prices[i])
+                    {
+                        prices[i] -= prices[j];
+                        break;
+                    }
+                }
+            }
+            return prices;
+        }
+        #endregion
+
+        #region 1480 review
+        public int[] RunningSum(int[] nums)
+        {
+            int[] res = new int[nums.Length];
+            int count = 0;
+            for(int i = 0; i < nums.Length; i++)
+            {
+                count += nums[i];
+                res[i] = count;
+            }
+            return res;
+        }
+
+        public int[] RunningSum2(int[] nums)
+        {
+            for (int i = 1; i < nums.Length; ++i)
+            {
+                nums[i] += nums[i - 1];
+            }
+            return nums;
+        }
+        #endregion
+
+        #region 1491
+        public double Average(int[] salary)
+        {
+            int min = int.MaxValue;
+            int max = int.MinValue;
+            var sum = 0;
+            for(int i = 0; i < salary.Length; i++)
+            {
+                min = Math.Min(min, salary[i]);
+                max = Math.Max(max, salary[i]);
+                sum += salary[i];
+            }
+            return (sum - min - max) / ((salary.Length - 2) * 1.0);
+        }
+
+        public double Average2(int[] salary)
+        {
+            int min = salary.Min();
+            int max = salary.Max();
+            var sum = salary.Sum();
+           
+            return (sum - min - max) / ((salary.Length - 2) * 1.0);
+        }
+
+        public double Average3(int[] salary)
+        {
+            Array.Sort(salary);
+
+            int len = salary.Length;
+
+            return (double)(salary.Sum() - salary[0]-salary[len-1]) / (double)(len - 2);
+        }
+        #endregion
+        #endregion
+
+        #region 1501-1600
+        #region 1502
+        public bool CanMakeArithmeticProgression(int[] arr)
+        {
+            Array.Sort(arr);
+            var diff = arr[1] - arr[0];
+            for(int i = 2; i < arr.Length; i++)
+            {
+                if (arr[i] - arr[i - 1] != diff) return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region 1512
+        public int NumIdenticalPairs(int[] nums)
+        {
+            int res = 0;
+            var dict = nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var sumDic = new Dictionary<int, int>();
+            foreach(var d in dict)
+            {
+                if (d.Value >= 2)
+                {
+                    if (!sumDic.ContainsKey(d.Value))
+                    {
+                        var sum = 0;
+                        for (int j = 1; j < d.Value; j++)
+                        {
+                            sum += j;
+                        }
+                        sumDic.Add(d.Value, sum);
+                    }
+                    res += sumDic[d.Value];
+                }
+            }
+            return res;
+        }
+
+        public int NumIdenticalPairs2(int[] nums)
+        {
+            int res = 0;
+            Array.Sort(nums);
+            var sumDic = new Dictionary<int, int>();
+            int index = 0;
+            while (index < nums.Length)
+            {
+                var val = nums[index];
+                var lastIndex = Array.LastIndexOf(nums, val);
+                var diff = lastIndex - index;
+                if (diff>0)
+                {
+                    if (!sumDic.ContainsKey(diff))
+                    {
+                        var sum = 0;
+                        for (int j = 1; j <= lastIndex - index; j++)
+                        {
+                            sum += j;
+                        }
+                        sumDic.Add(diff, sum);
+                    }
+                    res += sumDic[diff];
+                }
+                index = lastIndex + 1;
+            }
+            
+            return res;
+        }
+        #endregion
         #endregion
 
         #region 1901-2000
