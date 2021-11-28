@@ -5658,6 +5658,310 @@ namespace CodePractice
             return res;
         }
         #endregion
+
+        #region 1528
+        public string RestoreString(string s, int[] indices)
+        {
+            char[] copys = new char[s.Length];
+            for(int i = 0; i < s.Length; i++)
+            {
+                copys[indices[i]] = s[i];
+            }
+            return String.Concat(copys);
+        }
+        #endregion
+
+        #region 1539 review
+        public int FindKthPositive(int[] arr, int k)
+        {
+            int diff = 0;
+            int len = arr.Length;
+            for (int i = 0; i < len; i++)
+            {
+                if (i + diff != (arr[i] - 1))
+                {
+                    for (int j = arr[i] - 1 - i - diff; j >= 1; j--)
+                    {
+                        k--;
+                        if (k == 0) return arr[i] - j;
+                    }
+                    diff = arr[i] - i - 1;
+                }
+            }
+            int missingNum = arr[len - 1];
+            while (k > 0)
+            {
+                k--;
+                missingNum++;
+            }
+            return missingNum;
+        }
+
+        public int FindKthPositive2(int[] arr, int k)
+        {
+
+            int num = 1;
+            int i = 0;
+            int count = 0;
+            while (i < arr.Length)
+            {
+                if (num == arr[i])
+                    i++;
+                else
+                    count++;
+
+                if (count == k)
+                    return num;
+
+                num++;
+            }
+
+            return num + k - count - 1;
+
+        }
+        #endregion
+
+        #region 1550
+        public bool ThreeConsecutiveOdds(int[] arr)
+        {
+            int len = arr.Length;
+            for(int i = 0; i < len-2; i++)
+            {
+                if (arr[i] % 2 == 1 )
+                {
+                    if (arr[i + 1] % 2 == 1)
+                    {
+                        if (arr[i + 2] % 2 == 1)
+                        {
+                            return true;
+                        }
+                        i++;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region 1566 review
+        public bool ContainsPattern(int[] arr, int m, int k)
+        {
+            int len = arr.Length;
+            for (int i = 0; i <= len - m * k; i++)
+            {
+                int j = i;
+                while (j <= m * k + i - m - 1)
+                {
+                    if (arr[j] != arr[j + m]) break;
+                    j++;
+                }
+                if (j == m * k + i - m) return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region 1572
+        public int DiagonalSum(int[][] mat)
+        {
+            int len = mat.Length;
+            bool reduce = len % 2 == 1;
+            int res = 0;
+            for(int i = 0; i < len; i++)
+            {
+                res += mat[i][len - i-1];
+                res += mat[i][i];
+            }
+            if(reduce)
+            {
+                res -= mat[len / 2][len / 2];
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1582
+        public int NumSpecial(int[][] mat)
+        {
+            var dic = new Dictionary<int, bool>();
+            int res = 0;
+            for (int i = 0; i < mat.Length; i++)
+            {
+                if (mat[i].Sum() == 1)
+                {
+                    var col = Array.IndexOf(mat[i], 1);
+                    if (!dic.ContainsKey(col))
+                    {
+                        var sum = 0;
+                        for (int j = 0; j < mat.Length; j++)
+                        {
+                            sum += mat[j][col];
+                            if (sum > 1) break;
+                        }
+                        dic.Add(col, sum == 1);
+                    }
+                    if (dic[col]) res++;
+                }
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1588
+        public int SumOddLengthSubarrays(int[] arr)
+        {
+            var res = arr.Sum();
+            var len = 3;
+            while (len <= arr.Length)
+            {
+                for (int i = 0; i <= arr.Length - len; i++)
+                {
+                    int tempindex = i;
+                    while (tempindex < i + len)
+                    {
+                        res += arr[tempindex];
+                        tempindex++;
+                    }
+                }
+                len += 2;
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1598
+        public int MinOperations(string[] logs)
+        {
+            int depth = 0;
+            for(int i = 0; i < logs.Length; i++)
+            {
+                switch (logs[i])
+                {
+                    case "../":
+                        {
+                            depth--;
+                            if (depth < 0) depth = 0;
+                            break;
+                        }
+                    case "./": break;
+                    default: depth++;  break;
+                }
+            }
+            return depth;
+        }
+        #endregion
+        #endregion
+
+        #region 1601-1700
+        #region 1608
+        public int SpecialArray(int[] nums)
+        {
+            var dict = nums.ToLookup(x => x).ToDictionary(x => x.Key, x => x.Count());
+            for (int i = 1; i <= dict.Keys.Max(); i++)
+            {
+                var greaters = dict.Keys.Where(x => x >= i);
+                var counter = greaters.Select(x => dict[x]).Sum();
+                if (counter == i) return i;
+            }
+            return -1;
+        }
+        #endregion
+
+        #region 1619
+        public double TrimMean(int[] arr)
+        {
+            var len = arr.Length;
+            Array.Sort(arr);
+
+            var min = len * 0.05;
+            var max = len * 0.95 - 1;
+
+            var sum = 0;
+            for (int i = (int)min; i <= max; i++)
+            {
+                sum += arr[i];
+            }
+            return sum / (max - min + 1);
+        }
+        #endregion
+
+        #region 1629
+        public char SlowestKey(int[] releaseTimes, string keysPressed)
+        {
+            int max = releaseTimes[0];
+            int index = 0;
+            for (int i = 1; i < releaseTimes.Count(); i++)
+            {
+                var diff = releaseTimes[i] - releaseTimes[i - 1];
+                if (max <diff)
+                {
+                    max = diff;
+                    index = i;
+                }else if(max==diff && keysPressed[i] > keysPressed[index])
+                {
+                    index = i;
+                }
+            }
+            return keysPressed[index];
+        }
+        #endregion
+
+        #region 1636
+        public int[] FrequencySort(int[] nums)
+        {
+            var dict = nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            var newDic = new SortedDictionary<int, List<int>>();
+            foreach(var d in dict)
+            {
+                if (!newDic.ContainsKey(d.Value))
+                {
+                    newDic.Add(d.Value, new List<int>());
+                }
+                newDic[d.Value].Add(d.Key);
+            }
+
+            var list = new List<int>();
+
+            foreach(var d in newDic)
+            {
+                d.Value.Sort();
+                d.Value.Reverse();
+                foreach (var v in d.Value)
+                {
+                    list.AddRange(Enumerable.Repeat(v, d.Key));
+                }
+            }
+            return list.ToArray();
+        }
+        #endregion
+
+        #region 1640
+        public bool CanFormArray(int[] arr, int[][] pieces)
+        {
+            var dic = new Dictionary<int, int[]>();
+            for (int i = 0; i < pieces.Length; i++)
+            {
+                dic.Add(pieces[i][0], pieces[i]);
+            }
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (!dic.ContainsKey(arr[i])) return false;
+                var items = dic[arr[i]];
+                int index = 0;
+                while (index < items.Length)
+                {
+                    if (arr[index + i] != items[index]) return false;
+                    index++;
+                }
+                i += items.Length - 1;
+            }
+            return true;
+        }
+        #endregion
         #endregion
 
         #region 1901-2000
