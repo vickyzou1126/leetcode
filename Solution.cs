@@ -805,6 +805,59 @@ namespace CodePractice
         }
         #endregion
 
+        #region 31
+        public void NextPermutation(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return;
+
+            var dict = new SortedDictionary<int, int>();
+            for (int i = len - 1; i >= 0; i--)
+            {
+                var greaterNums = dict.Keys.ToList().FirstOrDefault(x=>x>nums[i]);
+                if (greaterNums != 0)
+                {
+                    var number = greaterNums;
+                    var swap = nums[i];
+                    nums[i] = number;
+                    nums[dict[number]] = swap;
+                   
+                    for (int j = i + 1; j < len - 1; j++)
+                    {
+                        int min_temp = nums[j];
+                        int index = j;
+                        for (int k = j + 1; k < len; k++)
+                        {
+                            if (nums[k] < min_temp)
+                            {
+                                min_temp = nums[k];
+                                index = k;
+                            }
+                        }
+                        swap = nums[j];
+                        nums[j] = min_temp;
+                        nums[index] = swap;
+                    }
+                    return;
+                }
+                else
+                {
+                    if (!dict.ContainsKey(nums[i]))
+                    {
+                        dict.Add(nums[i], i);
+                    }
+                }
+            }
+
+            for (int i = 0; i < len / 2; i++)
+            {
+                int swap = nums[i];
+                nums[i] = nums[len - i - 1];
+                nums[len - i - 1] = swap;
+            }
+        }
+        #endregion
+
         #region #32 - review
         public int LongestValidParentheses(string s)
         {
@@ -1058,6 +1111,38 @@ namespace CodePractice
         }
         #endregion
 
+        #region 38
+        public string CountAndSay(int n)
+        {
+            var str = "1";
+            n--;
+            while (n > 0)
+            {
+                int len = str.Length;
+                var temp = "";
+                var preVal = str[0];
+                int counter = 1;
+                for (int i = 1; i < len; i++)
+                {
+                    if (str[i] != preVal)
+                    {
+                        temp += counter + "" + preVal;
+                        preVal = str[i];
+                        counter = 1;
+                    }
+                    else
+                    {
+                        counter++;
+                    }
+                }
+                temp += counter + "" + preVal;
+                str = temp;
+                n--;
+            }
+            return str;
+        }
+        #endregion
+
         #region #40
         public IList<IList<int>> CombinationSum2(int[] candidates, int target)
         {
@@ -1146,6 +1231,77 @@ namespace CodePractice
             }
 
             return result.ToArray();
+        }
+        #endregion
+
+        #region 43
+        public string Multiply(string num1, string num2)
+        {
+            if (num1 == "0" || num2 == "0") return "0";
+            int len1 = num1.Length;
+            int len2 = num2.Length;
+
+            if (len1 < len2)
+            {
+                var swap = num1;
+                num1 = num2;
+                num2 = swap;
+                var swaplen = len1;
+                len1 = len2;
+                len2 = swaplen;
+            }
+
+            var carry = 0;
+            var sum = new List<List<int>>();
+            for (int i = len2 - 1; i >= 0; i--)
+            {
+                var list = new List<int>();
+                carry = 0;
+                for (int j = len1 - 1; j >= 0; j--)
+                {
+                    var temp = int.Parse(num2[i].ToString()) * int.Parse(num1[j].ToString());
+                    temp += carry;
+                    carry = temp / 10;
+                    list.Insert(0, temp % 10);
+                }
+                if (carry > 0) list.Insert(0, carry);
+                for (int k = len2 - i - 1; k > 0; k--)
+                {
+                    list.Add(0);
+                }
+                sum.Add(list);
+            }
+
+            var maxLen = sum.Max(x => x.Count());
+            var len = sum.Count();
+            for (int i = 0; i < len; i++)
+            {
+                var diff = maxLen - sum[i].Count();
+                for (int j = 1; j <= diff; j++)
+                {
+                    sum[i].Insert(0, 0);
+                }
+            }
+            var str = "";
+            carry = 0;
+            for (int j = maxLen - 1; j >= 0; j--)
+            {
+
+                var tempsum = 0;
+                for (int i = 0; i < len; i++)
+                {
+                    tempsum += sum[i][j];
+
+                }
+                tempsum += carry;
+                carry = tempsum / 10;
+                str = (tempsum % 10) + str;
+            }
+            if (carry > 0)
+            {
+                str = carry + str;
+            }
+            return str;
         }
         #endregion
 
