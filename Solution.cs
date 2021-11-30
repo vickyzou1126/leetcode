@@ -7,7 +7,29 @@ namespace CodePractice
     public class Solution
     {
         #region 1-100
-        #region #2 ListNode review
+        #region 1
+        public int[] TwoSum(int[] nums, int target)
+        {
+            var dict = new Dictionary<int, int>();
+            var complement = 0;
+            for (int i = 0; i < nums.Length; i++)
+            {
+                complement = target - nums[i];
+                if (dict.ContainsKey(complement))
+                {
+                    return new int[] { i, dict[complement] };
+
+                }
+                if (!dict.ContainsKey(nums[i]))
+                {
+                    dict.Add(nums[i], i);
+                }
+            }
+            return new int[2];
+        }
+        #endregion
+
+        #region 2 ListNode review
         public ListNode AddTwoNumbers(ListNode l1, ListNode l2)
         {
             int sum = l1.val + l2.val;
@@ -1305,6 +1327,105 @@ namespace CodePractice
         }
         #endregion
 
+        #region 45
+        public int Jump(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return 0;
+
+            var steps = new Dictionary<int, int>();
+            steps.Add(0, 0);
+            steps.Add(1, 1);
+
+            for (int i = 2; i < len; i++)
+            {
+                var min = int.MaxValue;
+                for (int j = 0; j < i; j++)
+                {
+                    if (min > steps[j] && j + nums[j] >= i)
+                    {
+                        min = steps[j];
+                    }
+                }
+                steps.Add(i, min + 1);
+            }
+            return steps[len - 1];
+        }
+        #endregion
+
+        #region 46 review
+        public IList<IList<int>> Permute(int[] nums)
+        {
+            int len = nums.Length;
+            var temp = new List<IList<int>>();
+            temp.Add(new List<int> { nums[0] });
+            for (int i = 1; i < len; i++)
+            {
+                var newtemp = new List<IList<int>>();
+                for (int j = 0; j < temp.Count(); j++)
+                {
+                    var jlen = temp[j].Count();
+                    for (int k = 0; k < temp[j].Count(); k++)
+                    {
+                        var t = new int[jlen];
+                        temp[j].CopyTo(t, 0);
+                        var tl = t.ToList();
+                        tl.Insert(k, nums[i]);
+                        newtemp.Add(tl);
+                    }
+                    var t1 = new int[jlen];
+                    temp[j].CopyTo(t1, 0);
+                    var tl1 = t1.ToList();
+                    tl1.Add(nums[i]);
+                    newtemp.Add(tl1);
+                }
+                temp = newtemp;
+            }
+
+            return temp;
+        }
+        #endregion
+
+        #region 47
+        public IList<IList<int>> PermuteUnique(int[] nums)
+        {
+            int len = nums.Length;
+            var temp = new List<IList<int>>();
+            temp.Add(new List<int> { nums[0] });
+            for (int i = 1; i < len; i++)
+            {
+                var newtemp = new List<IList<int>>();
+                var vals = new HashSet<string>();
+                for (int j = 0; j < temp.Count(); j++)
+                {
+                    var jlen = temp[j].Count();
+                    for (int k = 0; k < temp[j].Count(); k++)
+                    {
+                        var t = new int[jlen];
+                        temp[j].CopyTo(t, 0);
+                        var tl = t.ToList();
+                        tl.Insert(k, nums[i]);
+                        if (vals.Add(String.Concat(tl)))
+                        {
+                            newtemp.Add(tl);
+                        }  
+                    }
+                    var t1 = new int[jlen];
+                    temp[j].CopyTo(t1, 0);
+                    var tl1 = t1.ToList();
+                    tl1.Add(nums[i]);
+                    if (vals.Add(String.Concat(tl1)))
+                    {
+                        newtemp.Add(tl1);
+                    }
+                }
+                temp = newtemp;
+            }
+
+            return temp;
+        }
+        #endregion
+
         #region #48 --- review matrix rotate -> transpose
         public void Rotate(int[][] matrix)
         {
@@ -1364,6 +1485,30 @@ namespace CodePractice
         }
         #endregion
 
+        #region 50 review
+        public double MyPow(double x, int n)
+        {
+            long p = (long)n;
+
+            if (p < 0)
+            {
+                p = -p;
+                x = 1 / x;
+            }
+
+            double result = 1;
+            while (p > 0) 
+            {
+                if (p % 2 == 1)
+                    result = result * x;
+                x = x * x;
+                p = p / 2;
+            }
+
+            return result;
+        }
+        #endregion
+
         #region #53 -sliding window review
         /*
          * solution:
@@ -1384,6 +1529,51 @@ namespace CodePractice
             }
             return sumMax;
         }
+        #endregion
+
+        #region 54
+        public IList<int> SpiralOrder(int[][] matrix)
+        {
+            var row = matrix.Length;
+            var col = matrix[0].Length;
+            var list = new List<int>();
+            int starti = 0;
+            int startj = 0;
+            int endj = col - 1;
+            int endi = row - 1;
+            int total = row * col;
+            int counter = 0;
+            while (counter < total)
+            {
+                for (int i = startj; i <= endj; i++)
+                {
+                    list.Add(matrix[starti][i]);
+                    counter++;
+                }
+                starti++;
+                for (int i = starti; i <= endi; i++)
+                {
+                    list.Add(matrix[i][endj]);
+                    counter++;
+                }
+                endj--;
+                if (counter == total) return list;
+                for (int i = endj; i >= startj; i--)
+                {
+                    list.Add(matrix[endi][i]);
+                    counter++;
+                }
+                endi--;
+                for (int i = endi; i >= starti; i--)
+                {
+                    list.Add(matrix[i][startj]);
+                    counter++;
+                }
+                startj++;
+            }
+            return list;
+        }
+
         #endregion
 
         #region #55 - review
@@ -1621,6 +1811,82 @@ namespace CodePractice
                 length++;
             }
             return length;
+        }
+        #endregion
+
+        #region 59
+        public int[][] GenerateMatrix(int n)
+        {
+            int[][] visited = new int[n][];
+            for (int i = 0; i < n; i++)
+            {
+                visited[i] = new int[n];
+            }
+            int starti = 0;
+            int startj = 0;
+            int endj = n - 1;
+            int endi = n - 1;
+            int val = 1;
+            while (val <= n * n)
+            {
+                for (int i = startj; i <= endj; i++)
+                {
+                    visited[starti][i] = val;
+                    val++;
+                }
+                starti++;
+                for (int i = starti; i <= endi; i++)
+                {
+                    visited[i][endj] = val;
+                    val++;
+                }
+                endj--;
+                for (int i = endj; i >= startj; i--)
+                {
+                    visited[endi][i] = val;
+                    val++;
+                }
+                endi--;
+                for (int i = endi; i >= starti; i--)
+                {
+                    visited[i][startj] = val;
+                    val++;
+                }
+                startj++;
+            }
+            return visited;
+        }
+        #endregion
+
+        #region 61
+        public ListNode RotateRight(ListNode head, int k)
+        {
+            if (k == 0 || head==null) return head;
+           
+            var list = new List<int>();
+            var temphead = head;
+            while (temphead != null)
+            {
+                list.Add(temphead.val);
+                temphead = temphead.next;
+            }
+            var len = list.Count();
+            if (len == 1) return head;
+            k = k%len;
+            if (k == 0) return head;
+            var node = new ListNode(list[len-k], null);
+            var res = node;
+            for(int i = len - k+1; i < len; i++)
+            {
+                node.next = new ListNode(list[i], null);
+                node = node.next;
+            }
+            for(int i = 0; i < len - k; i++)
+            {
+                node.next = new ListNode(list[i], null);
+                node = node.next;
+            }
+            return res;
         }
         #endregion
 
