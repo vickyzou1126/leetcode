@@ -1916,6 +1916,63 @@ namespace CodePractice
         }
         #endregion
 
+        #region 63
+        public int UniquePathsWithObstacles(int[][] obstacleGrid)
+        {
+            if (obstacleGrid[0][0] == 1) return 0;
+            int row = obstacleGrid.Length;
+            int col = obstacleGrid[0].Length;
+            if (row == 1)
+            {
+                if (col == 1)
+                    return obstacleGrid[0][0] == 1 ? 0 : 1;
+                if (obstacleGrid[row - 1][col - 2] == 1) return 0;
+            }
+            if (col == 1 && obstacleGrid[row - 2][col - 1] == 1) return 0;
+
+            if (row >= 2 && col >= 2 && obstacleGrid[row - 2][col - 1] == 1 && obstacleGrid[row - 1][col - 2] == 1) return 0;
+
+            int[][] visited = new int[row][];
+            // init
+            for (int i = 0; i < row; i++)
+            {
+                visited[i] = new int[col];
+            }
+
+            for (int i = 0; i < col; i++)
+            {
+                if (obstacleGrid[0][i] != 1)
+                {
+                    visited[0][i] = 1;
+                }
+                else break;
+            }
+
+            for (int i = 1; i < row; i++)
+            {
+                if (obstacleGrid[i][0] != 1)
+                {
+                    visited[i][0] = 1;
+                }
+                else break;
+            }
+
+            for (int i = 1; i < row; i++)
+            {
+                for (int j = 1; j < col; j++)
+                {
+
+                    if (obstacleGrid[i][j] != 1)
+                    {
+                        visited[i][j] = visited[i - 1][j] + visited[i][j - 1];
+                    }
+                }
+            }
+
+            return visited[row - 1][col - 1];
+        }
+        #endregion
+
         #region #64
         public int MinPathSum(int[][] grid)
         {
@@ -2094,6 +2151,71 @@ namespace CodePractice
         }
         #endregion
 
+        #region 73
+        public void SetZeroes(int[][] matrix)
+        {
+            int row = matrix.Length;
+            int col = matrix[0].Length;
+            var markMatrix = new int[row][];
+            for (int i = 0; i < row; i++)
+            {
+                markMatrix[i] = new int[col];
+            }
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < col; j++)
+                {
+                    if (matrix[i][j] == 0 && markMatrix[i][j] != 1)
+                    {
+                        markMatrix[i][j] = 1;
+                        // mark whole row 0
+                        for (int k = 0; k < col; k++)
+                        {
+                            if (matrix[i][k] != 0)
+                            {
+                                matrix[i][k] = 0;
+                                markMatrix[i][k] = 1;
+                            }
+                        }
+                        // mark whole col 0
+                        for (int k = 0; k < row; k++)
+                        {
+                            if (matrix[k][j] != 0)
+                            {
+                                matrix[k][j] = 0;
+                                markMatrix[k][j] = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region 74
+        public bool SearchMatrix(int[][] matrix, int target)
+        {
+            int len = matrix.Length;
+            return SearchMatrix(matrix, target, 0, len - 1, len);
+        }
+        private bool SearchMatrix(int[][] matrix, int target, int startrow, int endrow, int len)
+        {
+            int mid = startrow + (endrow - startrow) / 2;
+
+            if (matrix[mid][0] > target)
+            {
+                if (mid - 1 < startrow) return false;
+                return SearchMatrix(matrix, target, startrow, mid - 1, len);
+            }
+
+            if (matrix[mid].Contains(target)) return true;
+
+            if (mid + 1 > endrow) return false;
+            return SearchMatrix(matrix, target, mid + 1, endrow, len);
+
+        }
+        #endregion
+
         #region #75
         public void SortColors(int[] nums)
         {
@@ -2122,6 +2244,82 @@ namespace CodePractice
                     }
                 }
                 pointer++;
+            }
+        }
+        #endregion
+
+        #region 77 review !!Depth-first search DFS
+        public IList<IList<int>> Combine(int n, int k)
+        {
+            var list = new List<IList<int>>();
+            for (int i = 1; i <= n; i++)
+            {
+                list.Add(new List<int> { i });
+            }
+            if (k == 1) return list;
+
+            var previousList = new List<IList<int>>();
+            while (k > 0)
+            {
+                previousList = new List<IList<int>>();
+                foreach (var v in list)
+                {
+                    for(int i = v[v.Count()-1]+1; i <= n; i++)
+                    {
+                        previousList.Add(v.Append(i).ToList());
+
+                    }
+                }
+                list = previousList;
+                k--;
+            }
+
+            return list;
+        }
+
+        public IList<IList<int>> Combine2(int n, int k)
+        {
+            var list = new List<IList<int>>();
+            Combine(1, n, k, new List<int>(), list);
+            return list;
+        }
+
+        private void Combine(int start, int n, int k, IList<int> temp, List<IList<int>> list)
+        {
+            if (k == 0)
+            {
+                list.Add(new List<int>(temp));
+            }
+            else
+            {
+                for (int i = start; i <= n; i++)
+                {
+                    temp.Add(i);
+                    Combine(i + 1, n, k - 1, temp, list);
+                    temp.RemoveAt(temp.Count() - 1);
+                }
+            }
+        }
+        #endregion
+
+        #region 78
+        public IList<IList<int>> Subsets(int[] nums)
+        {
+            var list = new List<IList<int>>();
+            list.Add(new List<int>());
+            var len = nums.Length;
+            Subsets(nums, 0, list, len, new List<int>());
+            return list;
+        }
+
+        public void Subsets(int[] nums, int index, List<IList<int>> list, int len, List<int> temp)
+        {
+            for(int i = index; i < len; i++)
+            {
+                temp.Add(nums[i]);
+                Subsets(nums, i + 1, list, len, temp);
+                list.Add(new List<int>(temp));
+                temp.RemoveAt(temp.Count() - 1);
             }
         }
         #endregion
@@ -2289,6 +2487,72 @@ namespace CodePractice
 
             return false;
         }
+        #endregion
+
+        #region 80 review
+        public int RemoveDuplicates80(int[] nums)
+        {
+            int diff = 0;
+            int i = 0;
+            var len = nums.Length;
+            while (i < len - diff)
+            {
+                var val = nums[i];
+                var lastIndex = Array.LastIndexOf(nums, val);
+                var temp = lastIndex - i + 1;
+                if (temp > 2)
+                {
+                    temp -= 2;
+                    for (int j = lastIndex + 1; j < len - diff; j++)
+                    {
+                        nums[j - temp] = nums[j];
+                    }
+                    for (int j = len - diff - temp; j < len - diff; j++)
+                    {
+                        nums[j] = int.MaxValue;
+                    }
+                    diff += temp;
+                    temp = 2;
+                }
+                i += temp;
+            }
+
+            return len - diff;
+        }
+
+        public int RemoveDuplicates80a(int[] nums)
+        {
+            var n = nums.Length;
+
+            if (n <= 2) return nums.Length;
+
+            var left = 1;
+            var count = 1;
+            for (int i = 1; i < n; i++)
+            {
+                if (nums[i - 1] == nums[i])
+                {
+                    count++;
+
+                    if (count <= 2)
+                    {
+                        nums[left] = nums[i];
+                        left++;
+                    }
+                }
+                else
+                {
+                    count = 1;
+                    nums[left] = nums[i];
+                    left++;
+                }
+            }
+
+            return left;
+        }
+        #endregion
+
+        #region 81
         #endregion
 
         #region #83 - ListNode review
