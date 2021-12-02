@@ -462,6 +462,43 @@ namespace CodePractice
             return new List<IList<int>>(hash);
         }
 
+        public IList<IList<int>> ThreeSum2(int[] nums)
+        {
+            int length = nums.Length;
+            var list = new List<IList<int>>();
+            if (length < 3) return list;
+
+            Array.Sort(nums);
+            for (int i = 0; i < length; i++)
+            {
+                if (nums[i] > 0) return list;
+                if (i >= 1 && nums[i] == nums[i - 1]) continue;
+                var left = i + 1;
+                var right = length - 1;
+                while (left < right)
+                {
+                    var sum = nums[i] + nums[left] + nums[right];
+                    if (sum == 0)
+                    {
+                        list.Add(new List<int> { nums[i], nums[left], nums[right] });
+                        left++;
+                        right--;
+                        while (left < length &&  nums[left] == nums[left - 1])
+                        {
+                            left++;
+                        }
+                    } else if (sum > 0)
+                    {
+                        right--;
+                    }
+                    else
+                    {
+                        left++;
+                    }
+                }
+            }
+            return list;
+        }
         #endregion
 
         #region #16 -review
@@ -501,18 +538,17 @@ namespace CodePractice
             int length = nums.Length;
             if (length == 3) return nums.Sum();
 
-            var list = nums.ToList();
-            list.Sort();
+            Array.Sort(nums);
             int minDiff = int.MaxValue;
             var ans = int.MaxValue;
 
-            for (int i = 0; i < length - 2; i++)
+            for (int i = 0; i < length; i++)
             {
                 int left = i + 1;
                 int right = length - 1;
                 while (left < right)
                 {
-                    var sum = list[i] + list[left] + list[right];
+                    var sum = nums[i] + nums[left] + nums[right];
                     var diff = Math.Abs(sum - target);
                     if (minDiff > diff)
                     {
@@ -2726,6 +2762,37 @@ namespace CodePractice
 
         #endregion
 
+        #region 105 review
+        public TreeNode BuildTree(int[] preorder, int[] inorder)
+        {
+            int len = preorder.Length;
+            if (len == 0) return null;
+            if (len == 1) return new TreeNode(preorder[0], null, null);
+
+            var mid_inorder = Array.IndexOf(inorder, preorder[0]);
+            var root = new TreeNode(preorder[0]);
+
+            root.left = BuildTree(preorder.Skip(1).Take(mid_inorder).ToArray(), inorder.Take(mid_inorder).ToArray());
+            root.right = BuildTree(preorder.Skip(mid_inorder + 1).Take(len - mid_inorder - 1).ToArray(), inorder.Skip(mid_inorder + 1).Take(len - mid_inorder - 1).ToArray());
+            return root;
+        }
+        #endregion
+
+        #region 106
+        public TreeNode BuildTree2(int[] inorder, int[] postorder)
+        {
+            int len = postorder.Length;
+            if (len == 0) return null;
+            if (len == 1) return new TreeNode(inorder[0], null, null);
+
+            var root = new TreeNode(postorder[len - 1]);
+            var index = Array.IndexOf(inorder, postorder[len - 1]);
+            root.left = BuildTree(inorder.Take(index).ToArray(), postorder.Take(index).ToArray());
+            root.right = BuildTree(inorder.Skip(index + 1).Take(len - index - 1).ToArray(), postorder.Skip(index).Take(len - index - 1).ToArray());
+            return root;
+        }
+        #endregion
+
         #region #108 TreeNode
         public TreeNode SortedArrayToBST(int[] nums)
         {
@@ -2851,6 +2918,30 @@ namespace CodePractice
             }
 
             return init;
+        }
+        #endregion
+
+        #region 120
+        public int MinimumTotal(IList<IList<int>> triangle)
+        {
+            var len = triangle.Count();
+            if(len==1) return triangle[0][0];
+            
+            var list = new List<List<int>>();
+            list.Add(new List<int> { triangle[0][0] });
+
+            for (int i = 1; i < len; i++)
+            {
+                var temp = new List<int>();
+                temp.Add(list[i - 1][0] + triangle[i][0]);
+                for (int j = 1; j < i; j++)
+                {
+                    temp.Add(Math.Min(list[i - 1][j], list[i - 1][j - 1]) + triangle[i][j]);
+                }
+                temp.Add(list[i - 1][i - 1] + triangle[i][i]);
+                list.Add(temp);
+            }
+            return list[len - 1].Min();
         }
         #endregion
 
