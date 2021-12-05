@@ -650,6 +650,53 @@ namespace CodePractice
                 return new { Key = string.Join("", t), List = o };
             }).GroupBy(o => o.Key).Select(o => o.FirstOrDefault()).Select(o => o.List).ToList();
         }
+
+        public IList<IList<int>> FourSum2(int[] nums, int target)
+        {
+            IList<IList<int>> list = new List<IList<int>>();
+            int len = nums.Count();
+            if (len < 4) return list;
+
+            Array.Sort(nums);
+
+            for (int i = 0; i < len - 1; i++)
+            {
+                if (i >= 1 && nums[i] == nums[i - 1]) continue;
+
+                for (int j = i + 1; j < len; j++)
+                {
+                    if (j >= i + 2 && nums[j] == nums[j - 1]) continue;
+                    var newSum = nums[i] + nums[j];
+                    int left = j + 1;
+                    int right = len - 1;
+                    while (left < right)
+                    {
+                        var leftVal = nums[left];
+                        var sum = newSum + leftVal + nums[right];
+                        if (sum == target)
+                        {
+                            list.Add(new List<int> { nums[i], nums[j], leftVal, nums[right] });
+                            left++;
+                            right--;
+                            while (left < len && nums[left] == leftVal)
+                            {
+                                left++;
+                            }
+                        }
+                        else if (sum < target)
+                        {
+                            left++;
+                        }
+                        else
+                        {
+                            right--;
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
         #endregion
 
         #region #19 ListNode
@@ -3024,6 +3071,13 @@ namespace CodePractice
         }
         #endregion
 
+        #region 130
+        public void Solve(char[][] board)
+        {
+
+        }
+        #endregion
+
         #region #136 grouping
         public int SingleNumber(int[] nums)
         {
@@ -3060,6 +3114,63 @@ namespace CodePractice
                 }
             }
             return res;
+        }
+        #endregion
+
+        #region 134
+        public int CanCompleteCircuit(int[] gas, int[] cost)
+        {
+            var gasStarters = gas.Select((value, index) => value > 0 ? index : -1)
+            .Where(index => index != -1).ToList();
+            int len = gasStarters.Count();
+            for (int j = 0; j < len; j++)
+            {
+                var i = gasStarters[j];
+                int diff = gas[i] - cost[i];
+                if (diff >= 0)
+                {
+                    int index = i + 1;
+                    var pass = true;
+                    while (index < len)
+                    {
+                        if (diff + gas[index] - cost[index] < 0)
+                        {
+                            pass = false;
+                            break;
+                        }
+                        diff += gas[index] - cost[index];
+                        index++;
+                    }
+                    if (pass && i != 0)
+                    {
+                        index = 0;
+                        while(index < i)
+                        {
+                            if (diff + gas[index] - cost[index] < 0)
+                            {
+                                pass = false;
+                                break;
+                            }
+                            diff += gas[index] - cost[index];
+                            index++;
+                        }
+                    }
+                    if (pass) return i; 
+                }
+            }
+            return -1;
+        }
+        #endregion
+
+        #region 137
+        public int SingleNumber137(int[] nums)
+        {
+            Array.Sort(nums);
+            for (int i = 0; i < nums.Length-2; i = i + 3)
+            {
+                if (nums[i] != nums[i + 2]) return nums[i];
+            }
+            return nums[nums.Length - 1];
         }
         #endregion
 
@@ -3135,6 +3246,9 @@ namespace CodePractice
         }
         #endregion
 
+        #region 150
+        #endregion
+
         #region #151
         public string ReverseWords(string s)
         {
@@ -3192,10 +3306,50 @@ namespace CodePractice
         }
         #endregion
 
+        #region 152 review 
+        public int MaxProduct(int[] nums)
+        {
+            var n = nums.Length;
+
+            if (n == 0) return 0;
+            if (n == 1) return nums[0];
+
+            var minArr = new int[n];
+            var maxArr = new int[n];
+
+            minArr[0] = nums[0];
+            maxArr[0] = nums[0];
+
+            for (int i = 1; i < n; i++)
+            {
+                maxArr[i] = Math.Max(Math.Max(maxArr[i - 1] * nums[i], minArr[i - 1] * nums[i]), nums[i]);
+                minArr[i] = Math.Min(Math.Min(minArr[i - 1] * nums[i], maxArr[i - 1] * nums[i]), nums[i]);
+            }
+
+            return maxArr.Max();
+        }
+        #endregion
+
         #region #155 - see MinStack
         #endregion
 
         #region #160 ListNode - not completed
+        #endregion
+
+        #region 162
+        public int FindPeakElement(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return 0;
+            if (nums[0] > nums[1]) return 0;
+            if (nums[len - 1] > nums[len - 2]) return len - 1;
+
+            for (int i = 1; i < len-1 ; i++)
+            {
+                if (nums[i] > nums[i - 1] && nums[i] > nums[i + 1]) return i;
+            }
+            return -1;
+        }
         #endregion
 
         #region #167
@@ -3385,6 +3539,9 @@ namespace CodePractice
             return max;
         }
         #endregion
+
+        #region 200
+        #endregion
         #endregion
 
         #region 201-300
@@ -3442,6 +3599,28 @@ namespace CodePractice
 
         #endregion
 
+        #region 204 review
+        public int CountPrimes(int n)
+        {
+            bool[] sieve = new bool[n];
+            for(int i = 2; i < n; i++)
+            {
+                sieve[i] = true;
+            }
+            for(int i = 2; i < n; i++)
+            {
+                if (!sieve[i]) continue;
+                var counter = 2;
+                while (i * counter < n)
+                {
+                    sieve[i * counter] = false;
+                    counter++;
+                }
+            }
+            return sieve.Where(x => x).Count();
+        }
+        #endregion
+
         #region #205 word pattern review
         public bool IsIsomorphic(string s, string t)
         {
@@ -3466,7 +3645,7 @@ namespace CodePractice
             }
             return true;
         }
-        #endregion
+        #
 
         #region #206 ListNode
         public ListNode ReverseList(ListNode head)
@@ -3819,6 +3998,178 @@ namespace CodePractice
             return true;
         }
         #endregion
+        #endregion
+
+        #region 213
+        public int Rob213(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return nums[0];
+            if (len <= 3) return nums.Max();
+
+            int[] dp = new int[len];
+            dp[0] = nums[0];
+            dp[1] = nums[1];
+            int max = dp[0];
+
+            for (int i = 2; i < len - 1; i++)
+            {
+                dp[i] = max + nums[i];
+                if (max < dp[i - 1])
+                {
+                    max = dp[i - 1];
+                }
+            }
+
+            int res = Math.Max(dp[len - 2], dp[len - 3]);
+
+            // without the first one
+            dp[0] = nums[1];
+            dp[1] = nums[2];
+            max = dp[0];
+            for (int i = 2; i < len - 1; i++)
+            {
+                dp[i] = max + nums[i + 1];
+                if (max < dp[i - 1])
+                {
+                    max = dp[i - 1];
+                }
+            }
+            var temp = Math.Max(dp[len - 1], dp[len - 2]);
+            return Math.Max(temp, res);
+        }
+        #endregion
+
+        #region 216 review
+        public IList<IList<int>> CombinationSum3(int k, int n)
+        {
+            var list = new List<IList<int>>();
+            if (k == 1)
+            {
+                if (k == n)
+                {
+                    list.Add(new List<int> { n });
+                }
+
+                return list;
+            }
+
+            if (k >= n) return list;
+
+            var dict = new Dictionary<int, List<IList<int>>>();
+            dict.Add(1, new List<IList<int>> { new List<int> { 1 } });
+            dict.Add(2, new List<IList<int>> { new List<int> { 2 } });
+            for (int i = 3; i <= n; i++)
+            {
+                dict.Add(i, new List<IList<int>>());
+                if (i <= 9)
+                {
+                    dict[i].Add(new List<int> { i });
+                }
+                var tempdic = new HashSet<string>();
+                for (int j = 1; j <= i / 2; j++)
+                {
+                    if (i - j != j)
+                    {
+                        foreach (var d1 in dict[j])
+                        {
+                            var len = d1.Count();
+                            if (len == k) continue;
+                            int[] array = new int[len];
+                            d1.CopyTo(array, 0);
+                            foreach (var d2 in dict[i - j])
+                            {
+                                var tempLen = d2.Count() + len;
+                                if (tempLen <= k)
+                                {
+                                    var tempList = array.ToList();
+                                    tempList.AddRange(d2);
+                                    
+                                    if (tempList.ToHashSet().Count() != tempLen) continue;
+                                    tempList.Sort();
+                                    if (tempdic.Add(String.Join("", tempList)))
+                                    {
+                                        dict[i].Add(tempList);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dict[n].Where(x => x.Count() == k).ToList();
+        }
+
+        public IList<IList<int>> CombinationSum3a(int k, int n)
+        {
+            
+            var list = new List<IList<int>>();
+            if (k == 1)
+            {
+                if (k == n)
+                {
+                    list.Add(new List<int> { n });
+                }
+
+                return list;
+            }
+
+            if (k >= n) return list;
+
+            if (n > 45) return list;
+
+            Backtrack(list, new List<int>(), k, n, 0, 1);
+
+            return list;
+        }
+
+        void Backtrack(List<IList<int>> list, List<int> temp, int k, int n, int count, int start)
+        {
+            if (temp.Count() == k && temp.Sum() == n) list.Add(new List<int> (temp));
+            for(int i = count; i < k; i++)
+            {
+                for(int j = start; j < 10; j++)
+                {
+                    temp.Add(j);
+                    Backtrack(list, temp, k, n, i + 1, j + 1);
+                    temp.RemoveAt(temp.Count() - 1);
+                }
+            }
+        }
+        #endregion
+
+        #region 220 treeset review
+        public bool ContainsNearbyAlmostDuplicate(int[] nums, int k, int t)
+        {
+            int len = nums.Length;
+            for (int i = 0; i < len; i++)
+            {
+                for (int j = i + 1; j <= Math.Min(i + k, len - 1); j++)
+                {
+                    if ((double)(Math.Abs((double)nums[i] - nums[j])) <= t) return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsNearbyAlmostDuplicateb(int[] nums, int k, int t)
+        {
+            var treeSet = new SortedSet<double>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (treeSet.GetViewBetween((double)nums[i] - t, (double)nums[i] + t).Count() > 0) return true;
+
+                    treeSet.Add(nums[i]);
+                if (treeSet.Count() > k)
+                {
+                    treeSet.Remove(nums[i - k]);
+                }
+            }
+            return false;
+        }
+        #endregion
+
         #endregion
 
         #region 301-400
