@@ -961,6 +961,41 @@ namespace CodePractice
                 nums[len - i - 1] = swap;
             }
         }
+
+        public void NextPermutationb(int[] nums)
+        {
+            int len = nums.Length;
+            var set = new SortedSet<int>();
+            for (int i = len - 1; i >= 0; i--)
+            {
+                if (nums[i] == 100)
+                {
+                    set.Add(nums[i]);
+                    continue;
+                }
+                var subsets = set.GetViewBetween(nums[i] + 1, 100);
+                if (subsets.Count() > 0)
+                {
+                    var min = subsets.Min;
+                    var index = Array.LastIndexOf(nums, min);
+                    var swap = nums[i];
+                    nums[i] = min;
+                    nums[index] = swap;
+                    Array.Sort(nums, i + 1, len - i - 1);
+                    return;
+                }
+                else
+                {
+                    set.Add(nums[i]);
+                }
+            }
+            Array.Sort(nums);
+        }
+
+        public void NextPermutationb(int[] nums)
+        {
+
+        }
         #endregion
 
         #region #32 - review
@@ -1336,6 +1371,21 @@ namespace CodePractice
             }
 
             return result.ToArray();
+        }
+        #endregion
+
+        #region 41
+        public int FirstMissingPositive(int[] nums)
+        {
+            nums = nums.Distinct().Where(x => x > 0).ToArray();
+            Array.Sort(nums);
+            int len = nums.Length;
+            if (!nums.Any()) return 1;
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (nums[i] != i + 1) return i + 1;
+            }
+            return nums.Last() + 1;
         }
         #endregion
 
@@ -4167,6 +4217,36 @@ namespace CodePractice
                 }
             }
             return false;
+        }
+        #endregion
+
+        #region 257
+        public IList<string> BinaryTreePaths(TreeNode root)
+        {
+            var list = new List<string>();
+            BinaryTreePaths(root, list, new List<string>());
+            return list;
+        }
+
+        private void BinaryTreePaths(TreeNode root, List<string> list, List<string> temp)
+        {
+            temp.Add(root.val.ToString());
+            string[] array = new string[temp.Count()];
+            temp.CopyTo(array, 0);
+            if (root.left == null && root.right == null)
+            {
+                list.Add(String.Join("->", temp));
+                return;
+            }
+            if (root.left != null)
+            {
+                BinaryTreePaths(root.left, list, temp);
+            }
+            temp = array.ToList();
+            if (root.right != null)
+            {
+                BinaryTreePaths(root.right, list, temp);
+            }
         }
         #endregion
 
