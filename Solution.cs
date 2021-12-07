@@ -1283,7 +1283,79 @@ namespace CodePractice
         }
         #endregion
 
-        #region #40
+        #region 39 review
+        public IList<IList<int>> CombinationSum(int[] candidates, int target)
+        {
+            var list = new List<IList<int>>();
+            candidates = candidates.Where(x => x <= target).ToArray();
+            Array.Sort(candidates);
+            if (candidates.Length == 0 || target < candidates[0]) return list;
+            CombinationSum(candidates, target, 0, new List<int>(), list);
+            return list;
+        }
+
+        private void CombinationSum(int[] candidates, int target, int sum, IList<int> temp, IList<IList<int>> list)
+        {
+            if (sum == target)
+            {
+                list.Add(new List<int>(temp));
+                return;
+            }
+            if (sum > target) return;
+
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                if (sum + candidates[i] > target) break;
+
+                if (temp.Count > 0 && candidates[i] < temp[temp.Count - 1]) continue;
+                temp.Add(candidates[i]);
+                CombinationSum(candidates, target, sum + candidates[i], temp, list);
+                temp.RemoveAt(temp.Count - 1);
+            }
+        }
+
+        public IList<IList<int>> CombinationSum39(int[] candidates, int target)
+        {
+            var list = new List<IList<int>>();
+            candidates = candidates.Where(x => x <= target).ToArray();
+            Array.Sort(candidates);
+            if (candidates.Length == 0 || target < candidates[0]) return list;
+            CombinationSum39(candidates, target, 0, new List<int>(), list, 0);
+            return list;
+        }
+
+        private void CombinationSum39(int[] candidates, int target, int sum, List<int> temp, IList<IList<int>> list, int start)
+        {
+            if (sum == target)
+            {
+                list.Add(new List<int>(temp));
+                return;
+            }
+            if (sum > target) return;
+
+            for (int i = start; i < candidates.Length; i++)
+            {
+                if (temp.Count > 0 && candidates[i] < temp[temp.Count - 1]) continue;
+                if (sum + candidates[i] > target) break;
+
+                var remainder = (target - sum) % candidates[i];
+                var counter = (target - sum) / candidates[i];
+                for (int j = 1; j <= counter; j++)
+                {
+                    if (remainder != 0 || j != counter - 1)
+                    {
+                        if (temp.Count > 0 && temp[temp.Count() - 1] > candidates[i] * j) continue;
+                        temp.AddRange(Enumerable.Repeat(candidates[i], j).ToList());
+                        CombinationSum39(candidates, target, sum + candidates[i] * j, temp, list, i + 1);
+                        temp.RemoveRange(temp.Count() - j, j);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region #40 review 
         public IList<IList<int>> CombinationSum2(int[] candidates, int target)
         {
             var maxv = candidates.Max();
@@ -1371,6 +1443,35 @@ namespace CodePractice
             }
 
             return result.ToArray();
+        }
+
+        public IList<IList<int>> CombinationSum2a(int[] candidates, int target)
+        {
+            var list = new List<IList<int>>();
+            candidates = candidates.Where(x => x <= target).ToArray();
+            Array.Sort(candidates);
+            if (candidates.Length == 0 || target < candidates[0]) return list;
+            CombinationSuma(candidates, target, 0, new List<int>(), list, 0);
+            return list;
+        }
+
+        private void CombinationSuma(int[] candidates, int target, int sum, IList<int> temp, IList<IList<int>> list, int start)
+        {
+            if (sum == target)
+            {
+                list.Add(new List<int>(temp));
+                return;
+            }
+            if (sum > target) return;
+
+            for (int i = start; i < candidates.Length; i++)
+            {
+                if (i > start && candidates[i - 1] == candidates[i]) continue;
+
+                temp.Add(candidates[i]);
+                CombinationSuma(candidates, target, sum + candidates[i], temp, list, i + 1);
+                temp.RemoveAt(temp.Count - 1);
+            }
         }
         #endregion
 
@@ -1516,6 +1617,31 @@ namespace CodePractice
             }
 
             return temp;
+        }
+
+        public IList<IList<int>> Permutea(int[] nums)
+        {
+            var list = new List<IList<int>>();
+            Permutea(nums, list, new List<int>());
+            return list;
+        }
+
+        private void Permutea(int[] nums, List<IList<int>> list, List<int> temp)
+        {
+            if (temp.Count() == nums.Count())
+            {
+                list.Add(temp.ToList());
+                return;
+            }
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (!temp.Contains(nums[i]))
+                {
+                    temp.Add(nums[i]);
+                    Permutea(nums, list, temp);
+                    temp.RemoveAt(temp.Count() - 1);
+                }
+            }
         }
         #endregion
 
