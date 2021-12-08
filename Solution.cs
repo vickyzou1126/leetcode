@@ -1683,6 +1683,41 @@ namespace CodePractice
 
             return temp;
         }
+
+        public IList<IList<int>> PermuteUniquea(int[] nums)
+        {
+            var list = new List<IList<int>>();
+            Array.Sort(nums);
+            Permutea(nums, list, new List<int>(), new HashSet<int>());
+            return list;
+        }
+
+        private void Permutea(int[] nums, List<IList<int>> list, List<int> temp, HashSet<int> index)
+        {
+            if (temp.Count() == nums.Count())
+            {
+                list.Add(temp.ToList());
+                return;
+            }
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (!index.Add(i)) continue;
+
+                temp.Add(nums[i]);
+                Permutea(nums, list, temp, index);
+                temp.RemoveAt(temp.Count() - 1);
+                index.Remove(i); 
+                var val = nums[i];
+                while (i < nums.Length && nums[i] == val)
+                {
+                    i++;
+                }
+                if (i < nums.Length && nums[i] != val)
+                {
+                    i--;
+                }
+            }
+        }
         #endregion
 
         #region #48 --- review matrix rotate -> transpose
@@ -1893,7 +1928,7 @@ namespace CodePractice
 
         #endregion
 
-        #region #57
+        #region #57 - review code
         public int[][] Insert(int[][] intervals, int[] newInterval)
         {
             int n = intervals.Length;
@@ -2054,6 +2089,31 @@ namespace CodePractice
 
             return res.ToArray();
         }
+
+        public int[][] Inserta(int[][] intervals, int[] newInterval)
+        {
+            List<int[]> result = new List<int[]>();
+            int i = 0;
+
+            // Step 1 - add all intervals ending before newInterval starts
+            while (i < intervals.Length && intervals[i][1] < newInterval[0])
+                result.Add(intervals[i++]);
+
+            // Step 2 - update the newInterval by merging with all overlapping intervals
+            while (i < intervals.Length && intervals[i][0] <= newInterval[1])
+            {
+                newInterval[0] = Math.Min(newInterval[0], intervals[i][0]);
+                newInterval[1] = Math.Max(newInterval[1], intervals[i][1]);
+                i++;
+            }
+            result.Add(newInterval); // add updated interval
+
+            // Step 3 - add remaining intervals
+            while (i < intervals.Length)
+                result.Add(intervals[i++]);
+
+            return result.ToArray();
+        }
         #endregion
 
         #region #58
@@ -2184,7 +2244,7 @@ namespace CodePractice
             if (row == 1)
             {
                 if (col == 1)
-                    return obstacleGrid[0][0] == 1 ? 0 : 1;
+                    return 1;
                 if (obstacleGrid[row - 1][col - 2] == 1) return 0;
             }
             if (col == 1 && obstacleGrid[row - 2][col - 1] == 1) return 0;
@@ -2503,6 +2563,21 @@ namespace CodePractice
                     }
                 }
                 pointer++;
+            }
+        }
+
+        public void SortColorsa(int[] nums) {
+            var dic = nums.ToLookup(x => x).ToDictionary(x => x.Key, x => x.Count());
+            int index = 0;
+            var keys = dic.Keys.OrderBy(x => x);
+            
+            foreach(var key in keys)
+            {
+                for(int i = 1; i <= dic[key]; i++)
+                {
+                    nums[index] = key;
+                    index++;
+                }
             }
         }
         #endregion
@@ -4341,6 +4416,122 @@ namespace CodePractice
                 {
                     treeSet.Remove(nums[i - k]);
                 }
+            }
+            return false;
+        }
+        #endregion
+
+        #region 229 two candidates idea 
+        public IList<int> MajorityElement229(int[] nums)
+        {
+            return nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()).Where(x => x.Value > nums.Length / 3).Select(x => x.Key).ToList();
+        }
+        #endregion
+
+        #region 238 review 
+        public int[] ProductExceptSelf(int[] nums)
+        {
+            int len = nums.Length;
+            var list = new int[len];
+            var zero = nums.Select((x, index) => x == 0 ? index : -1).Where(x => x != -1).ToList();
+            if (zero.Count() >= 2) return list;
+
+            int i = 0;
+            if (zero.Count() == 1)
+            {
+                var temp = 1;
+                for (; i < len; i++)
+                {
+                    if (i == zero[0]) continue;
+                    temp *= nums[i];
+                }
+                list[zero[0]] = temp;
+                return list;
+            }
+
+            var preProduct = 1;
+
+            for (; i < len - 1; i++)
+            {
+                var temp = preProduct;
+                for (int j = i + 1; j < len; j++)
+                {
+                    temp *= nums[j];
+                }
+                list[i] = temp;
+                preProduct *= nums[i];
+            }
+
+            list[len - 1] = preProduct;
+            return list;
+        }
+
+
+        public int[] ProductExceptSelfa(int[] nums)
+        {
+            int len = nums.Length;
+            var list = new int[len];
+            var zero = nums.Select((x, index) => x == 0 ? index : -1).Where(x => x != -1).ToList();
+            if (zero.Count() >= 2) return list;
+
+            if (zero.Count() == 1)
+            {
+                var temp = 1;
+                for (int i = 0; i < len; i++)
+                {
+                    if (i == zero[0]) continue;
+                    temp *= nums[i];
+                }
+                list[zero[0]] = temp;
+                return list;
+            }
+
+            var forwards = new int[len];
+            var backwards = new int[len];
+            forwards[0] = 1;
+            backwards[len - 1] = 1;
+
+            for (int i = 1; i < len; i++)
+            {
+                forwards[i] = forwards[i - 1] * nums[i - 1];
+                backwards[len - i - 1] = backwards[len - i] * nums[len - i];
+            }
+
+            for (int i = 0; i < len; i++)
+            {
+                list[i] = backwards[i] * forwards[i];
+            }
+
+            return list;
+        }
+        #endregion
+
+        #region 240
+        public bool SearchMatrix240(int[][] matrix, int target)
+        {
+            int row = matrix.Length;
+            if (row == 1) return matrix[0].Contains(target);
+            return SearchMatrix(matrix, target, 0, matrix.Length - 1);
+        }
+
+        public bool SearchMatrix(int[][] matrix, int target, int start, int end)
+        {
+            int mid = start + (end - start) / 2;
+            if (matrix[mid][0] == target) return true;
+            if (matrix[mid][0] > target)
+            {
+                if (mid == 0) return false;
+                if (start > mid - 1) return false;
+                return SearchMatrix(matrix, target, start, mid - 1);
+            }
+            else
+            {
+                if (matrix[mid].Contains(target)) return true;
+                if (mid == matrix.Length - 1) return false;
+                // trace back
+                if (mid >= 1 && start <= mid - 1 && SearchMatrix(matrix, target, start, mid - 1)) return true;
+
+                if (mid < matrix.Length - 1 && mid + 1 <= end && SearchMatrix(matrix, target, mid + 1, end)) return true;
             }
             return false;
         }
