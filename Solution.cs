@@ -725,6 +725,40 @@ namespace CodePractice
         }
         #endregion
 
+        #region 20 stack
+        public bool IsValid(string s)
+        {
+            var length = s.Length;
+            if (length % 2 == 1) return false;
+            var stack = new Stack<char>();
+            for(int i = 0; i < length; i++)
+            {
+                switch (s[i])
+                {
+                    case '(':
+                    case '[':
+                    case '{': stack.Push(s[i]);break;
+                    case ')':
+                        {
+                            if (stack.Count()==0 ||  stack.Pop() != '(') return false;
+                            break;
+                        }
+                    case ']':
+                        {
+                            if (stack.Count() == 0 || stack.Pop() != '[') return false;
+                            break;
+                        }
+                    case '}':
+                        {
+                            if (stack.Count() == 0 || stack.Pop() != '{') return false;
+                            break;
+                        }
+                }
+            }
+            return stack.Count()==0;
+        }
+        #endregion
+
         #region #22 - review
         public IList<string> GenerateParenthesis(int n)
         {
@@ -2889,6 +2923,60 @@ namespace CodePractice
         #region 81
         #endregion
 
+        #region 82
+        public ListNode DeleteDuplicates(ListNode head)
+        {
+            if (head == null) return null;
+            var val = head.val;
+
+            int counter = 1;
+            ListNode res = null;
+            ListNode final = null;
+
+            while (head.next != null)
+            {
+                if (head.next.val == val)
+                {
+                    counter++;
+                }
+                else
+                {
+                    if (counter == 1)
+                    {
+                        if (res == null)
+                        {
+                            res = new ListNode(val);
+                            final = res;
+                        }
+                        else
+                        {
+                            res.next = new ListNode(val);
+                            res = res.next;
+                        }
+                    }
+                    val = head.next.val;
+                    counter = 1;
+                }
+                head = head.next;
+            }
+
+            if (counter == 1)
+            {
+                if (res == null)
+                {
+                    res = new ListNode(val);
+                    final = res;
+                }
+                else
+                {
+                    res.next = new ListNode(val);
+                    res = res.next;
+                }
+            }
+            return final;
+        }
+        #endregion
+
         #region #83 - ListNode review
         public ListNode DeleteDuplicates(ListNode head)
         {
@@ -3467,6 +3555,42 @@ namespace CodePractice
         }
         #endregion
 
+        #region 142 ListNode
+        public ListNode DetectCycle(ListNode head)
+        {
+            var copy = head;
+            return DetectCycle(copy, head);
+        }
+
+        private ListNode DetectCycle(ListNode head, ListNode oghead)
+        {
+            if (head == null) return null;
+
+            if (head.val == int.MinValue)
+            {
+                return oghead;
+            }
+            head.val = int.MinValue;
+            return DetectCycle(head.next, oghead.next);
+        }
+
+        public ListNode DetectCyclea(ListNode head)
+        {
+            var hs = new HashSet<ListNode>();
+
+            var node = head;
+
+            while (node != null)
+            {
+                if (!hs.Add(node)) return node;
+
+                node = node.next;
+            }
+
+            return null;
+        }
+        #endregion
+
         #region #144 TreeNode
         public IList<int> PreorderTraversal(TreeNode root)
         {
@@ -3896,7 +4020,7 @@ namespace CodePractice
             }
             return true;
         }
-        #
+        #endregion
 
         #region #206 ListNode
         public ListNode ReverseList(ListNode head)
@@ -3909,6 +4033,46 @@ namespace CodePractice
                 head = head.next;
             }
             return res;
+        }
+        #endregion
+
+        #region 213
+        public int Rob213(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return nums[0];
+            if (len <= 3) return nums.Max();
+
+            int[] dp = new int[len];
+            dp[0] = nums[0];
+            dp[1] = nums[1];
+            int max = dp[0];
+
+            for (int i = 2; i < len - 1; i++)
+            {
+                dp[i] = max + nums[i];
+                if (max < dp[i - 1])
+                {
+                    max = dp[i - 1];
+                }
+            }
+
+            int res = Math.Max(dp[len - 2], dp[len - 3]);
+
+            // without the first one
+            dp[0] = nums[1];
+            dp[1] = nums[2];
+            max = dp[0];
+            for (int i = 2; i < len - 1; i++)
+            {
+                dp[i] = max + nums[i + 1];
+                if (max < dp[i - 1])
+                {
+                    max = dp[i - 1];
+                }
+            }
+            var temp = Math.Max(dp[len - 1], dp[len - 2]);
+            return Math.Max(temp, res);
         }
         #endregion
 
@@ -3965,6 +4129,105 @@ namespace CodePractice
         }
         #endregion
 
+        #region 216 review
+        public IList<IList<int>> CombinationSum3(int k, int n)
+        {
+            var list = new List<IList<int>>();
+            if (k == 1)
+            {
+                if (k == n)
+                {
+                    list.Add(new List<int> { n });
+                }
+
+                return list;
+            }
+
+            if (k >= n) return list;
+
+            var dict = new Dictionary<int, List<IList<int>>>();
+            dict.Add(1, new List<IList<int>> { new List<int> { 1 } });
+            dict.Add(2, new List<IList<int>> { new List<int> { 2 } });
+            for (int i = 3; i <= n; i++)
+            {
+                dict.Add(i, new List<IList<int>>());
+                if (i <= 9)
+                {
+                    dict[i].Add(new List<int> { i });
+                }
+                var tempdic = new HashSet<string>();
+                for (int j = 1; j <= i / 2; j++)
+                {
+                    if (i - j != j)
+                    {
+                        foreach (var d1 in dict[j])
+                        {
+                            var len = d1.Count();
+                            if (len == k) continue;
+                            int[] array = new int[len];
+                            d1.CopyTo(array, 0);
+                            foreach (var d2 in dict[i - j])
+                            {
+                                var tempLen = d2.Count() + len;
+                                if (tempLen <= k)
+                                {
+                                    var tempList = array.ToList();
+                                    tempList.AddRange(d2);
+
+                                    if (tempList.ToHashSet().Count() != tempLen) continue;
+                                    tempList.Sort();
+                                    if (tempdic.Add(String.Join("", tempList)))
+                                    {
+                                        dict[i].Add(tempList);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dict[n].Where(x => x.Count() == k).ToList();
+        }
+
+        public IList<IList<int>> CombinationSum3a(int k, int n)
+        {
+
+            var list = new List<IList<int>>();
+            if (k == 1)
+            {
+                if (k == n)
+                {
+                    list.Add(new List<int> { n });
+                }
+
+                return list;
+            }
+
+            if (k >= n) return list;
+
+            if (n > 45) return list;
+
+            Backtrack(list, new List<int>(), k, n, 0, 1);
+
+            return list;
+        }
+
+        void Backtrack(List<IList<int>> list, List<int> temp, int k, int n, int count, int start)
+        {
+            if (temp.Count() == k && temp.Sum() == n) list.Add(new List<int>(temp));
+            for (int i = count; i < k; i++)
+            {
+                for (int j = start; j < 10; j++)
+                {
+                    temp.Add(j);
+                    Backtrack(list, temp, k, n, i + 1, j + 1);
+                    temp.RemoveAt(temp.Count() - 1);
+                }
+            }
+        }
+        #endregion
+
         #region #217 grouping
         public bool ContainsDuplicate(int[] nums)
         {
@@ -4018,6 +4281,37 @@ namespace CodePractice
         }
         #endregion
 
+        #region 220 treeset review
+        public bool ContainsNearbyAlmostDuplicate(int[] nums, int k, int t)
+        {
+            int len = nums.Length;
+            for (int i = 0; i < len; i++)
+            {
+                for (int j = i + 1; j <= Math.Min(i + k, len - 1); j++)
+                {
+                    if ((double)(Math.Abs((double)nums[i] - nums[j])) <= t) return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsNearbyAlmostDuplicateb(int[] nums, int k, int t)
+        {
+            var treeSet = new SortedSet<double>();
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (treeSet.GetViewBetween((double)nums[i] - t, (double)nums[i] + t).Count() > 0) return true;
+
+                treeSet.Add(nums[i]);
+                if (treeSet.Count() > k)
+                {
+                    treeSet.Remove(nums[i - k]);
+                }
+            }
+            return false;
+        }
+        #endregion
+
         #region #226 ListNode
         public TreeNode InvertTree(TreeNode root)
         {
@@ -4064,6 +4358,13 @@ namespace CodePractice
                 list.Add(nums[preIndex].ToString() + "->" + nums[length - 1].ToString());
             }
             return list;
+        }
+        #endregion
+
+        #region 229 two candidates idea 
+        public IList<int> MajorityElement229(int[] nums)
+        {
+            return nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()).Where(x => x.Value > nums.Length / 3).Select(x => x.Key).ToList();
         }
         #endregion
 
@@ -4121,310 +4422,6 @@ namespace CodePractice
         {
             node.val = node.next.val;
             node.next = node.next.next;
-        }
-        #endregion
-
-        #region #242
-        public bool IsAnagram(string s, string t)
-        {
-            if (s.Length != t.Length) return false;
-            var dic = new Dictionary<char, int>();
-            foreach (char c in s)
-            {
-                if (dic.ContainsKey(c))
-                {
-                    dic[c]++;
-                }
-                else
-                {
-                    dic.Add(c, 1);
-                }
-            }
-            foreach (char c in t)
-            {
-                if (!dic.ContainsKey(c) || dic[c] <= 0) return false;
-
-                dic[c]--;
-            }
-            return true;
-        }
-        #endregion
-
-        #region #258
-        public int AddDigits(int num)
-        {
-            if (num < 10) return num;
-            int sum = 0;
-            var str = num.ToString();
-            for(int i = 0; i < str.Length; i++)
-            {
-                sum += int.Parse(str[i].ToString());
-            }
-            return AddDigits(sum);
-        }
-        #endregion
-
-        #region #263
-        public bool IsUgly(int n)
-        {
-            if (n < 1) return false;
-            while (n % 2 == 0)
-            {
-                n = n / 2;
-            }
-            while (n % 3 == 0)
-            {
-                n = n / 3;
-            }
-            while (n % 5 == 0)
-            {
-                n = n / 5;
-            }
-            return n == 1;
-        }
-        #endregion
-
-        #region #268
-        public int MissingNumber(int[] nums)
-        {
-            var sum = 0;
-            for (int i = 0; i <= nums.Length; i++)
-            {
-                sum += i;
-            }
-            return sum - nums.Sum();
-        }
-        #endregion
-
-        #region #283 sliding window
-        public void MoveZeroes(int[] nums)
-        {
-            int length = nums.Length;
-            if (length == 1) return;
-            int lowIndex = 0;
-            int highIndex = length - 1;
-            while (lowIndex < highIndex)
-            {
-                if (nums[lowIndex] == 0)
-                {
-                    MoveElements(nums, lowIndex, highIndex);
-                    highIndex--;
-                }
-                else
-                {
-                    lowIndex++;
-                }
-            }
-        }
-
-        private void MoveElements(int[] nums, int lowIndex, int highIndex)
-        {
-            while (lowIndex < highIndex)
-            {
-                nums[lowIndex] = nums[lowIndex + 1];
-                lowIndex++;
-            }
-            nums[highIndex] = 0;
-        }
-        #endregion
-
-        #region #290
-        public bool WordPattern(string pattern, string s)
-        {
-            var array = s.Split(" ");
-            if (pattern.Length != array.Length) return false;
-            var dict = new Dictionary<string, char>();
-            for(int i = 0; i < array.Length; i++)
-            {
-                if (!dict.ContainsKey(array[i]))
-                {
-                    if (dict.Values.Contains(pattern[i])) return false;
-                    dict.Add(array[i], pattern[i]);
-                }
-                else
-                {
-                    if (dict[array[i]] != pattern[i]) return false;
-                }
-            }
-            return true;
-        }
-        #endregion
-        #endregion
-
-        #region 213
-        public int Rob213(int[] nums)
-        {
-            int len = nums.Length;
-            if (len == 1) return nums[0];
-            if (len <= 3) return nums.Max();
-
-            int[] dp = new int[len];
-            dp[0] = nums[0];
-            dp[1] = nums[1];
-            int max = dp[0];
-
-            for (int i = 2; i < len - 1; i++)
-            {
-                dp[i] = max + nums[i];
-                if (max < dp[i - 1])
-                {
-                    max = dp[i - 1];
-                }
-            }
-
-            int res = Math.Max(dp[len - 2], dp[len - 3]);
-
-            // without the first one
-            dp[0] = nums[1];
-            dp[1] = nums[2];
-            max = dp[0];
-            for (int i = 2; i < len - 1; i++)
-            {
-                dp[i] = max + nums[i + 1];
-                if (max < dp[i - 1])
-                {
-                    max = dp[i - 1];
-                }
-            }
-            var temp = Math.Max(dp[len - 1], dp[len - 2]);
-            return Math.Max(temp, res);
-        }
-        #endregion
-
-        #region 216 review
-        public IList<IList<int>> CombinationSum3(int k, int n)
-        {
-            var list = new List<IList<int>>();
-            if (k == 1)
-            {
-                if (k == n)
-                {
-                    list.Add(new List<int> { n });
-                }
-
-                return list;
-            }
-
-            if (k >= n) return list;
-
-            var dict = new Dictionary<int, List<IList<int>>>();
-            dict.Add(1, new List<IList<int>> { new List<int> { 1 } });
-            dict.Add(2, new List<IList<int>> { new List<int> { 2 } });
-            for (int i = 3; i <= n; i++)
-            {
-                dict.Add(i, new List<IList<int>>());
-                if (i <= 9)
-                {
-                    dict[i].Add(new List<int> { i });
-                }
-                var tempdic = new HashSet<string>();
-                for (int j = 1; j <= i / 2; j++)
-                {
-                    if (i - j != j)
-                    {
-                        foreach (var d1 in dict[j])
-                        {
-                            var len = d1.Count();
-                            if (len == k) continue;
-                            int[] array = new int[len];
-                            d1.CopyTo(array, 0);
-                            foreach (var d2 in dict[i - j])
-                            {
-                                var tempLen = d2.Count() + len;
-                                if (tempLen <= k)
-                                {
-                                    var tempList = array.ToList();
-                                    tempList.AddRange(d2);
-                                    
-                                    if (tempList.ToHashSet().Count() != tempLen) continue;
-                                    tempList.Sort();
-                                    if (tempdic.Add(String.Join("", tempList)))
-                                    {
-                                        dict[i].Add(tempList);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return dict[n].Where(x => x.Count() == k).ToList();
-        }
-
-        public IList<IList<int>> CombinationSum3a(int k, int n)
-        {
-            
-            var list = new List<IList<int>>();
-            if (k == 1)
-            {
-                if (k == n)
-                {
-                    list.Add(new List<int> { n });
-                }
-
-                return list;
-            }
-
-            if (k >= n) return list;
-
-            if (n > 45) return list;
-
-            Backtrack(list, new List<int>(), k, n, 0, 1);
-
-            return list;
-        }
-
-        void Backtrack(List<IList<int>> list, List<int> temp, int k, int n, int count, int start)
-        {
-            if (temp.Count() == k && temp.Sum() == n) list.Add(new List<int> (temp));
-            for(int i = count; i < k; i++)
-            {
-                for(int j = start; j < 10; j++)
-                {
-                    temp.Add(j);
-                    Backtrack(list, temp, k, n, i + 1, j + 1);
-                    temp.RemoveAt(temp.Count() - 1);
-                }
-            }
-        }
-        #endregion
-
-        #region 220 treeset review
-        public bool ContainsNearbyAlmostDuplicate(int[] nums, int k, int t)
-        {
-            int len = nums.Length;
-            for (int i = 0; i < len; i++)
-            {
-                for (int j = i + 1; j <= Math.Min(i + k, len - 1); j++)
-                {
-                    if ((double)(Math.Abs((double)nums[i] - nums[j])) <= t) return true;
-                }
-            }
-            return false;
-        }
-
-        public bool ContainsNearbyAlmostDuplicateb(int[] nums, int k, int t)
-        {
-            var treeSet = new SortedSet<double>();
-            for (int i = 0; i < nums.Length; i++)
-            {
-                if (treeSet.GetViewBetween((double)nums[i] - t, (double)nums[i] + t).Count() > 0) return true;
-
-                    treeSet.Add(nums[i]);
-                if (treeSet.Count() > k)
-                {
-                    treeSet.Remove(nums[i - k]);
-                }
-            }
-            return false;
-        }
-        #endregion
-
-        #region 229 two candidates idea 
-        public IList<int> MajorityElement229(int[] nums)
-        {
-            return nums.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()).Where(x => x.Value > nums.Length / 3).Select(x => x.Key).ToList();
         }
         #endregion
 
@@ -4537,9 +4534,37 @@ namespace CodePractice
         }
         #endregion
 
+        #region #242
+        public bool IsAnagram(string s, string t)
+        {
+            if (s.Length != t.Length) return false;
+            var dic = new Dictionary<char, int>();
+            foreach (char c in s)
+            {
+                if (dic.ContainsKey(c))
+                {
+                    dic[c]++;
+                }
+                else
+                {
+                    dic.Add(c, 1);
+                }
+            }
+            foreach (char c in t)
+            {
+                if (!dic.ContainsKey(c) || dic[c] <= 0) return false;
+
+                dic[c]--;
+            }
+            return true;
+        }
+        #endregion
+
         #region 257
         public IList<string> BinaryTreePaths(TreeNode root)
         {
+            string a = null;
+            var t = a ?? "a";
             var list = new List<string>();
             BinaryTreePaths(root, list, new List<string>());
             return list;
@@ -4567,6 +4592,105 @@ namespace CodePractice
         }
         #endregion
 
+        #region #258
+        public int AddDigits(int num)
+        {
+            if (num < 10) return num;
+            int sum = 0;
+            var str = num.ToString();
+            for(int i = 0; i < str.Length; i++)
+            {
+                sum += int.Parse(str[i].ToString());
+            }
+            return AddDigits(sum);
+        }
+        #endregion
+
+        #region #263
+        public bool IsUgly(int n)
+        {
+            if (n < 1) return false;
+            while (n % 2 == 0)
+            {
+                n = n / 2;
+            }
+            while (n % 3 == 0)
+            {
+                n = n / 3;
+            }
+            while (n % 5 == 0)
+            {
+                n = n / 5;
+            }
+            return n == 1;
+        }
+        #endregion
+
+        #region #268
+        public int MissingNumber(int[] nums)
+        {
+            var sum = 0;
+            for (int i = 0; i <= nums.Length; i++)
+            {
+                sum += i;
+            }
+            return sum - nums.Sum();
+        }
+        #endregion
+
+        #region #283 sliding window
+        public void MoveZeroes(int[] nums)
+        {
+            int length = nums.Length;
+            if (length == 1) return;
+            int lowIndex = 0;
+            int highIndex = length - 1;
+            while (lowIndex < highIndex)
+            {
+                if (nums[lowIndex] == 0)
+                {
+                    MoveElements(nums, lowIndex, highIndex);
+                    highIndex--;
+                }
+                else
+                {
+                    lowIndex++;
+                }
+            }
+        }
+
+        private void MoveElements(int[] nums, int lowIndex, int highIndex)
+        {
+            while (lowIndex < highIndex)
+            {
+                nums[lowIndex] = nums[lowIndex + 1];
+                lowIndex++;
+            }
+            nums[highIndex] = 0;
+        }
+        #endregion
+
+        #region #290
+        public bool WordPattern(string pattern, string s)
+        {
+            var array = s.Split(" ");
+            if (pattern.Length != array.Length) return false;
+            var dict = new Dictionary<string, char>();
+            for(int i = 0; i < array.Length; i++)
+            {
+                if (!dict.ContainsKey(array[i]))
+                {
+                    if (dict.Values.Contains(pattern[i])) return false;
+                    dict.Add(array[i], pattern[i]);
+                }
+                else
+                {
+                    if (dict[array[i]] != pattern[i]) return false;
+                }
+            }
+            return true;
+        }
+        #endregion
         #endregion
 
         #region 301-400
@@ -4754,6 +4878,37 @@ namespace CodePractice
                 }
             }
             return list.ToArray();
+        }
+        #endregion
+
+        #region 373
+        public IList<IList<int>> KSmallestPairs(int[] nums1, int[] nums2, int k)
+        {
+            var dict = new SortedDictionary<int, List<List<int>>>();
+            for(int i = 0; i < Math.Min(nums1.Count(), k+1); i++)
+            {
+                for(int j = 0; j < Math.Min(nums2.Count(), k + 1); j++)
+                {
+                    var sum = nums1[i] + nums2[j];
+                    if (!dict.ContainsKey(sum))
+                        dict.Add(sum, new List<List<int>>());
+                    dict[sum].Add(new List<int> { nums1[i], nums2[j] });
+                }
+            }
+
+            var list = new List<IList<int>>(0);
+            int counter = 1;
+            foreach(var d in dict)
+            {
+                for(int i=0;i<d.Value.Count() && counter<=k; i++)
+                {
+                    list.Add(d.Value[i]);
+                    counter++;
+                }
+                if (counter > k) return list;
+            }
+            return list;
+
         }
         #endregion
 
@@ -5534,6 +5689,7 @@ namespace CodePractice
         #endregion
 
         #region 701-800
+
         #region #704
         public int Search704(int[] nums, int target)
         {
