@@ -944,6 +944,36 @@ namespace CodePractice
         }
         #endregion
 
+        #region 30
+        public IList<int> FindSubstring(string s, string[] words)
+        {
+            var res = new List<int>();
+            var len = words[0].Length * words.Length;
+            var dict = words.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            for(int i = 0; i <= s.Length - len; i++)
+            {
+                var str = s.Substring(i, len);
+                if(GetStrings(str, new Dictionary<string, int>(dict), words[0].Length))
+                {
+                    res.Add(i);
+                }
+            }
+            return res;
+        }
+
+        private bool GetStrings(string str, Dictionary<string, int> dic, int intervl )
+        {
+            for(int i = 0; i < str.Length; i = i + intervl)
+            {
+                var temp = str.Substring(i, intervl);
+                if (!dic.ContainsKey(temp)) return false;
+                dic[temp]--;
+                if (dic[temp] < 0) return false;
+            }
+            return true;
+        }
+        #endregion
+
         #region 31
         public void NextPermutation(int[] nums)
         {
@@ -1024,11 +1054,6 @@ namespace CodePractice
                 }
             }
             Array.Sort(nums);
-        }
-
-        public void NextPermutationb(int[] nums)
-        {
-
         }
         #endregion
 
@@ -4036,6 +4061,42 @@ namespace CodePractice
         }
         #endregion
 
+        #region 209
+        public int MinSubArrayLen(int target, int[] nums)
+        {
+            int N = nums.Length;
+
+            int min = N + 1;
+            int sum = nums[0];
+            if (sum >= target) return 1;
+
+            int low = 0;
+            int high = 0;
+            
+            for (int i = 1; i < N; i++)
+            {
+                if (nums[i] >= target) return 1;
+                high = i;
+
+                sum += nums[i];
+                if (sum >= target)
+                {
+                    while (sum >= target && low < high)
+                    {
+                        sum -= nums[low];
+                        low++;
+
+                    }
+                    if ((high - low + 2) < min)
+                    {
+                        min = high - low + 2;
+                    }
+                }
+            }
+            return min == N + 1 ? 0 : min;
+        }
+        #endregion
+
         #region 213
         public int Rob213(int[] nums)
         {
@@ -4604,6 +4665,9 @@ namespace CodePractice
             }
             return AddDigits(sum);
         }
+        #endregion
+
+        #region 259
         #endregion
 
         #region #263
@@ -5715,6 +5779,31 @@ namespace CodePractice
         }
         #endregion
 
+        #region 713
+        public int NumSubarrayProductLessThanK(int[] nums, int k)
+        {
+            if (k == 0) return 0;
+
+            int res = 0;
+            int len = nums.Length;
+
+            for (int i = 0; i < len; i++)
+            {
+                if (nums[i] >= k) continue;
+                res++;
+                int product = nums[i];
+                int high = i + 1;
+                while (high < len && product * nums[high] < k)
+                {
+                    product *= nums[high];
+                    high++;
+                    res++;
+                }
+            }
+            return res;
+        }
+        #endregion
+
         #region 724
         public int PivotIndex(int[] nums)
         {
@@ -6140,8 +6229,66 @@ namespace CodePractice
         }
         #endregion
 
+        #region 923
+        public int ThreeSumMulti(int[] arr, int target)
+        {
+            double res = 0;
+            Array.Sort(arr);
+            if (arr[0] > target) return 0;
+            int len = arr.Length;
+            for (int i = 0; i < len; i++)
+            {
+                if (arr[i] * 3 > target) break;
+
+                int left = i + 1;
+                int right = len - 1;
+                while (left < right)
+                {
+                    var sum = arr[i] + arr[left] + arr[right];
+                    if (sum == target)
+                    {
+                        var preRight = arr[right];
+                        var preLeft = arr[left];
+                        if (preLeft != preRight)
+                        {
+                            var counter1 = 0;
+                            while (arr[left] == preLeft)
+                            {
+                                counter1++;
+                                left++;
+                            }
+
+                            var counter2 = 0;
+                            while (arr[right] == preRight)
+                            {
+                                counter2++;
+                                right--;
+                            }
+                            res += counter1 * counter2;
+                        }
+                        else
+                        {
+                            var tempcounter = right - left + 1;
+                            res += (tempcounter * (tempcounter - 1)) / 2;
+                            break;
+                        }
+                    }
+                    else if (sum < target)
+                    {
+                        left++;
+                    }
+                    else
+                    {
+                        right--;
+                    }
+                }
+            }
+            return (int)(res % (Math.Pow(10, 9) + 7));
+        }
+        #endregion
+
         #region 929
-        public int NumUniqueEmails(string[] emails)
+            public int NumUniqueEmails(string[] emails)
         {
             var hash = new HashSet<string>();
             foreach (var s in emails)
@@ -6858,6 +7005,48 @@ namespace CodePractice
         }
         #endregion
 
+        #region 1234
+        public int BalancedString(string s)
+        {
+            var n = s.Length;
+            var map = s.ToArray().GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
+            if (map.Keys.Count() == 1) return n - n / 4;
+            map.Keys.ToList().ForEach(x =>
+            {
+                if (map[x] <= n / 4)
+                    map.Remove(x);
+                else
+                    map[x] -= (n / 4);
+            });
+
+            if (map.Keys.Count() == 0) return 0;
+
+            int res = n;
+            for (int i = 0; i < n; i++)
+            {
+                if (!map.ContainsKey(s[i])) continue;
+                var copyDic = map.ToDictionary(x => x.Key, x => x.Value);
+                copyDic[s[i]]--;
+                int j = i + 1;
+                while (j < n && copyDic.Values.Any(x => x > 0) && j - i < res)
+                {
+                    if (copyDic.ContainsKey(s[j]))
+                        copyDic[s[j]]--;
+                    j++;
+
+                }
+                if (!copyDic.Values.Any(x => x > 0))
+                {
+                    res = Math.Min(res, j - i);
+                }
+            }
+            return res;
+        }
+
+      
+      
+        #endregion
+
         #region 1266 review shortest time to visit 2 points
         public int MinTimeToVisitAllPoints(int[][] points)
         {
@@ -7170,7 +7359,7 @@ namespace CodePractice
         #endregion
 
         #region 1464
-        public int MaxProduct(int[] nums)
+        public int MaxProduct1464(int[] nums)
         {
             Array.Sort(nums);
             int len = nums.Length;
@@ -7268,6 +7457,40 @@ namespace CodePractice
             return (double)(salary.Sum() - salary[0]-salary[len-1]) / (double)(len - 2);
         }
         #endregion
+
+        #region 1498 remember
+
+        public int NumSubseq(int[] nums, int target)
+        {
+            double res = 0;
+            Array.Sort(nums);
+            int len = nums.Length;
+
+            long mod = (long)Math.Pow(10, 9) + 7;
+            long[] cnt = new long[nums.Length];
+            cnt[0] = 1;
+            for (int i = 1; i < nums.Length; i++)
+            {
+                cnt[i] = cnt[i - 1] * 2 % mod;
+            }
+
+            int left = 0;
+            int right = len - 1;
+            while (left <= right)
+            {
+                if (nums[left] + nums[right] > target)
+                {
+                    right--;
+                }
+                else
+                {
+                    res += cnt[right - left];
+                    left++;
+                }
+            }
+
+            return (int)(res % mod);
+        }
         #endregion
 
         #region 1501-1600
