@@ -7688,6 +7688,36 @@ namespace CodePractice
         }
         #endregion
 
+        #region 1574 remember
+        public int FindLengthOfShortestSubarray(int[] arr)
+        {
+            int len = arr.Length;
+            if (len == 1) return 0;
+            int lowIndex = 0;
+            while(lowIndex<len-1 && arr[lowIndex] <=arr[lowIndex + 1]){
+                lowIndex++;
+            }
+            if (lowIndex == len - 1) return 0;
+            int highIndex = len - 1;
+            while(highIndex>0 && arr[highIndex] >= arr[highIndex - 1])
+            {
+                highIndex--;
+            }
+
+            int res = highIndex;
+            for(int i = 0; i <= lowIndex; i++)
+            {
+                while(highIndex<len && arr[i] > arr[highIndex])
+                {
+                    highIndex++;
+                }
+                res = Math.Min(res, highIndex - i - 1);
+            }
+
+            return res;
+        }
+        #endregion
+
         #region 1582
         public int NumSpecial(int[][] mat)
         {
@@ -7864,6 +7894,36 @@ namespace CodePractice
                 i += items.Length - 1;
             }
             return true;
+        }
+        #endregion
+        #endregion
+
+
+        #region 1701-1800
+        #region 1798 remember
+        public int GetMaximumConsecutive(int[] coins)
+        {
+            Array.Sort(coins);
+            const int min = 0;
+            int max = 0;
+
+            // Looping through coins array once, so O(n) time, O(1) space (no additional array created)
+            for (int i = 0; i < coins.Length; ++i)
+            {
+                int coin = coins[i];
+
+                // will try to "merge" intervals: [min=0, max], [min + coin, max + coin]
+                // can "merge" if min + coin is close enough to max or even smaller
+
+                int nextMin = min + coin;
+                if (nextMin > max + 1)
+                    return max + 1; // cannot "merge" intervals, so return length of current interval
+
+                int nextMax = max + coin;
+                max = nextMax; // "merge" intervals, i.e. make the interval bigger
+            }
+
+            return max + 1;
         }
         #endregion
         #endregion
