@@ -5346,6 +5346,80 @@ namespace CodePractice
 
         #endregion
 
+        #region 523
+        public bool CheckSubarraySum(int[] nums, int k)
+        {
+            var sum = nums[0];
+            var dict = new Dictionary<int, int>();
+            dict.Add(nums[0] % k, 0);
+            for (int i = 1; i < nums.Length; i++)
+            {
+                sum = (sum + nums[i]) % k;
+                if (sum == 0) return true;
+                if (dict.ContainsKey(sum))
+                {
+                    if (i - dict[sum] > 1) return true;
+                }
+                else
+                {
+                    dict.Add(sum, i);
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region 532
+        public int FindPairs(int[] nums, int k)
+        {
+            if (k == 0)
+            {
+                return nums.GroupBy(x => x).Where(x => x.Count() > 1).Count();
+            }
+
+            int res = 0;
+            var array = nums.ToHashSet().OrderBy(x => x).ToArray();
+            int len = array.Count();
+            for (int i = 0; i < len; i++)
+            {
+                if (array.Contains(k + array[i]))
+                {
+                    res++;
+                    continue;
+                }
+            }
+
+            return res;
+        }
+        public int FindPairs2(int[] nums, int k)
+        {
+            int len = nums.Length;
+            if(len == 1) return 0;
+            Array.Sort(nums);
+            int res = 0;
+            int preV = nums[0];
+            for(int i = 0; i < len-1; i++)
+            {
+                if (i >= 1 && nums[i] == nums[i - 1]) continue;
+                var index = i + 1;
+                var find = nums[i] + k;
+                while(index<len && nums[index] <= find)
+                {
+                    if (nums[index] == find)
+                    {
+                        res++;
+                        break;
+                    }
+                    index++;
+                }
+            }
+            return res;
+
+        }
+
+        #endregion
+
         #region 542 review
         // https://massivealgorithms.blogspot.com/2017/04/leetcode-542-01-matrix.html
         public int[][] UpdateMatrix(int[][] mat)
@@ -5589,8 +5663,56 @@ namespace CodePractice
         }
         #endregion
 
-        #region #617 Tree review
-        public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
+        #region 611
+        public int TriangleNumber(int[] nums)
+        {
+            Array.Sort(nums);
+            int len = nums.Length;
+            if(len<3) return 0; 
+            int res = 0;
+            for (int i = 0; i < len - 2; i++)
+            {
+                for (int j = i + 1; j < len - 1; j++)
+                {
+                    var sum = nums[i] + nums[j];
+                    for (int k = j + 1; k < len; k++)
+                    {
+                        if (sum <= nums[k]) break;
+                        res++;
+                    }
+                }
+            }
+            return res;
+
+        }
+
+        public int TriangleNumber2(int[] nums)
+        {
+            if (nums.Length < 3)
+                return 0;
+            Array.Sort(nums);
+            int retVal = 0;
+            for (int i = nums.Length - 1; i > 1; i--)
+            {
+                for (int j = i - 1, k = 0; j > k;)
+                {
+                    if (nums[k] + nums[j] > nums[i])
+                    {
+                        retVal += j - k;
+                        j--;
+                    }
+                    else
+                    {
+                        k++;
+                    }
+                }
+            }
+
+            return retVal;
+            #endregion
+
+            #region #617 Tree review
+            public TreeNode MergeTrees(TreeNode root1, TreeNode root2)
         {
             if (root1 == null) return root2;
             if (root2 == null) return root1;
