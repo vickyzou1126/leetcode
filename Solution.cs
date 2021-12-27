@@ -5052,6 +5052,32 @@ namespace CodePractice
         }
         #endregion
 
+        #region 416
+        public bool CanPartition(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return false;
+            int sum = nums.Sum();
+            if (sum % 2 == 1) return false;
+
+            int halfSum = sum / 2;
+            var set = new HashSet<int>();
+
+            for (int i = 0; i < len; i++)
+            {
+                if (nums[i] == halfSum) return true;
+                var newSums = set.Select(x => x + nums[i]).ToList();
+                foreach (var s in newSums)
+                {
+                    if (s == halfSum) return true;
+                    set.Add(s);
+                }
+                set.Add(nums[i]);
+            }
+            return false;
+        }
+        #endregion
+
         #region #415
         public string AddStrings(string num1, string num2)
         {
@@ -5344,6 +5370,50 @@ namespace CodePractice
             return list[index - 2] + list[index - 1];
         }
 
+        #endregion
+
+        #region 516 review
+        public int LongestPalindromeSubseq(string s)
+        {
+            int len = s.Length;
+            int[][] dp = new int[len][];
+            for(int i = 0; i < len; i++)
+            {
+                dp[i] = new int[len];
+            }
+            
+            for(int i = len - 1; i >= 0; i--)
+            {
+                dp[i][i] = 1;
+                for (int j = i + 1; j < len; j++){
+                    if (s[i] == s[j])
+                    {
+                        dp[i][j] = dp[i + 1][j - 1] + 2;
+                    }
+                    else
+                    {
+                        dp[i][j] = Math.Max(dp[i + 1][j], dp[i][j - 1]);
+                    }
+                }
+            }
+            return dp[0][len - 1];
+        }
+        #endregion
+
+        #region 518
+        public int Change(int amount, int[] coins)
+        {
+            int[] array = new int[amount + 1];
+            array[0] = 1;
+            foreach(var c in coins)
+            {
+                for(int i = c; i <= amount; i++)
+                {
+                    array[i] += array[i - c];
+                }
+            }
+            return array[amount];
+        }
         #endregion
 
         #region 523
