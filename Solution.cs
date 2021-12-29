@@ -6800,7 +6800,7 @@ namespace CodePractice
             #endregion
 
         #region 1001-1100
-            #region 1002
+        #region 1002
             public IList<string> CommonChars(string[] words)
             {
                 int len = words.Length;
@@ -6833,7 +6833,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1005 review
+        #region 1005 review
             public int LargestSumAfterKNegations(int[] nums, int k)
             {
                 Array.Sort(nums);
@@ -6860,7 +6860,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1013 review
+        #region 1013 review
             public bool CanThreePartsEqualSum(int[] arr)
             {
                 int len = arr.Length;
@@ -6880,10 +6880,45 @@ namespace CodePractice
 
                 return num > 3;
             }
-            #endregion
+        #endregion
 
-            #region 1030
-            public int[][] AllCellsDistOrder(int rows, int cols, int rCenter, int cCenter)
+        #region 1027
+        public int LongestArithSeqLength(int[] nums)
+        {
+            int len = nums.Length;
+            var counters = nums.GroupBy(x => x).Select(x => x.Count()).Where(x => x >= len / 2).FirstOrDefault();
+            if (counters != 0) return counters;
+
+            var dict = new Dictionary<int, Dictionary<int, int>>();
+            int max = 0;
+            for (int i = 0; i < len; i++)
+            {
+                dict.Add(i, new Dictionary<int, int>());
+                for (int j = 0; j < i; j++)
+                {
+                    var diff = nums[i] - nums[j];
+                    int counter = 1;
+                    if (dict[j].ContainsKey(diff))
+                    {
+                        counter = dict[j][diff] + 1;
+                    }
+                    if (dict[i].ContainsKey(diff))
+                    {
+                        dict[i][diff] = Math.Max(dict[i][diff], counter);
+                    }
+                    else
+                    {
+                        dict[i].Add(diff, counter);
+                    }
+                    max = Math.Max(max, counter);
+                }
+            }
+            return max + 1;
+        }
+        #endregion
+
+        #region 1030
+        public int[][] AllCellsDistOrder(int rows, int cols, int rCenter, int cCenter)
             {
                 var dic = new Dictionary<int, List<int[]>>();
                 for (int i = 0; i < rows; i++)
@@ -6908,7 +6943,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1046 review
+        #region 1046 review
             public int LastStoneWeight(int[] stones)
             {
                 int len = stones.Length;
@@ -6965,7 +7000,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1051
+        #region 1051
             public int HeightChecker(int[] heights)
             {
                 int[] copy = new int[heights.Length];
@@ -6982,7 +7017,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1089 review
+        #region 1089 review
             public void DuplicateZeros(int[] arr)
             {
                 int len = arr.Length;
@@ -7034,11 +7069,11 @@ namespace CodePractice
             }
             #endregion
 
-            #endregion
+        #endregion
 
         #region 1101-1200
 
-            #region 1122 review high quality code
+        #region 1122 review high quality code
 
             public int[] RelativeSortArray(int[] arr1, int[] arr2)
             {
@@ -7077,10 +7112,40 @@ namespace CodePractice
                 });
                 return arr1;
             }
-            #endregion
+        #endregion
 
-            #region 1184
-            public int DistanceBetweenBusStops(int[] distance, int start, int destination)
+        #region 1143
+        public int LongestCommonSubsequence(string text1, string text2)
+        {
+            int len1 = text1.Length;
+            int len2 = text2.Length;
+            int[][] dp = new int[len1 + 1][];
+            int max = 0;
+            dp[0] = new int[len2 + 1];
+            for (int i = 1; i <= len1; i++)
+            {
+                dp[i] = new int[len2 + 1];
+                for (int j = 1; j <= text2.Length; j++)
+                {
+                    if (text1[i - 1] == text2[j - 1])
+                    {
+                        dp[i][j] = dp[i - 1][j - 1] + 1;
+                    }
+                    else
+                    {
+                        dp[i][j] = Math.Max(dp[i - 1][j], dp[i][j - 1]);
+                    }
+                    max = Math.Max(max, dp[i][j]);
+                }
+            }
+
+            return max;
+
+        }
+        #endregion
+
+        #region 1184
+        public int DistanceBetweenBusStops(int[] distance, int start, int destination)
             {
                 int len = distance.Length;
                 if (len == 1) return 0;
@@ -7125,7 +7190,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region #1189
+        #region #1189
             // balloon
             public int MaxNumberOfBalloons(string text)
             {
@@ -7148,7 +7213,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1160 review high quality code
+        #region 1160 review high quality code
             public int CountCharacters(string[] words, string chars)
             {
                 var dic = chars.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
@@ -7181,8 +7246,8 @@ namespace CodePractice
                 return words.Where(w => ToCharCount(w).All(x => set.ContainsKey(x.Key) && set[x.Key] >= x.Value)).Sum(w => w.Length);
             }
             #endregion
-
-            #region 1200
+           
+        #region 1200
             public IList<IList<int>> MinimumAbsDifference(int[] arr)
             {
                 Array.Sort(arr);
@@ -7204,7 +7269,7 @@ namespace CodePractice
                 return res;
             }
             #endregion
-            #endregion
+        #endregion
 
         #region 1201-1300
         #region 1207
