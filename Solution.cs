@@ -910,6 +910,28 @@ namespace CodePractice
             }
             return -1;
         }
+
+        public int StrStr2(string haystack, string needle)
+        {
+            int len = haystack.Length;
+            int len2 = needle.Length;
+            if (len2 == 0) return 0;
+            if (len < len2 || len == 0) return -1;
+
+            for (int i = 0; i <= len - len2; i++)
+            {
+                if (haystack[i] == needle[0])
+                {
+                    int index = i + 1;
+                    while (index <= i + len2 - 1 && haystack[index] == needle[index - i])
+                    {
+                        index++;
+                    }
+                    if (index - i >= len2) return i;
+                }
+            }
+            return -1;
+        }
         #endregion
 
         #region #29 - review, not completed
@@ -3108,6 +3130,47 @@ namespace CodePractice
         }
         #endregion
 
+        #region 92
+        public ListNode ReverseBetween(ListNode head, int left, int right)
+        {
+            if (head == null) return null;
+            if (left == right) return head;
+            var leftNode = head;
+            int i = 1;
+            for (; i < left; i++)
+            {
+                leftNode = leftNode.next;
+            }
+
+            var prev = leftNode;
+            var list = new Stack<int>();
+
+            while (i <= right)
+            {
+                list.Push(leftNode.val);
+                leftNode = leftNode.next;
+                i++;
+            }
+
+
+            while (list.Count() > 0)
+            {
+                prev.val = list.Pop();
+                prev = prev.next;
+            }
+
+            while (leftNode != null)
+            {
+                prev.val = leftNode.val;
+                prev = prev.next;
+                leftNode = leftNode.next;
+
+            }
+            return head;
+
+        }
+        #endregion
+
         #region #94 Tree review + remember
         public IList<int> InorderTraversal(TreeNode root)
         {
@@ -3120,6 +3183,38 @@ namespace CodePractice
             list = InorderTraversalSearch(root.left, list);
             list.Add(root.val);
             return InorderTraversalSearch(root.right, list);
+        }
+        #endregion
+
+        #region 97
+        public bool IsInterleave(string s1, string s2, string s3)
+        {
+            if (s1 == "" && s2 == "" && s3 == "") return true;
+            int len1 = s1.Length;
+            int len2 = s2.Length;
+            int len3 = s3.Length;
+            if (len1 + len2 != len3) return false;
+
+            int[][] dp = new int[len1 + 1][];
+
+            for (var i = 0; i < len1 + 1; ++i)
+            {
+                dp[i] = new int[len2 + 1];
+                for (var j = 0; j < len2 + 1; ++j)
+                {
+                    if (i == 0 && j == 0)
+                    {
+                        dp[0][0] = 1;
+                        continue;
+                    }
+                    if (i >= 1 && dp[i - 1][j] > 0 && s1[i - 1] == s3[dp[i - 1][j] - 1])
+                        dp[i][j] = dp[i - 1][j] + 1;
+                    if (j >= 1 && dp[i][j - 1] > 0 && s2[j - 1] == s3[dp[i][j - 1] - 1])
+                        dp[i][j] = Math.Max(dp[i][j - 1] + 1, dp[i][j]);
+                }
+            }
+
+            return dp[len1][len2] == len3 + 1;
         }
         #endregion
 
@@ -3288,6 +3383,89 @@ namespace CodePractice
         }
         #endregion
 
+        #region 113
+        public IList<IList<int>> PathSum(TreeNode root, int targetSum)
+        {
+            var list = new List<IList<int>>();
+            if (root == null) return list;
+
+            PathSum(list, new List<int>(), root, targetSum);
+
+            return list;
+        }
+
+        public void PathSum(List<IList<int>> list, List<int> temp, TreeNode node, int targetSum)
+        {
+            if (node.left == null && node.right == null)
+            {
+                if ((node.val + temp.Sum()) == targetSum)
+                {
+                    temp.Add(node.val);
+                    list.Add(new List<int>(temp));
+                    temp.RemoveAt(temp.Count() - 1);
+                }
+
+                return;
+            }
+            temp.Add(node.val);
+            if (node.left != null)
+            {
+                PathSum(list, temp, node.left, targetSum);
+            }
+
+            if (node.right != null)
+            {
+                PathSum(list, temp, node.right, targetSum);
+            }
+
+            temp.RemoveAt(temp.Count() - 1);
+        }
+        #endregion
+
+        #region 114
+        public void Flatten(TreeNode root)
+        {
+            if (root == null) return;
+            var list = new List<int>();
+
+            var temp = root;
+
+            Flatten(list, temp);
+
+            root.left = null;
+
+            while (list.Count() != 0)
+            {
+                var newNode = new TreeNode(list.First());
+                root.right = newNode;
+                root.left = null;
+                root = root.right;
+                list.RemoveAt(0);
+            }
+        }
+
+        private void Flatten(List<int> list, TreeNode temp)
+        {
+
+            if (temp.left == null && temp.right == null) return;
+
+            if (temp.left != null)
+            {
+
+                list.Add(temp.left.val);
+                Flatten(list, temp.left);
+            }
+
+            if (temp.right != null)
+            {
+
+                list.Add(temp.right.val);
+                Flatten(list, temp.right);
+            }
+
+        }
+        #endregion
+
         #region #118 
         public IList<IList<int>> Generate(int numRows)
         {
@@ -3432,6 +3610,54 @@ namespace CodePractice
                 high--;
             }
             return true;
+        }
+        #endregion
+
+        #region 129
+        public int SumNumbers(TreeNode root)
+        {
+            if (root == null) return 0;
+            var list = new List<int>();
+            SumNumbers(root, list, new List<int>());
+            return list.Sum();
+        }
+
+
+        private void SumNumbers(TreeNode root, List<int> list, List<int> temp)
+        {
+            if (root.left == null && root.right == null)
+            {
+                temp.Add(root.val);
+                list.Add(getValue(new List<int>(temp)));
+                temp.RemoveAt(temp.Count() - 1);
+                return;
+            }
+
+            temp.Add(root.val);
+            if (root.left != null)
+            {
+                SumNumbers(root.left, list, temp);
+            }
+
+            if (root.right != null)
+            {
+                SumNumbers(root.right, list, temp);
+
+            }
+            temp.RemoveAt(temp.Count() - 1);
+        }
+
+        private int getValue(List<int> temp)
+        {
+            int res = 0;
+            int times = 1;
+            while (temp.Count() > 0)
+            {
+                res += times * temp.Last();
+                times *= 10;
+                temp.RemoveAt(temp.Count() - 1);
+            }
+            return res;
         }
         #endregion
 
@@ -3613,6 +3839,43 @@ namespace CodePractice
             }
 
             return null;
+        }
+        #endregion
+
+        #region 143
+        public void ReorderList(ListNode head)
+        {
+            if (head == null) return;
+            var list = new List<int>();
+            var cur = head;
+            while (cur != null)
+            {
+                list.Add(cur.val);
+                cur = cur.next;
+            }
+            var counter = list.Count();
+            if (counter == 2) return;
+
+            var index = (counter - 1) / 2;
+            ListNode newNode = head;
+            for (int i = 0; i <= index; i++)
+            {
+                if (i == 0)
+                {
+                    newNode.val = list[i];
+                }
+                else
+                {
+                    newNode.next = new ListNode(list[i]);
+                    newNode = newNode.next;
+                }
+                if (i != counter - 1 - i)
+                {
+                    newNode.next = new ListNode(list[counter - 1 - i]);
+                    newNode = newNode.next;
+                }
+
+            }
         }
         #endregion
 
@@ -4731,6 +4994,19 @@ namespace CodePractice
                 lowIndex++;
             }
             nums[highIndex] = 0;
+        }
+        #endregion
+
+        #region 287
+        public int FindDuplicate(int[] nums)
+        {
+            int[] arr = new int[nums.Length + 1];
+            foreach (var n in nums)
+            {
+                if (arr[n] != 0) return n;
+                arr[n] = 1;
+            }
+            return -1;
         }
         #endregion
 
@@ -6016,7 +6292,7 @@ namespace CodePractice
 
         #region 701-800
 
-            #region #704
+        #region #704
             public int Search704(int[] nums, int target)
             {
                 int length = nums.Length;
@@ -6041,7 +6317,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 713
+        #region 713
             public int NumSubarrayProductLessThanK(int[] nums, int k)
             {
                 if (k == 0) return 0;
@@ -6064,10 +6340,39 @@ namespace CodePractice
                 }
                 return res;
             }
-            #endregion
+        #endregion
 
-            #region 724
-            public int PivotIndex(int[] nums)
+        #region 718
+        public int FindLength(int[] nums1, int[] nums2)
+        {
+            int len1 = nums1.Length;
+            int len2 = nums2.Length;
+            int[][] dp = new int[len1 + 1][];
+            dp[0] = new int[len2 + 1];
+            int max = 0;
+
+            for (int i = 1; i <= len1; i++)
+            {
+                dp[i] = new int[len2 + 1];
+                for (int j = 1; j <= len2; j++)
+                {
+                    if (nums1[i - 1] == nums2[j - 1])
+                    {
+                        dp[i][j] = dp[i - 1][j - 1] + 1;
+                    }
+                    else
+                    {
+                        dp[i][j] = 0;
+                    }
+                    max = Math.Max(max, dp[i][j]);
+                }
+            }
+            return max;
+        }
+        #endregion
+
+        #region 724
+        public int PivotIndex(int[] nums)
             {
                 int len = nums.Length;
                 if (len == 1) return 0;
@@ -6091,7 +6396,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 733
+        #region 733
             public int[][] FloodFill(int[][] image, int sr, int sc, int newColor)
             {
                 if (image[sr][sc] == newColor) return image;
@@ -6142,7 +6447,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 746 dp 
+        #region 746 dp 
             public int MinCostClimbingStairs(int[] cost)
             {
                 int len = cost.Length;
@@ -6160,7 +6465,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region #763
+        #region #763
             public IList<int> PartitionLabels(string s)
             {
                 if (s.Length <= 1) return new List<int> { 1 };
@@ -6191,7 +6496,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 766
+        #region 766
             public bool IsToeplitzMatrix(int[][] matrix)
             {
                 int row = matrix.Length;
@@ -6205,13 +6510,13 @@ namespace CodePractice
                 }
                 return true;
             }
-            #endregion
-            #endregion
+        #endregion
+        #endregion
 
         #region 801-900
-            #region 812 three pointes triangle area formula review
-            // 1/2 *abs(Ax*(By-Cy)+Bx*(Cy-Ay)+Cx*(Ay-By))
-            public double LargestTriangleArea(int[][] points)
+        #region 812 three pointes triangle area formula review
+        // 1/2 *abs(Ax*(By-Cy)+Bx*(Cy-Ay)+Cx*(Ay-By))
+        public double LargestTriangleArea(int[][] points)
             {
                 int len = points.Length;
                 double max = 0;
@@ -6234,7 +6539,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 821 review
+        #region 821 review
             public int[] ShortestToChar(string s, char c)
             {
                 var index = s.ToArray().Select((value, index) => value == c ? index : -1)
@@ -6306,10 +6611,38 @@ namespace CodePractice
 
                 return ans;
             }
-            #endregion
+        #endregion
 
-            #region 852 review
-            public int PeakIndexInMountainArray(int[] arr)
+        #region 844
+        public bool BackspaceCompare(string s, string t)
+        {
+            return String.Join("", getStack(s)) == String.Join("", getStack(t));
+        }
+
+        private Stack<char> getStack(string s)
+        {
+            var stack = new Stack<char>();
+            foreach (var c in s)
+            {
+                if (c == '#')
+                {
+                    if (stack.Count() != 0)
+                    {
+                        stack.Pop();
+                    }
+                }
+                else
+                {
+                    stack.Push(c);
+                }
+
+            }
+            return stack;
+        }
+        #endregion
+
+        #region 852 review
+        public int PeakIndexInMountainArray(int[] arr)
             {
                 int lo = 0;
                 int hi = arr.Length - 1;
@@ -6329,7 +6662,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 860
+        #region 860
             public bool LemonadeChange(int[] bills)
             {
                 int len = bills.Length;
@@ -6361,7 +6694,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 867
+        #region 867
             public int[][] Transpose(int[][] matrix)
             {
                 int row = matrix.Length;
@@ -6384,7 +6717,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 888
+        #region 888
             public int[] FairCandySwap(int[] aliceSizes, int[] bobSizes)
             {
                 int len = aliceSizes.Length;
@@ -6418,7 +6751,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 896
+        #region 896
             public bool IsMonotonic(int[] nums)
             {
                 int len = nums.Length;
@@ -6452,7 +6785,7 @@ namespace CodePractice
             }
             #endregion
 
-            #endregion
+        #endregion
 
         #region 901-1000
             #region 914
