@@ -73,7 +73,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #3 sliding window
+        #region 3 2 pointers review
         public int LengthOfLongestSubstring(string s)
         {
             int length = s.Length;
@@ -89,30 +89,64 @@ namespace CodePractice
                 {
                     if (dic[s[highIndex]] >= lowIndex)
                     {
-                        if (ans <= highIndex - lowIndex)
-                        {
-                            ans = highIndex - lowIndex;
-                        }
+                        ans = Math.Max(ans, highIndex - lowIndex);
                         lowIndex = dic[s[highIndex]] + 1;
                     }
-                    dic[s[highIndex]] = highIndex;
                 }
-                else
-                {
-                    dic[s[highIndex]] = highIndex;
-                }
+                dic[s[highIndex]] = highIndex;
                 highIndex++;
             }
 
-            if (ans <= highIndex - lowIndex)
+            return Math.Max(ans, highIndex - lowIndex);
+        }
+
+        // out of memory -dp
+        public int LengthOfLongestSubstring3(string s)
+        {
+            int len = s.Length;
+            if (len == 0) return 0;
+            int result = 1;
+            bool[][] dp = new bool[len][];
+            for (int i = 0; i < len; i++)
             {
-                ans = highIndex - lowIndex;
+                dp[i] = new bool[len];
             }
-            return ans;
+            for (int j = 0; j < len; j++)
+            {
+                for (int i = 0; i <= j; i++)
+                {
+                    if (i == j)
+                    {
+                        dp[i][j] = true;
+                        continue;
+                    }
+                    if (s[i] != s[j])
+                    {
+                        if (i + 1 == j)
+                        {
+                            dp[i][j] = true;
+                            result = Math.Max(result, 2);
+                        }
+                        else if (dp[i + 1][j - 1])
+                        {
+                            var subStr = s.Substring(i + 1, j - i - 1);
+                            if (!subStr.Contains(s[i]) && !subStr.Contains(s[j]))
+                            {
+                                dp[i][j] = true;
+                                result = Math.Max(result, j - i + 1);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return result;
+
         }
         #endregion
 
-        #region #4
+        #region 4
         public double FindMedianSortedArrays(int[] nums1, int[] nums2)
         {
             int length1 = nums1.Length;
@@ -153,9 +187,10 @@ namespace CodePractice
         }
         #endregion
 
-        #region #5
+        #region 5
         public string LongestPalindrome(string s)
         {
+            
             var charDic = new Dictionary<char, List<int>>();
             int index = 0;
             foreach (var c in s)
@@ -183,7 +218,6 @@ namespace CodePractice
                 {
                     for (int j = d.Value.Count - 1; j > i; j--)
                     {
-
                         if (maxs.Length < d.Value[j] - d.Value[i] + 1)
                         {
                             var subString = s.Substring(d.Value[i], d.Value[j] - d.Value[i] + 1);
@@ -215,9 +249,109 @@ namespace CodePractice
             }
             return true;
         }
+
+        //dp
+        public string LongestPalindrome5(string s)
+        {
+            if (s.Distinct().Count() == 1) return s;
+            int len = s.Length;
+            string result = s[0].ToString();
+            string[][] dp = new string[len][];
+            for (int i = 0; i < len; i++)
+            {
+                dp[i] = new string[len];
+            }
+            for (int j = 0; j < len; j++)
+            {
+                for (int i = 0; i <= j; i++)
+                {
+                    if (i == j)
+                    {
+                        dp[i][j] = s[i].ToString();
+                        continue;
+                    }
+                    if (s[i] == s[j])
+                    {
+                        if (i + 1 == j)
+                        {
+                            dp[i][j] = s[i].ToString() + s[j].ToString();
+                            if (result.Length == 1)
+                            {
+                                result = dp[i][j];
+                            }
+                        }
+                        else if (dp[i + 1][j - 1] != null)
+                        {
+                            dp[i][j] = s[i].ToString() + dp[i + 1][j - 1] + s[j].ToString();
+                            if (result.Length < j - i + 1)
+                            {
+                                result = dp[i][j];
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return result;
+        }
+
+        public string LongestPalindrome5a(string s)
+        {
+            if (s.Distinct().Count() == 1) return s;
+            int len = s.Length;
+            var dp = new Dictionary<int, List<int>>();
+            var result = s[0].ToString();
+
+            for (int j = 0; j < len; j++)
+            {
+                for (int i = 0; i <= j; i++)
+                {
+                    if (i == j)
+                    {
+                        if (!dp.ContainsKey(i))
+                        {
+                            dp.Add(i, new List<int>());
+                        }
+                        dp[i].Add(j);
+                        continue;
+                    }
+                    if (s[i] == s[j])
+                    {
+                        if (i + 1 == j)
+                        {
+                            if (!dp.ContainsKey(i))
+                            {
+                                dp.Add(i, new List<int>());
+                            }
+                            dp[i].Add(j);
+                            if (result.Length == 1)
+                            {
+                                result = s[i].ToString() + s[j].ToString();
+                            }
+                        }
+                        else if (dp.ContainsKey(i + 1) && dp[i + 1].Contains(j - 1))
+                        {
+                            if (!dp.ContainsKey(i))
+                            {
+                                dp.Add(i, new List<int>());
+                            }
+                            dp[i].Add(j);
+                            if (result.Length < j - i + 1)
+                            {
+                                result = s.Substring(i, j - i + 1);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return result;
+        }
         #endregion
 
-        #region #6
+        #region 6
         public string Convert(string s, int numRows)
         {
             if (numRows == 1) return s;
@@ -267,7 +401,36 @@ namespace CodePractice
         }
         #endregion
 
-        #region #8
+        #region 7
+        public int Reverse(int x)
+        {
+            var isnegative = x < 0;
+            var str = x.ToString();
+            if (isnegative)
+            {
+                str = str.Remove(0, 1);
+            }
+
+            var arr = str.Select(x => Int32.Parse(x.ToString())).ToArray().Reverse();
+
+            str = String.Join("", arr);
+            if (isnegative)
+            {
+                str = "-" + str;
+            }
+
+            if (int.TryParse(str, out int j))
+            {
+                return j;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        #endregion
+
+        #region 8
         public int MyAtoi(string s)
         {
             s = s.Trim();
@@ -307,7 +470,21 @@ namespace CodePractice
         }
         #endregion
 
-        #region #11
+        #region 9
+        public bool IsPalindrome(int x)
+        {
+            if (x < 0) return false;
+            var arr = x.ToString().ToArray();
+            var len = arr.Length;
+            for (int i = 0; i < len / 2; i++)
+            {
+                if (arr[i] != arr[len - i - 1]) return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region 11 sliding window
         public int MaxArea(int[] height)
         {
             int length = height.Length;
@@ -326,7 +503,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #12
+        #region 12
         public string IntToRoman(int num)
         {
             var list = new List<int> { 1, 5, 10, 50, 100, 500, 1000 };
@@ -403,7 +580,6 @@ namespace CodePractice
             }
             return 1;
         }
-
         private int FindMostUpNearNumber(int num, List<int> list)
         {
             for (int i = 5; i >= 0; i--)
@@ -417,7 +593,22 @@ namespace CodePractice
         }
         #endregion
 
-        #region #15 review
+        #region 14
+        public string LongestCommonPrefix(string[] strs)
+        {
+            var len = strs.Select(x => x.Length).Min();
+            int index = 0;
+            while (index < len)
+            {
+                var c = strs[0][index];
+                if (strs.Any(x => x[index] != c)) break;
+                index++;
+            }
+            return index == 0 ? "" : strs[0].Substring(0, index);
+        }
+        #endregion
+
+        #region 15
         public IList<IList<int>> ThreeSum(int[] nums)
         {
             int length = nums.Length;
@@ -501,7 +692,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #16 -review
+        #region 16
         public int ThreeSumClosest(int[] nums, int target)
         {
             int length = nums.Length;
@@ -571,7 +762,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #17 dictionary 
+        #region 17 
         public IList<string> LetterCombinations(string digits)
         {
             List<string> list = new List<string>();
@@ -608,7 +799,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #18
+        #region 18
         public IList<IList<int>> FourSum(int[] nums, int target)
         {
             IList<IList<int>> list = new List<IList<int>>();
@@ -699,7 +890,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #19 ListNode
+        #region 19
         public ListNode RemoveNthFromEnd(ListNode head, int n) {
             var newHead = ReverseList(head);
             int num = 1;
@@ -722,6 +913,32 @@ namespace CodePractice
                 num++;
             }
             return newNode;
+        }
+
+        public ListNode RemoveNthFromEnd19(ListNode head, int n)
+        {
+            if (head == null) return null;
+            var list = new List<int>();
+            var newh = head;
+            int counter = 0;
+            while (newh != null)
+            {
+                list.Add(newh.val);
+                counter++;
+                newh = newh.next;
+            }
+
+            list.RemoveAt(counter - n);
+            counter--;
+            if (counter == 0) return null;
+            var node = new ListNode(list[0]);
+            var tempn = node;
+            for (int i = 1; i < counter; i++)
+            {
+                tempn.next = new ListNode(list[i]);
+                tempn = tempn.next;
+            }
+            return node;
         }
         #endregion
 
@@ -759,7 +976,64 @@ namespace CodePractice
         }
         #endregion
 
-        #region #22 - review
+        #region 21
+        public ListNode MergeTwoLists(ListNode l1, ListNode l2)
+        {
+            if (l1 == null) return l2;
+            if (l2 == null) return l1;
+            var node = new ListNode(-101);
+            var tempn = node;
+            while (l1 != null || l2 != null)
+            {
+                if (l1 != null && l2 != null)
+                {
+                    if (l1.val < l2.val)
+                    {
+                        if (tempn.val == -101)
+                        {
+                            tempn.val = l1.val;
+                        }
+                        else
+                        {
+                            tempn.next = new ListNode(l1.val);
+                            tempn = tempn.next;
+                        }
+                        l1 = l1.next;
+                    }
+                    else
+                    {
+                        if (tempn.val == -101)
+                        {
+                            tempn.val = l2.val;
+                        }
+                        else
+                        {
+                            tempn.next = new ListNode(l2.val);
+                            tempn = tempn.next;
+                        }
+                        l2 = l2.next;
+                    }
+
+                }
+                else if (l1 != null)
+                {
+                    tempn.next = new ListNode(l1.val);
+                    tempn = tempn.next;
+                    l1 = l1.next;
+                }
+                else
+                {
+                    tempn.next = new ListNode(l2.val);
+                    tempn = tempn.next;
+                    l2 = l2.next;
+                }
+            }
+
+            return node;
+        }
+        #endregion
+
+        #region 22 - review
         public IList<string> GenerateParenthesis(int n)
         {
             var lists = new List<HashSet<string>>();
@@ -797,9 +1071,30 @@ namespace CodePractice
 
             return lists[n - 1].ToList();
         }
+
+        public IList<string> GenerateParenthesis22(int n)
+        {
+            List<string> result = new List<string>();
+            GenerateAndCheck("", 0, 0, n, result);
+            return result;
+        }
+
+        private void GenerateAndCheck(string str, int opened, int closed, int maxLen, List<string> result)
+        {
+            if (opened == closed && opened == maxLen)
+            {
+                result.Add(str);
+                return;
+            }
+
+            if (opened < maxLen)
+                GenerateAndCheck(str + "(", opened + 1, closed, maxLen, result);
+            if (closed < opened)
+                GenerateAndCheck(str + ")", opened, closed + 1, maxLen, result);
+        }
         #endregion
 
-        #region #24 ListNode
+        #region 24 ListNode
         public ListNode SwapPairs(ListNode head)
         {
             if (head is null) return null;
@@ -820,7 +1115,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #26
+        #region 26
         public int RemoveDuplicates(int[] nums)
         {
             int N = nums.Length;
@@ -842,7 +1137,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #27 sliding window
+        #region 27 sliding window
         public int RemoveElement(int[] nums, int val)
         {
             int num = 0;
@@ -893,7 +1188,7 @@ namespace CodePractice
 
         #endregion
 
-        #region #28
+        #region 28
         public int StrStr(string haystack, string needle)
         {
             if (needle == "") return 0;
@@ -931,38 +1226,6 @@ namespace CodePractice
                 }
             }
             return -1;
-        }
-        #endregion
-
-        #region #29 - review, not completed
-        public int Divide(int dividend, int divisor)
-        {
-            bool isPositive = true;
-            if (dividend < 0 && divisor > 0 || dividend > 0 && divisor < 0)
-            {
-                isPositive = false;
-            }
-            long ldividend = Math.Abs((long)dividend);
-            long ldivisor = Math.Abs((long)divisor);
-            long result = divide(ldividend, ldivisor);
-            if (result > int.MaxValue)
-            {
-                return isPositive ? int.MaxValue : int.MinValue;
-            }
-            return isPositive ? (int)result : -(int)result;
-        }
-
-        public long divide(long dividend, long divisor)
-        {
-            if (dividend < divisor) return 0;
-            long sum = divisor;
-            long result = 1;
-            while (dividend > sum + sum)
-            {
-                sum += sum;
-                result += result;
-            }
-            return result + divide(dividend - sum, divisor);
         }
         #endregion
 
@@ -1079,7 +1342,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #32 - review
+        #region 32 - review
         public int LongestValidParentheses(string s)
         {
             if (s.Length <= 1) return 0;
@@ -1126,6 +1389,34 @@ namespace CodePractice
             }
 
             return max;
+        }
+
+        private bool isValidParentheses(string s)
+        {
+            Stack<char> myStack = new Stack<char>();
+            foreach (var curr in s)
+            {
+                if (curr == '(')
+                {
+                    myStack.Push(curr);
+                }
+                else
+                {
+                    if (myStack.Count > 0)
+                    {
+                        var top = myStack.Pop();
+                        if (top != '(')
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         #endregion
 
