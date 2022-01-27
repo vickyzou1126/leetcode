@@ -1420,7 +1420,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #33
+        #region 33
         public int Search(int[] nums, int target)
         {
             int length = nums.Length;
@@ -1474,7 +1474,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #34 - sliding window
+        #region 34 - sliding window
         public int[] SearchRange(int[] nums, int target)
         {
             int length = nums.Length;
@@ -1551,7 +1551,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #35 - sliding window review
+        #region 35 - sliding window review
         public int SearchInsert(int[] nums, int target)
         {
             var low = 0;
@@ -1577,7 +1577,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #36
+        #region 36
         public bool IsValidSudoku(char[][] board)
         {
             var culDic = new Dictionary<int, HashSet<int>>();
@@ -1725,9 +1725,57 @@ namespace CodePractice
             }
         }
 
+        public IList<IList<int>> CombinationSumdp(int[] candidates, int target)
+        {
+            var list = new List<IList<int>>();
+            candidates = candidates.Where(x => x <= target).ToArray();
+            Array.Sort(candidates);
+            if (candidates.Length == 0) return list;
+
+            var dp = new Dictionary<int, List<IList<int>>>();
+            // init
+            foreach (var c in candidates)
+            {
+                var temp = new List<IList<int>>();
+                temp.Add(new List<int> { c });
+                dp.Add(c, temp);
+            }
+
+            var hash = new HashSet<string>();
+            for (int i = 2; i <= target; i++)
+            {
+                for (int j = 1; j <= i / 2; j++)
+                {
+                    if (dp.ContainsKey(j) && dp.ContainsKey(i - j))
+                    {
+                        var temp = new List<IList<int>>();
+                        if (!dp.ContainsKey(i))
+                        {
+                            dp.Add(i, new List<IList<int>>());
+                        }
+                        foreach (var l1 in dp[j])
+                        {
+                            foreach (var l2 in dp[i - j])
+                            {
+                                var newl1 = new List<int>(l1);
+                                newl1 = newl1.Concat(l2).ToList();
+                                newl1.Sort();
+                                if (hash.Add(String.Join("",newl1)))
+                                {
+                                    temp.Add(newl1);
+                                }
+                               
+                            }
+                        }
+                        dp[i].AddRange(temp);
+                    }
+                }
+            }
+            return dp.ContainsKey(target) ? dp[target] : list;
+        }
         #endregion
 
-        #region #40 review 
+        #region 40 review 
         public IList<IList<int>> CombinationSum2(int[] candidates, int target)
         {
             var maxv = candidates.Max();
@@ -2092,7 +2140,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #48 --- review matrix rotate -> transpose
+        #region 48 --- review matrix rotate -> transpose
         public void Rotate(int[][] matrix)
         {
             int size = matrix[0].Length;
@@ -2120,7 +2168,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #49
+        #region 49
         public IList<IList<string>> GroupAnagrams(string[] strs)
         {
             int length = strs.Count();
@@ -2175,7 +2223,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #53 -sliding window review
+        #region 53 -sliding window review
         /*
          * solution:
          * remove negative prefix
@@ -2242,7 +2290,7 @@ namespace CodePractice
 
         #endregion
 
-        #region #55 - review
+        #region 55 - review
         // https://www.youtube.com/watch?v=muDPTDrpS28
         public bool CanJump(int[] nums)
         {
@@ -2266,7 +2314,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #56
+        #region 56
         public int[][] Merge(int[][] intervals)
         {
             int size = intervals.Count();
@@ -2300,7 +2348,7 @@ namespace CodePractice
 
         #endregion
 
-        #region #57 - review code
+        #region 57 - review code
         public int[][] Insert(int[][] intervals, int[] newInterval)
         {
             int n = intervals.Length;
@@ -2488,7 +2536,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #58
+        #region 58
         public int LengthOfLastWord(string s)
         {
             s = s.TrimEnd();
@@ -2581,7 +2629,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #62
+        #region 62
         public int UniquePaths(int m, int n)
         {
             if (m == 1 || n == 1) return Math.Max(m, n) - 1;
@@ -2664,7 +2712,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #64
+        #region 64
         public int MinPathSum(int[][] grid)
         {
             int row = grid.Count();
@@ -3258,7 +3306,54 @@ namespace CodePractice
         }
         #endregion
 
-        #region 81
+        #region 81 review
+        public bool Search81(int[] nums, int target)
+        {
+            var n = nums.Length;
+
+            if (n == 0) return false;
+
+            var left = 0;
+            var right = n - 1;
+
+            while (left < right)
+            {
+                var mid = left + (right - left) / 2;
+
+                if (nums[mid] == target)
+                {
+                    return true;
+                }
+                else if (nums[mid] < nums[right])
+                {
+                    if (nums[mid] < target && target <= nums[right])
+                    {
+                        left = mid + 1;
+                    }
+                    else
+                    {
+                        right = mid;
+                    }
+                }
+                else if (nums[mid] == nums[right])
+                {
+                    right--;
+                }
+                else
+                {
+                    if (nums[left] <= target && target < nums[mid])
+                    {
+                        right = mid;
+                    }
+                    else
+                    {
+                        left = mid + 1;
+                    }
+                }
+            }
+
+            return nums[left] == target;
+        }
         #endregion
 
         #region 82
@@ -3316,7 +3411,7 @@ namespace CodePractice
         #endregion
 
         #region #83 - ListNode review
-        public ListNode DeleteDuplicates(ListNode head)
+        public ListNode DeleteDuplicates83(ListNode head)
         {
             if (head == null) return null;
             ListNode previous = head;
@@ -3462,7 +3557,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #94 Tree review + remember
+        #region #94 Tree review
         public IList<int> InorderTraversal(TreeNode root)
         {
             return InorderTraversalSearch(root, new List<int>());
@@ -3486,26 +3581,56 @@ namespace CodePractice
             int len3 = s3.Length;
             if (len1 + len2 != len3) return false;
 
-            int[][] dp = new int[len1 + 1][];
+            bool[][] dp = new bool[len1 + 1][];
 
-            for (var i = 0; i < len1 + 1; ++i)
+            // init
+            for (int i = 0; i <= len1; i++)
             {
-                dp[i] = new int[len2 + 1];
-                for (var j = 0; j < len2 + 1; ++j)
+                dp[i] = new bool[len2 + 1];
+            }
+
+
+            for (int i = 1; i <= len2; i++)
+            {
+                if (s3[i - 1] == s2[i - 1])
                 {
-                    if (i == 0 && j == 0)
-                    {
-                        dp[0][0] = 1;
-                        continue;
-                    }
-                    if (i >= 1 && dp[i - 1][j] > 0 && s1[i - 1] == s3[dp[i - 1][j] - 1])
-                        dp[i][j] = dp[i - 1][j] + 1;
-                    if (j >= 1 && dp[i][j - 1] > 0 && s2[j - 1] == s3[dp[i][j - 1] - 1])
-                        dp[i][j] = Math.Max(dp[i][j - 1] + 1, dp[i][j]);
+                    dp[0][i] = true;
+                }
+                else
+                {
+                    break;
                 }
             }
 
-            return dp[len1][len2] == len3 + 1;
+            for (int i = 1; i <= len1; i++)
+            {
+                if (s3[i - 1] == s1[i - 1])
+                {
+                    dp[i][0] = true;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            for (int i = 1; i <= len1; i++)
+            {
+                for (int j = 1; j <= len2; j++)
+                {
+                    if (dp[i - 1][j] && s1[i - 1] == s3[i + j - 1])
+                    {
+                        dp[i][j] = true;
+                    }
+
+                    else if (dp[i][j - 1] && s2[j - 1] == s3[i + j - 1])
+                    {
+                        dp[i][j] = true;
+                    }
+                }
+            }
+
+            return dp[len1][len2];
         }
         #endregion
 
