@@ -3739,8 +3739,8 @@ namespace CodePractice
         }
         #endregion
 
-        #region #110 TreeNode - not completed
-
+        #region 109
+        // similar to 108
         #endregion
 
         #region #111 TreeNode
@@ -4029,6 +4029,34 @@ namespace CodePractice
         }
         #endregion
 
+        #region #128
+        public int LongestConsecutive(int[] nums)
+        {
+            int res = 0;
+            var hash = nums.ToHashSet();
+            var size = hash.Count;
+            if (size <= 1) return size;
+            int valmin = hash.Min();
+            int valmax = hash.Max();
+            while (valmin < valmax)
+            {
+                var temp = valmin;
+                while (hash.Contains(valmin))
+                {
+                    valmin++;
+                }
+                res = Math.Max(res, valmin - temp);
+                if (res >= size / 2) return res;
+                valmin++;
+                while (valmin < valmax && !hash.Contains(valmin))
+                {
+                    valmin++;
+                }
+            }
+            return res;
+        }
+        #endregion
+
         #region 129
         public int SumNumbers(TreeNode root)
         {
@@ -4077,49 +4105,58 @@ namespace CodePractice
         }
         #endregion
 
-        #region 130
-        public void Solve(char[][] board)
+        #region 131
+        public IList<IList<string>> Partition(string s)
         {
+            int len = s.Length;
 
-        }
-        #endregion
-
-        #region #136 grouping
-        public int SingleNumber(int[] nums)
-        {
-            foreach (var item in nums.GroupBy(x => x))
+            bool[][] dp = new bool[len][];
+            for (int j = 0; j < len; j++)
             {
-                if (item.Count() == 1) return item.Key;
+                dp[j] = new bool[len];
             }
-            return -1;
-        }
-        #endregion
-
-        #region #128
-        public int LongestConsecutive(int[] nums)
-        {
-            int res = 0;
-            var hash = nums.ToHashSet();
-            var size = hash.Count;
-            if (size <= 1) return size;
-            int valmin = hash.Min();
-            int valmax = hash.Max();
-            while (valmin < valmax)
+            for (int j = 0; j < len; j++)
             {
-                var temp = valmin;
-                while (hash.Contains(valmin))
+                for (int i = 0; i <= j; i++)
                 {
-                    valmin++;
-                }
-                res = Math.Max(res, valmin - temp);
-                if (res >= size / 2) return res;
-                valmin++;
-                while (valmin < valmax && !hash.Contains(valmin))
-                {
-                    valmin++;
+                    if (i == j)
+                    {
+                        dp[i][j] = true;
+                    }
+                    else if (j - i == 1)
+                    {
+                        dp[i][j] = (s[i] == s[j]);
+                    }
+                    else
+                    {
+                        dp[i][j] = ((s[i] == s[j]) && dp[i + 1][j - 1]);
+                    }
                 }
             }
-            return res;
+
+            var list = new List<IList<string>>();
+            dfs(dp, s, len, list, new List<string>(), 0);
+
+            return list;
+        }
+
+        private void dfs(bool[][] dp, string s, int len, IList<IList<string>> res, List<string> temp, int row)
+        {
+            if (row == len)
+            {
+                res.Add(new List<String>(temp));
+                return;
+            }
+
+            for (int i = row; i < len; i++)
+            {
+                if (dp[row][i])
+                {
+                    temp.Add(s.Substring(row, i - row + 1));
+                    dfs(dp, s, len, res, temp, i + 1);
+                    temp.RemoveAt(temp.Count() - 1);
+                }
+            }
         }
         #endregion
 
@@ -4163,6 +4200,17 @@ namespace CodePractice
                     }
                     if (pass) return i;
                 }
+            }
+            return -1;
+        }
+        #endregion
+
+        #region #136 grouping
+        public int SingleNumber(int[] nums)
+        {
+            foreach (var item in nums.GroupBy(x => x))
+            {
+                if (item.Count() == 1) return item.Key;
             }
             return -1;
         }
@@ -4325,9 +4373,6 @@ namespace CodePractice
         }
         #endregion
 
-        #region 150
-        #endregion
-
         #region #151
         public string ReverseWords(string s)
         {
@@ -4383,6 +4428,43 @@ namespace CodePractice
                 s[j] = temp;
             }
         }
+
+        public string ReverseWords151(string s)
+        {
+            var res = new List<string>();
+            int len = s.Length;
+            int leftIndex = len - 1;
+            int rightIndex = len - 1;
+            for (int i = len - 1; i >= 0; i--)
+            {
+                if (s[i] == ' ')
+                {
+                    if (leftIndex != rightIndex || (leftIndex >= 0 && s[leftIndex] != ' '))
+                    {
+                        res.Add(s.Substring(leftIndex, rightIndex - leftIndex + 1));
+                    }
+                    while (i >= 0 && s[i] == ' ')
+                    {
+                        i--;
+                    }
+                    rightIndex = i;
+                    leftIndex = i;
+
+                }
+                else
+                {
+                    leftIndex = i;
+                }
+
+            }
+
+            if (leftIndex != rightIndex || (leftIndex >= 0 && s[leftIndex] != ' '))
+            {
+                res.Add(s.Substring(leftIndex, rightIndex - leftIndex + 1));
+            }
+
+            return String.Join(" ", res);
+        }
         #endregion
 
         #region 152 review 
@@ -4412,7 +4494,27 @@ namespace CodePractice
         #region #155 - see MinStack
         #endregion
 
-        #region #160 ListNode - not completed
+        #region #160 ListNode
+        public ListNode GetIntersectionNode(ListNode headA, ListNode headB)
+        {
+            var p1 = headA;
+            var p2 = headB;
+
+            if (p1 == null || p2 == null) return null;
+
+            while (p1 != null && p2 != null && p1 != p2)
+            {
+                p1 = p1.next;
+                p2 = p2.next;
+
+                if (p1 == p2) return p1;
+
+                if (p1 == null) p1 = headB;
+                if (p2 == null) p2 = headA;
+            }
+
+            return p1;
+        }
         #endregion
 
         #region 162
@@ -4597,6 +4699,32 @@ namespace CodePractice
                 }
             }
         }
+
+        public void Rotate189(int[] nums, int k)
+        {
+            int len = nums.Length;
+            if (len == 1) return;
+            if (k >= len)
+            {
+                k = k % len;
+            }
+            if (k == 0) return;
+            var list = new int[k];
+            for (int i = len - k; i < len; i++)
+            {
+                list[i - len + k] = nums[i];
+            }
+
+            for (int i = len - 1; i >= k; i--)
+            {
+                nums[i] = nums[i - k];
+            }
+
+            for (int i = 0; i < k; i++)
+            {
+                nums[i] = list[i];
+            }
+        }
         #endregion
 
         #region #198
@@ -4617,9 +4745,47 @@ namespace CodePractice
             }
             return max;
         }
+
+        public int Rob109dp(int[] nums)
+        {
+            int len = nums.Length;
+            if (len == 1) return nums[0];
+            int[] dp = new int[len];
+            dp[0] = nums[0];
+            dp[1] = nums[1];
+            for (int i = 2; i < len; i++)
+            {
+                var max = 0;
+                for (int j = 0; j < i - 1; j++)
+                {
+                    max = Math.Max(max, dp[j]);
+                }
+                dp[i] = max + nums[i];
+            }
+            return dp.Max();
+        }
         #endregion
 
-        #region 200
+        #region 199
+        public IList<int> RightSideView(TreeNode root)
+        {
+            var list = new List<int>();
+            FindRightValues(list, root, 0, new Dictionary<int, bool>());
+            return list;
+        }
+
+        private void FindRightValues(IList<int> list, TreeNode node, int depth, Dictionary<int, bool> dict)
+        {
+            if (node == null) return;
+            if (!dict.ContainsKey(depth))
+            {
+                list.Add(node.val);
+                dict.Add(depth, true);
+            }
+
+            FindRightValues(list, node.right, depth + 1, dict);
+            FindRightValues(list, node.left, depth + 1, dict);
+        }
         #endregion
         #endregion
 
