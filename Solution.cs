@@ -4842,6 +4842,31 @@ namespace CodePractice
             return head;
         }
 
+        public ListNode RemoveElements203(ListNode head, int val)
+        {
+            ListNode node = null;
+            var result = node;
+            while (head != null)
+            {
+                if (head.val != val)
+                {
+                    if (node == null)
+                    {
+                        node = new ListNode(head.val);
+                        result = node;
+                    }
+                    else
+                    {
+                        node.next = new ListNode(head.val);
+                        node = node.next;
+                    }
+                }
+                head = head.next;
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region 204 review
@@ -4866,7 +4891,7 @@ namespace CodePractice
         }
         #endregion
 
-        #region #205 word pattern review
+        #region #205 word pattern
         public bool IsIsomorphic(string s, string t)
         {
             int len = s.Length;
@@ -4906,6 +4931,60 @@ namespace CodePractice
         }
         #endregion
 
+        #region 207
+        public bool CanFinish(int numCourses, int[][] prerequisites)
+        {
+            int len = prerequisites.Length;
+            if (len == 0) return true;
+            var dic = new Dictionary<int, List<int>>();
+            for (int i = 0; i < len; i++)
+            {
+                if (!dic.ContainsKey(prerequisites[i][0]))
+                {
+                    dic.Add(prerequisites[i][0], new List<int>());
+                }
+                dic[prerequisites[i][0]].Add(prerequisites[i][1]);
+            }
+            var hash = new HashSet<int>();
+
+            for (int i = 0; i < numCourses; i++)
+            {
+                if (!dic.ContainsKey(i))
+                {
+                    hash.Add(i);
+                }
+                else
+                {
+                    var list = new List<int>();
+                    list.Add(i);
+                    if (!CanFinish(i, hash, dic, list)) return false;
+                    hash.Add(i);
+                }
+            }
+            return true;
+        }
+
+        private bool CanFinish(int currentCourse, HashSet<int> hash, Dictionary<int, List<int>> dic, List<int> ogCourses)
+        {
+            foreach (var re in dic[currentCourse])
+            {
+                if (hash.Contains(re) || !dic.ContainsKey(re))
+                {
+                    hash.Add(re);
+                }
+                else
+                {
+                    if (ogCourses.Contains(re)) return false;
+                    ogCourses.Add(re);
+                    if (!CanFinish(re, hash, dic, ogCourses)) return false;
+                    hash.Add(re);
+                }
+            }
+
+            return true;
+        }
+        #endregion
+
         #region 209
         public int MinSubArrayLen(int target, int[] nums)
         {
@@ -4930,7 +5009,6 @@ namespace CodePractice
                     {
                         sum -= nums[low];
                         low++;
-
                     }
                     if ((high - low + 2) < min)
                     {
@@ -4940,6 +5018,54 @@ namespace CodePractice
             }
             return min == N + 1 ? 0 : min;
         }
+        #endregion
+
+        #region 210
+        public int[] FindOrder(int numCourses, int[][] prerequisites)
+        {
+            int len = prerequisites.Length;
+
+            if (len == 0)
+            {
+                int[] result = new int[numCourses];
+                for (int i = 0; i < numCourses; i++)
+                {
+                    result[i] = i;
+                }
+                return result;
+            }
+            var dic = new Dictionary<int, List<int>>();
+            for (int i = 0; i < len; i++)
+            {
+                if (!dic.ContainsKey(prerequisites[i][0]))
+                {
+                    dic.Add(prerequisites[i][0], new List<int>());
+                }
+                dic[prerequisites[i][0]].Add(prerequisites[i][1]);
+            }
+            var hash = new HashSet<int>();
+
+            for (int i = 0; i < numCourses; i++)
+            {
+                if (!dic.ContainsKey(i))
+                {
+                    hash.Add(i);
+                }
+                else
+                {
+                    var list = new List<int>();
+                    list.Add(i);
+                    if (!CanFinish(i, hash, dic, list)) return new int[0];
+                    hash.Add(i);
+                }
+
+            }
+            return hash.ToArray();
+        }
+        #endregion
+
+        #region 211
+        // see WordDictionary
         #endregion
 
         #region 213
