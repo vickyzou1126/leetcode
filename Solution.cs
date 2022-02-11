@@ -6081,6 +6081,41 @@ namespace CodePractice
             return t[0];
         }
         #endregion
+
+        #region 392
+        public bool IsSubsequence(string s, string t)
+        {
+            var slen = s.Length;
+            if (slen == 0) return true;
+            int spos = 0;
+            for(int i = 0; i < t.Length; i++)
+            {
+                if (t[i] == s[spos])
+                {
+                    spos++;
+                }
+                if (spos == slen) return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region 397
+        public int IntegerReplacement(int n)
+        {
+            if (n == int.MaxValue) return 32;
+
+            if (n == 1)
+                return 0;
+            if (n % 2 == 1) return 1 + Math.Min(IntegerReplacement(n - 1),
+                IntegerReplacement(n + 1));
+            else return 1 + IntegerReplacement(n / 2);
+        }
+        #endregion
+
+        #region 398
+        //see Solution1
+        #endregion
         #endregion
 
         #region 401-500
@@ -6338,6 +6373,32 @@ namespace CodePractice
             }
 
             return Math.Max(max, temp);
+        }
+        #endregion
+
+        #region 494
+        public int FindTargetSumWays(int[] nums, int target)
+        {
+            return FindTargetSumWays(nums, target, 0, 0, nums.Length, 0);
+        }
+
+        int FindTargetSumWays(int[] nums, int target, int sum, int start, int len, int res)
+        {
+            if (start == len)
+            {
+                if (sum == target)
+                {
+                    res++;
+                }
+                return res;
+            }
+
+            for (int i = start; i < len; i++)
+            {
+                res = FindTargetSumWays(nums, target, sum + nums[i], i + 1, len, res);
+                return FindTargetSumWays(nums, target, sum - nums[i], i + 1, len, res);
+            }
+            return res;
         }
         #endregion
 
@@ -9289,7 +9350,7 @@ namespace CodePractice
             }
             #endregion
 
-            #region 1512
+        #region 1512
             public int NumIdenticalPairs(int[] nums)
             {
                 int res = 0;
@@ -9343,10 +9404,25 @@ namespace CodePractice
 
                 return res;
             }
-            #endregion
 
-            #region 1528
-            public string RestoreString(string s, int[] indices)
+        public int NumIdenticalPairsc(int[] nums)
+        {
+            var dic = nums.GroupBy(x => x).ToDictionary(x => x, x => x.Count());
+            var goodPairCount = 0;
+            foreach (var k in dic.Keys)
+            {
+                int n = dic[k];
+                if (n >= 2)
+                {
+                    goodPairCount += (n * (n - 1)) / 2;
+                }
+            }
+            return goodPairCount;
+        }
+        #endregion
+
+        #region 1528
+        public string RestoreString(string s, int[] indices)
             {
                 char[] copys = new char[s.Length];
                 for (int i = 0; i < s.Length; i++)
@@ -9355,226 +9431,228 @@ namespace CodePractice
                 }
                 return String.Concat(copys);
             }
-            #endregion
+        #endregion
 
-            #region 1539 review
-            public int FindKthPositive(int[] arr, int k)
+        #region 1539 review
+        public int FindKthPositive(int[] arr, int k)
+        {
+            int diff = 0;
+            int len = arr.Length;
+            for (int i = 0; i < len; i++)
             {
-                int diff = 0;
-                int len = arr.Length;
-                for (int i = 0; i < len; i++)
+                if (i + diff != (arr[i] - 1))
                 {
-                    if (i + diff != (arr[i] - 1))
+                    for (int j = arr[i] - 1 - i - diff; j >= 1; j--)
                     {
-                        for (int j = arr[i] - 1 - i - diff; j >= 1; j--)
-                        {
-                            k--;
-                            if (k == 0) return arr[i] - j;
-                        }
-                        diff = arr[i] - i - 1;
+                        k--;
+                        if (k == 0) return arr[i] - j;
                     }
+                    diff = arr[i] - i - 1;
                 }
-                int missingNum = arr[len - 1];
-                while (k > 0)
-                {
-                    k--;
-                    missingNum++;
-                }
-                return missingNum;
+            }
+            int missingNum = arr[len - 1];
+            while (k > 0)
+            {
+                k--;
+                missingNum++;
+            }
+            return missingNum;
+        }
+
+        public int FindKthPositive2(int[] arr, int k)
+        {
+
+            int num = 1;
+            int i = 0;
+            int count = 0;
+            while (i < arr.Length)
+            {
+                if (num == arr[i])
+                    i++;
+                else
+                    count++;
+
+                if (count == k)
+                    return num;
+
+                num++;
             }
 
-            public int FindKthPositive2(int[] arr, int k)
-            {
+            return num + k - count - 1;
 
-                int num = 1;
-                int i = 0;
-                int count = 0;
-                while (i < arr.Length)
+        }
+        #endregion
+
+        #region 1550
+        public bool ThreeConsecutiveOdds(int[] arr)
+        {
+            int len = arr.Length;
+            for (int i = 0; i < len - 2; i++)
+            {
+                if (arr[i] % 2 == 1)
                 {
-                    if (num == arr[i])
+                    if (arr[i + 1] % 2 == 1)
+                    {
+                        if (arr[i + 2] % 2 == 1)
+                        {
+                            return true;
+                        }
                         i++;
+                    }
                     else
-                        count++;
-
-                    if (count == k)
-                        return num;
-
-                    num++;
-                }
-
-                return num + k - count - 1;
-
-            }
-            #endregion
-
-            #region 1550
-            public bool ThreeConsecutiveOdds(int[] arr)
-            {
-                int len = arr.Length;
-                for (int i = 0; i < len - 2; i++)
-                {
-                    if (arr[i] % 2 == 1)
                     {
-                        if (arr[i + 1] % 2 == 1)
+                        i++;
+                    }
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region 1566 review
+        public bool ContainsPattern(int[] arr, int m, int k)
+        {
+            int len = arr.Length;
+            for (int i = 0; i <= len - m * k; i++)
+            {
+                int j = i;
+                while (j <= m * k + i - m - 1)
+                {
+                    if (arr[j] != arr[j + m]) break;
+                    j++;
+                }
+                if (j == m * k + i - m) return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region 1572
+        public int DiagonalSum(int[][] mat)
+        {
+            int len = mat.Length;
+            bool reduce = len % 2 == 1;
+            int res = 0;
+            for (int i = 0; i < len; i++)
+            {
+                res += mat[i][len - i - 1];
+                res += mat[i][i];
+            }
+            if (reduce)
+            {
+                res -= mat[len / 2][len / 2];
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1574 remember
+        public int FindLengthOfShortestSubarray(int[] arr)
+        {
+            int len = arr.Length;
+            if (len == 1) return 0;
+            int lowIndex = 0;
+            while (lowIndex < len - 1 && arr[lowIndex] <= arr[lowIndex + 1])
+            {
+                lowIndex++;
+            }
+            if (lowIndex == len - 1) return 0;
+            int highIndex = len - 1;
+            while (highIndex > 0 && arr[highIndex] >= arr[highIndex - 1])
+            {
+                highIndex--;
+            }
+
+            int res = highIndex;
+            for (int i = 0; i <= lowIndex; i++)
+            {
+                while (highIndex < len && arr[i] > arr[highIndex])
+                {
+                    highIndex++;
+                }
+                res = Math.Min(res, highIndex - i - 1);
+            }
+
+            return res;
+        }
+        #endregion
+
+        #region 1582
+        public int NumSpecial(int[][] mat)
+        {
+            var dic = new Dictionary<int, bool>();
+            int res = 0;
+            for (int i = 0; i < mat.Length; i++)
+            {
+                if (mat[i].Sum() == 1)
+                {
+                    var col = Array.IndexOf(mat[i], 1);
+                    if (!dic.ContainsKey(col))
+                    {
+                        var sum = 0;
+                        for (int j = 0; j < mat.Length; j++)
                         {
-                            if (arr[i + 2] % 2 == 1)
-                            {
-                                return true;
-                            }
-                            i++;
+                            sum += mat[j][col];
+                            if (sum > 1) break;
                         }
-                        else
+                        dic.Add(col, sum == 1);
+                    }
+                    if (dic[col]) res++;
+                }
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1588
+        public int SumOddLengthSubarrays(int[] arr)
+        {
+            var res = arr.Sum();
+            var len = 3;
+            while (len <= arr.Length)
+            {
+                for (int i = 0; i <= arr.Length - len; i++)
+                {
+                    int tempindex = i;
+                    while (tempindex < i + len)
+                    {
+                        res += arr[tempindex];
+                        tempindex++;
+                    }
+                }
+                len += 2;
+            }
+            return res;
+        }
+        #endregion
+
+        #region 1598
+        public int MinOperations(string[] logs)
+        {
+            int depth = 0;
+            for (int i = 0; i < logs.Length; i++)
+            {
+                switch (logs[i])
+                {
+                    case "../":
                         {
-                            i++;
+                            depth--;
+                            if (depth < 0) depth = 0;
+                            break;
                         }
-                    }
+                    case "./": break;
+                    default: depth++; break;
                 }
-                return false;
             }
-            #endregion
+            return depth;
+        }
+        #endregion
 
-            #region 1566 review
-            public bool ContainsPattern(int[] arr, int m, int k)
-            {
-                int len = arr.Length;
-                for (int i = 0; i <= len - m * k; i++)
-                {
-                    int j = i;
-                    while (j <= m * k + i - m - 1)
-                    {
-                        if (arr[j] != arr[j + m]) break;
-                        j++;
-                    }
-                    if (j == m * k + i - m) return true;
-                }
-                return false;
-            }
-            #endregion
-
-            #region 1572
-            public int DiagonalSum(int[][] mat)
-            {
-                int len = mat.Length;
-                bool reduce = len % 2 == 1;
-                int res = 0;
-                for (int i = 0; i < len; i++)
-                {
-                    res += mat[i][len - i - 1];
-                    res += mat[i][i];
-                }
-                if (reduce)
-                {
-                    res -= mat[len / 2][len / 2];
-                }
-                return res;
-            }
-            #endregion
-
-            #region 1574 remember
-            public int FindLengthOfShortestSubarray(int[] arr)
-            {
-                int len = arr.Length;
-                if (len == 1) return 0;
-                int lowIndex = 0;
-                while (lowIndex < len - 1 && arr[lowIndex] <= arr[lowIndex + 1]) {
-                    lowIndex++;
-                }
-                if (lowIndex == len - 1) return 0;
-                int highIndex = len - 1;
-                while (highIndex > 0 && arr[highIndex] >= arr[highIndex - 1])
-                {
-                    highIndex--;
-                }
-
-                int res = highIndex;
-                for (int i = 0; i <= lowIndex; i++)
-                {
-                    while (highIndex < len && arr[i] > arr[highIndex])
-                    {
-                        highIndex++;
-                    }
-                    res = Math.Min(res, highIndex - i - 1);
-                }
-
-                return res;
-            }
-            #endregion
-
-            #region 1582
-            public int NumSpecial(int[][] mat)
-            {
-                var dic = new Dictionary<int, bool>();
-                int res = 0;
-                for (int i = 0; i < mat.Length; i++)
-                {
-                    if (mat[i].Sum() == 1)
-                    {
-                        var col = Array.IndexOf(mat[i], 1);
-                        if (!dic.ContainsKey(col))
-                        {
-                            var sum = 0;
-                            for (int j = 0; j < mat.Length; j++)
-                            {
-                                sum += mat[j][col];
-                                if (sum > 1) break;
-                            }
-                            dic.Add(col, sum == 1);
-                        }
-                        if (dic[col]) res++;
-                    }
-                }
-                return res;
-            }
-            #endregion
-
-            #region 1588
-            public int SumOddLengthSubarrays(int[] arr)
-            {
-                var res = arr.Sum();
-                var len = 3;
-                while (len <= arr.Length)
-                {
-                    for (int i = 0; i <= arr.Length - len; i++)
-                    {
-                        int tempindex = i;
-                        while (tempindex < i + len)
-                        {
-                            res += arr[tempindex];
-                            tempindex++;
-                        }
-                    }
-                    len += 2;
-                }
-                return res;
-            }
-            #endregion
-
-            #region 1598
-            public int MinOperations(string[] logs)
-            {
-                int depth = 0;
-                for (int i = 0; i < logs.Length; i++)
-                {
-                    switch (logs[i])
-                    {
-                        case "../":
-                            {
-                                depth--;
-                                if (depth < 0) depth = 0;
-                                break;
-                            }
-                        case "./": break;
-                        default: depth++; break;
-                    }
-                }
-                return depth;
-            }
-            #endregion
-            #endregion
+        #endregion
 
         #region 1601-1700
-            #region 1608
-            public int SpecialArray(int[] nums)
+        #region 1608
+        public int SpecialArray(int[] nums)
             {
                 var dict = nums.ToLookup(x => x).ToDictionary(x => x.Key, x => x.Count());
                 for (int i = 1; i <= dict.Keys.Max(); i++)
@@ -9685,7 +9763,6 @@ namespace CodePractice
         public int GetMaximumConsecutive(int[] coins)
         {
             Array.Sort(coins);
-            const int min = 0;
             int max = 0;
 
             // Looping through coins array once, so O(n) time, O(1) space (no additional array created)
@@ -9696,12 +9773,10 @@ namespace CodePractice
                 // will try to "merge" intervals: [min=0, max], [min + coin, max + coin]
                 // can "merge" if min + coin is close enough to max or even smaller
 
-                int nextMin = min + coin;
-                if (nextMin > max + 1)
+                if (coin > max + 1)
                     return max + 1; // cannot "merge" intervals, so return length of current interval
 
-                int nextMax = max + coin;
-                max = nextMax; // "merge" intervals, i.e. make the interval bigger
+                max = max + coin; // "merge" intervals, i.e. make the interval bigger
             }
 
             return max + 1;
